@@ -1,4 +1,4 @@
-package zxb.zweibo;
+package zxb.zweibo.fragment;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
@@ -21,6 +21,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import zxb.zweibo.R;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.

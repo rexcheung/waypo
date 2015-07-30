@@ -1,4 +1,8 @@
 apply plugin: 'com.android.application'
+//AndroidAnnotation
+apply plugin: 'android-apt'
+def AAVersion = '3.2+'
+//----------------
 
 android {
     compileSdkVersion 22
@@ -17,9 +21,46 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.1'
+    //gson
+    compile 'com.google.code.gson:gson:2.2.4'
+    //volley
+    compile files('libs/volley-1.0.17.jar')
+    //WeiboSDK
+    compile project(':WeiboSDK')
+    //AndroidAnnotation
+    apt "org.androidannotations:androidannotations:$AAVersion"
+    compile "org.androidannotations:androidannotations-api:$AAVersion"
+    //-----------------
+    compile files('libs/EventBus-2.4.1.jar')
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2+'
+
+    }
+}
+
+//AndroidAnnotation
+apt {
+    arguments {
+        androidManifestFile variant.outputs[0].processResources.manifestFile
+//        resourcePackageName zxb.zweibo
+    }
+}
+
+
+//------------------

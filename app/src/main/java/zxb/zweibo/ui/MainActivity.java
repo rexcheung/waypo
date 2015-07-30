@@ -1,26 +1,38 @@
-package zxb.zweibo;
+package zxb.zweibo.ui;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.ViewById;
+
+import de.greenrobot.event.EventBus;
+import zxb.zweibo.common.AccessTokenKeeper;
+import zxb.zweibo.bean.EAuth;
+import zxb.zweibo.fragment.NavigationDrawerFragment;
+import zxb.zweibo.R;
+import zxb.zweibo.widget.AppManager;
+
+@EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+
+    private Oauth2AccessToken mAccessToken;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -32,11 +44,19 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
+    @ViewById(R.id.drawer_layout)
+    DrawerLayout drawer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
+        EventBus.getDefault().register(this);
+        checkLogin();
+    }
 
+    @AfterViews
+    protected void init() {
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -44,7 +64,36 @@ public class MainActivity extends ActionBarActivity
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+                drawer);
+
+        AppManager.getAppManager().addActivity(this);
+    }
+
+    /**
+     * 如果没有授权信息则打开启动Activity
+     */
+    private void checkLogin() {
+        mAccessToken = new Oauth2AccessToken();
+        mAccessToken = AccessTokenKeeper.readAccessToken(this);
+        if (!mAccessToken.isSessionValid()) {
+            startActivity(new Intent(this, AuthActivity.class));
+        }
+    }
+
+    /**
+     * EventBus回调函数，当授权成功后即调用此方法
+     * @param auth
+     */
+    public final void onEventMainThread(final EAuth auth) {
+        if(EAuth.SUCCESS == auth.getCode()){
+            Toast.makeText(this, "MainActivity.Success", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
