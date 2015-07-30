@@ -1,6 +1,7 @@
 package zxb.zweibo.ui.test;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,6 +20,7 @@ import java.text.SimpleDateFormat;
 import zxb.zweibo.R;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
+import zxb.zweibo.ui.AuthActivity;
 
 /**
  * 测试授权
@@ -55,6 +57,16 @@ public class TestAuthActivity extends Activity{
                 mSsoHandler.authorizeWeb(new AuthListener());
             }
         });
+
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        mAccessToken = AccessTokenKeeper.readAccessToken(this);
+        if (mAccessToken.isSessionValid()) {
+//            startActivity(new Intent(this, AuthActivity.class));
+            updateTokenView(true);
+        }
     }
 
     class AuthListener implements WeiboAuthListener {
@@ -70,9 +82,9 @@ public class TestAuthActivity extends Activity{
                 content.setText(mAccessToken.toString()+"\n, Phone: "+phoneNum);
 
                 // 保存 Token 到 SharedPreferences
-                /*AccessTokenKeeper.writeAccessToken(TestAuthActivity.this, mAccessToken);
+                AccessTokenKeeper.writeAccessToken(TestAuthActivity.this, mAccessToken);
                 Toast.makeText(TestAuthActivity.this,
-                        R.string.weibosdk_demo_toast_auth_success, Toast.LENGTH_SHORT).show();*/
+                        R.string.weibosdk_demo_toast_auth_success, Toast.LENGTH_SHORT).show();
             } else {
                 // 以下几种情况，您会收到 Code：
                 // 1. 当您未在平台上注册的应用程序的包名与签名时；

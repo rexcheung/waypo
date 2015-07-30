@@ -18,7 +18,8 @@ import zxb.zweibo.R;
 public class TestMainActivity extends Activity{
 
     String AUTH = "OAuth2";
-    String[] datas = {AUTH};
+    String TIME_LINE = "TimeLine";
+    String[] datas = {AUTH, TIME_LINE};
     ListView listView;
 
     @Override
@@ -41,6 +42,8 @@ public class TestMainActivity extends Activity{
 
             if (AUTH.equals(item)) {
                 cls = TestAuthActivity.class;
+            } else if (TIME_LINE.equals(item)){
+                cls = TestFTimeLinesActivity.class;
             }
 
             Intent intent = new Intent(TestMainActivity.this, cls);

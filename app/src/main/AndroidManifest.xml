@@ -14,25 +14,32 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <!--android:name=".ui.MainActivity_"-->
+
+        <!-- 正常运行的主页 -->
         <activity
             android:name=".ui.MainActivity_"
             android:label="@string/app_name" >
+
+        </activity>
+
+        <!-- 测试主页-->
+        <activity android:name=".ui.test.TestMainActivity"
+                  android:label="@string/app_name">>
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <!--<activity android:name=".ui.MainActivity_" />-->
+
         <!-- 启动画面 -->
         <activity android:name=".ui.AuthActivity" />
 
-        <!-- 测试主页-->
-        <!--<activity android:name=".ui.test.TestMainActivity" />-->
         <!-- 用户授权测试页-->
-        <activity android:name=".ui.test.TestAuthActivity"/>
+        <activity android:name=".ui.test.TestAuthActivity" />
+        <!-- 测试接口：statuses/friends_timeline, 获取当前登录用户及其所关注用户的最新微博 -->
+        <activity android:name=".ui.test.TestFTimeLinesActivity" />
 
         <!-- 网页授权Activity -->
         <!--必须注册在微博授权，分享微博时候用到 -->
