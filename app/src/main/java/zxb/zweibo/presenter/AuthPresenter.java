@@ -57,6 +57,8 @@ public class AuthPresenter {
 
     public void login() {
         mSsoHandler.authorizeWeb(new AuthListener());
+        //All-in-one授权，安装到手机后提示未审核，又没有弹出Web授权页面，所以暂时只能用WEB授权
+//        mSsoHandler.authorize(new AuthListener());
     }
 
 

@@ -24,7 +24,8 @@ public class FTimeLine {
      "has_unread": 0
      */
 
-    private StatusContent[] statuses;
+//    private StatusContent[] statuses;
+    private ArrayList<StatusContent> statuses;
 
     private String[] advertises;
 
@@ -53,11 +54,19 @@ public class FTimeLine {
 
     private int has_unread;
 
-    public StatusContent[] getStatuses() {
+    /*public StatusContent[] getStatuses() {
         return statuses;
     }
 
     public void setStatuses(StatusContent[] statuses) {
+        this.statuses = statuses;
+    }*/
+
+    public ArrayList<StatusContent> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(ArrayList<StatusContent> statuses) {
         this.statuses = statuses;
     }
 

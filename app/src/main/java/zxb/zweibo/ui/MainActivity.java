@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
@@ -24,6 +25,7 @@ import org.androidannotations.annotations.ViewById;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.bean.EAuth;
+import zxb.zweibo.fragment.FTimeLinsFragment;
 import zxb.zweibo.fragment.NavigationDrawerFragment;
 import zxb.zweibo.R;
 import zxb.zweibo.widget.AppManager;
@@ -53,6 +55,7 @@ public class MainActivity extends ActionBarActivity
 //        setContentView(R.layout.activity_main);
         EventBus.getDefault().register(this);
         checkLogin();
+
     }
 
     @AfterViews
@@ -96,12 +99,19 @@ public class MainActivity extends ActionBarActivity
         EventBus.getDefault().unregister(this);
     }
 
+    /**
+     * 侧拉菜单点击的回调函数
+     * @param position
+     */
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
+        /*fragmentManager.beginTransaction()
                 .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .commit();*/
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, FTimeLinsFragment.newInstance(position + 1, this))
                 .commit();
     }
 
@@ -183,7 +193,13 @@ public class MainActivity extends ActionBarActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_timeline, container, false);
+            int arg = getArguments().getInt(ARG_SECTION_NUMBER);
+            TextView text = (TextView) rootView.findViewById(R.id.text);
+            text.setText("Page : "+ arg);
+
+            //默认生成的布局
+//            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             return rootView;
         }
 

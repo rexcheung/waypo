@@ -6,7 +6,7 @@ def AAVersion = '3.2+'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '23.0.0 rc3'
 
     defaultConfig {
         applicationId "zxb.zweibo"
@@ -37,11 +37,14 @@ dependencies {
     compile files('libs/volley-1.0.17.jar')
     //WeiboSDK
     compile project(':WeiboSDK')
+    //RecycleView
+    compile files('libs/recyclerview.jar')
+    //EventBus
+    compile files('libs/EventBus-2.4.1.jar')
     //AndroidAnnotation
     apt "org.androidannotations:androidannotations:$AAVersion"
     compile "org.androidannotations:androidannotations-api:$AAVersion"
     //-----------------
-    compile files('libs/EventBus-2.4.1.jar')
 }
 
 buildscript {

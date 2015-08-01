@@ -20,8 +20,6 @@ import com.sina.weibo.sdk.utils.LogUtil;
 
 import zxb.zweibo.R;
 import zxb.zweibo.bean.FTimeLine;
-import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.bean.testEntity;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
 
@@ -48,6 +46,13 @@ public class TestFTimeLinesActivity extends Activity {
 
         content = (TextView) findViewById(R.id.content);
         content.setText("获取最新微博");
+        content.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Toast.makeText(TestFTimeLinesActivity.this, "hoho", Toast.LENGTH_LONG).show();
+
+            }
+        });
 
         startBtn = (Button) findViewById(R.id.web);
         startBtn.setText("点击获取");
@@ -57,14 +62,16 @@ public class TestFTimeLinesActivity extends Activity {
                 mStatusesAPI.friendsTimeline(0L, 0L, 10, 1, false, 0, false, mListener);
             }
         });
+
     }
+
 
     private RequestListener mListener = new RequestListener() {
         @Override
         public void onComplete(String response) {
             if (!TextUtils.isEmpty(response)) {
                 Gson gson = new Gson();
-//                FTimeLine fTimeLine = gson.fromJson(response, FTimeLine.class);
+                FTimeLine fTimeLine = gson.fromJson(response, FTimeLine.class);
 //                testEntity fTimeLine = gson.fromJson(response, testEntity.class);
                 LogUtil.i(TAG, response);
                 if (response.startsWith("{\"statuses\"")) {
