@@ -36,7 +36,7 @@ public class FTimeLine {
     /**
      * 暂时不支持
      */
-    private int previous_cursor;
+    private double previous_cursor;
     /**
      * 暂时不支持
      */
@@ -94,11 +94,11 @@ public class FTimeLine {
         this.hasvisible = hasvisible;
     }
 
-    public int getPrevious_cursor() {
+    public double getPrevious_cursor() {
         return previous_cursor;
     }
 
-    public void setPrevious_cursor(int previous_cursor) {
+    public void setPrevious_cursor(double previous_cursor) {
         this.previous_cursor = previous_cursor;
     }
 
