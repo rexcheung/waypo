@@ -49,28 +49,42 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
     @Override
     public void onBindViewHolder(final FTimeLinsAdapter.Holder viewHolder, int position) {
-        //>>>>>>>>>>>>>>>>>>>>文字信息处理>>>>>>>>>>>>>>>>>>>>>>>
         ArrayList<StatusContent> list = (ArrayList<StatusContent>) mStatusesList;
-        StatusContent statusContent = mStatusesList.get(position);
-        User user = statusContent.getUser();
+        final StatusContent statusContent = mStatusesList.get(position);
 
-        viewHolder.tvScreenName.setText(user.getScreen_name());
+        initImage(viewHolder, statusContent);
+
+        initWord(viewHolder, statusContent);
+
+        initAttitudes(viewHolder, statusContent);
+    }
+
+    @Override
+    public int getItemCount() {
+        return mStatusesList.size();
+    }
+
+    /**
+     * 处理文字信息.
+     * @param viewHolder ViewHolder
+     * @param statusContent
+     */
+    private void initWord(Holder viewHolder, StatusContent statusContent) {
+        viewHolder.tvScreenName.setText(statusContent.getUser().getScreen_name());
 
         StringBuilder source = new StringBuilder(statusContent.getSource());
         int begin = source.indexOf(">");
         int end = source.indexOf("</a");
-//            Log.i(TAG, )
-        String realSrouce = source.substring(begin+1, end-1);
 
-        viewHolder.tvFrom.setText(statusContent.getCreated_at()+"  " + realSrouce);
+        //XX分钟前，发自iPhoneX
+        viewHolder.tvFrom.setText(statusContent.getCreated_at()+"  " + source.substring(begin+1, end-1));
+        source = null;
+
         viewHolder.tvContent.setText(statusContent.getText());
 
         //如果为转发
         StatusContent retweeted_status = statusContent.getRetweeted_status();
         User reUser = null;
-        String like = null;
-        String rePost = null;
-        String commentCount = null;
         //判断是否原创微博
         if (retweeted_status != null) {
             if (retweeted_status.getUser() != null) {
@@ -90,16 +104,27 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
             //隐藏分隔线
             viewHolder.layDiver.setVisibility(View.GONE);
         }
+    }
 
-        //>>>>>>>>>>>>>>>>>>>赞，转和评论数，这里开始>>>>>>>>>>>>>>>>>>>>
+    /**
+     * 每条微博底部的赞，转和评论数
+     * @param viewHolder ViewHolder
+     * @param statusContent 该条微博的内容
+     */
+    private void initAttitudes(Holder viewHolder, StatusContent statusContent) {
+        String like;
+        String rePost;
+        String commentCount;
+
         //赞，转和评论数处理逻辑:转发者只要其中不为0，则显示转发者的数量
         like = String.valueOf(statusContent.getAttitudes_count());
         rePost = statusContent.getReposts_count();
         commentCount = statusContent.getComments_count();
 
+        StatusContent retweeted_status = statusContent.getRetweeted_status();
         //没有则显示原作者的相应数量
-        if(retweeted_status != null){
-            if (!like.equals("0") && !rePost.equals("0") && !commentCount.equals("0")) {
+        if (retweeted_status != null) {
+            if (!"0".equals(like) && !"0".equals(rePost) && !"0".equals(commentCount)) {
                 like = String.valueOf(retweeted_status.getAttitudes_count());
                 rePost = retweeted_status.getReposts_count();
                 commentCount = retweeted_status.getComments_count();
@@ -107,52 +132,88 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
         }
 
         //底部，赞，转，评论数：如果为哪一项0，则不显示数字，只显示图标
-        if(!like.equals("0")){
+        if (!"0".equals(like)) {
             viewHolder.tvLikeCount.setText(like);
         }
 
-        if(!rePost.equals("0")) {
+        if (!"0".equals(rePost)) {
             viewHolder.tvRepostCount.setText(rePost);
         }
 
-        if(!commentCount.equals("0")){
+        if (!"0".equals(commentCount)) {
             viewHolder.tvCommentCount.setText(commentCount);
         }
-        //<<<<<<<<<<<<<<<<<<赞，转和评论数<<<<<<<<<<<<<<<<<<<<<<<<<
-        //<<<<<<<<<<<<<<<<<文字信息处理到此<<<<<<<<<<<<<<<<<<<<<<<<<
+    }
 
-        //>>>>>>>>>>>>>>>>>>>>图像处理>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    private VolleyHelper mVolleyHelper;
+    /**
+     * 显示图像，把不需要的ImageView设置为GONE
+     * @param viewHolder
+     * @param statusContent
+     */
+    private void initImage(Holder viewHolder, StatusContent statusContent) {
+        if(mVolleyHelper == null){
+            mVolleyHelper = new VolleyHelper(mContext);
+        }
+        resetImage(viewHolder.imgAvatar, R.drawable.icon_github);
+        resetImages(viewHolder.imgList, R.drawable.icon_github);
+
+        User user = statusContent.getUser();
+
+        //获取头像图片
+        mVolleyHelper.loadImg(mContext, viewHolder.imgAvatar, user.getProfile_image_url());
 
         PicUrls[] oriPicUrls = statusContent.getPic_urls();
-        String thumPic = statusContent.getThumbnail_pic();
-            /*if (oriPicUrls.length == 0 || oriPicUrls == null) {
-                for(ImageView img : viewHolder.imgList){
-                    img.setVisibility(View.GONE);
-                }
-            }else if(thumPic != null || thumPic.length() != 0){
-                viewHolder.imgList.get(0).setVisibility(View.VISIBLE);
-                VolleyHelper.loadImg(mContext, viewHolder.imgList.get(0), thumPic);
+        int length = oriPicUrls.length;
 
-                for (int i=1; i<9; i++){
-                    viewHolder.imgList.get(i).setVisibility(View.GONE);
-                }
-            }else*/
-        if(oriPicUrls.length != 0) {
-            VolleyHelper.loadMultiImg(mContext, viewHolder.imgList, oriPicUrls);
+        PicUrls[] rePicUrls = null;
+        int rePicLength = 0;
+        if (statusContent.getRetweeted_status() != null) {
+            rePicUrls = statusContent.getRetweeted_status().getPic_urls();
+            if (rePicUrls != null) {
+                rePicLength = rePicUrls.length;
+            }
         }
-        for (int i = oriPicUrls.length; i < 9; i++) {
+
+        if (length != 0) {
+            mVolleyHelper.loadMultiImg(mContext, viewHolder.imgList, oriPicUrls);
+        } else if (rePicLength != 0) {
+            mVolleyHelper.loadMultiImg(mContext, viewHolder.imgList, rePicUrls);
+        }
+
+        for (int i = length != 0 ? length : rePicLength; i < 9; i++) {
             viewHolder.imgList.get(i).setVisibility(View.GONE);
         }
-
-        VolleyHelper.loadImg(mContext, viewHolder.imgAvatar, user.getProfile_image_url());
-
-        //<<<<<<<<<<<<<<<<<<图像处理<<<<<<<<<<<<<<<<<<<<<<<<<
     }
 
-    @Override
-    public int getItemCount() {
-        return mStatusesList.size();
+    /**
+     * 把ITEM里面的所有IMAGE重设为默认的图片，
+     * ViewHolder复用的特性，导致ITEM的图片在未读取完成之前会显示复用前ITEM的图片，
+     * 所以要先将图片还原做默认的图片.
+     * 如果图片visible已经设置为GONE，则设置后也不会导致图片重新显示出来.
+     *
+     * @param imgList ITEM里面ImageView的List集合
+     * @param resId 要设置成的图片，这个必须是本地图片，否则就达不到重置的目的
+     */
+    private void resetImages(List<ImageView> imgList, int resId) {
+        if (imgList != null) {
+            for (ImageView img : imgList) {
+                resetImage(img, resId);
+            }
+        }
     }
+
+    private void resetImage(ImageView img, int resId) {
+        if (img != null) {
+            img.setImageResource(resId);
+        }
+    }
+
+    public void cleanCache(){
+        mVolleyHelper.clearCache();
+    }
+
 
     /**
      * ViewHolder

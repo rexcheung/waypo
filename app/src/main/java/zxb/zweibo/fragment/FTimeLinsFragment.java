@@ -117,7 +117,7 @@ public class FTimeLinsFragment extends Fragment {
         mStatusesAPI = new StatusesAPI(mContext, Constants.APP_KEY, mAccessToken);
 
         if(isInit == true){
-            mStatusesAPI.friendsTimeline(0L, 0L, 10, ++page, false, 0, false, mListener);
+            sendRequest();
         }
     }
 
@@ -127,16 +127,20 @@ public class FTimeLinsFragment extends Fragment {
         mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList);
         mRecyclerView.setAdapter(mAdapter);
 
-        mRecyclerView.setOnScrollListener(new OnBottomListener(llm){
+        mRecyclerView.setOnScrollListener(new OnBottomListener(llm) {
             @Override
             public void onBottom() {
-                if(isRefresing == false){
-                    mStatusesAPI.friendsTimeline(0L, 0L, 10, ++page, false, 0, false, mListener);
+                if (isRefresing == false) {
+                    sendRequest();
                     isRefresing = true;
                     Log.i(TAG, "Now refreshing...");
                 }
             }
         });
+    }
+
+    private void sendRequest(){
+        mStatusesAPI.friendsTimeline(0L, 0L, 20, ++page, false, 0, false, mListener);
     }
 
     private RequestListener mListener = new RequestListener() {
@@ -182,4 +186,12 @@ public class FTimeLinsFragment extends Fragment {
         Log.i(TAG, "Refresh finish");
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mAdapter != null) {
+            mAdapter.cleanCache();
+        }
+        Log.i(getClass().getSimpleName(), "onPause()");
+    }
 }

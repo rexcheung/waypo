@@ -19,7 +19,8 @@ public class TestMainActivity extends Activity{
 
     String AUTH = "OAuth2";
     String TIME_LINE = "TimeLine";
-    String[] datas = {AUTH, TIME_LINE};
+    String BIT_MAP = "BitMap";
+    String[] datas = {AUTH, TIME_LINE, BIT_MAP};
     ListView listView;
 
     @Override
@@ -44,6 +45,8 @@ public class TestMainActivity extends Activity{
                 cls = TestAuthActivity.class;
             } else if (TIME_LINE.equals(item)){
                 cls = TestFTimeLinesActivity.class;
+            } else if (BIT_MAP.equals(item)) {
+                cls = TestBitmapActivity.class;
             }
 
             Intent intent = new Intent(TestMainActivity.this, cls);

@@ -41,6 +41,8 @@
         <activity android:name=".ui.test.TestAuthActivity" />
         <!-- 测试接口：statuses/friends_timeline, 获取当前登录用户及其所关注用户的最新微博 -->
         <activity android:name=".ui.test.TestFTimeLinesActivity" />
+        <!--缓存测试-->
+        <activity android:name=".ui.test.TestBitmapActivity" />
 
         <!-- 网页授权Activity -->
         <!--必须注册在微博授权，分享微博时候用到 -->
