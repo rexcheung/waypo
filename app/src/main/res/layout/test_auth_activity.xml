@@ -20,4 +20,9 @@
         android:layout_centerInParent="true"
         android:layout_margin="10dp"
         android:text="请先授权"/>
+
+    <ImageView
+        android:id="@+id/imgTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 </RelativeLayout>

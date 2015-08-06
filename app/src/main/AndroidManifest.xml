@@ -31,7 +31,6 @@
         <activity android:name=".ui.test.TestMainActivity"
                   android:label="@string/app_name">>
 
-
         </activity>
 
         <!-- 启动画面 -->
@@ -43,6 +42,9 @@
         <activity android:name=".ui.test.TestFTimeLinesActivity" />
         <!--缓存测试-->
         <activity android:name=".ui.test.TestBitmapActivity" />
+        <!--Volley缓存测试-->
+        <activity android:name=".ui.test.TestVolleyCache" />
+
 
         <!-- 网页授权Activity -->
         <!--必须注册在微博授权，分享微博时候用到 -->

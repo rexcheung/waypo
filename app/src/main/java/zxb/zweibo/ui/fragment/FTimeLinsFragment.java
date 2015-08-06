@@ -1,4 +1,4 @@
-package zxb.zweibo.fragment;
+package zxb.zweibo.ui.fragment;
 
 
 import android.app.Activity;
@@ -20,8 +20,6 @@ import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
 import com.sina.weibo.sdk.openapi.models.ErrorInfo;
-import com.sina.weibo.sdk.openapi.models.Status;
-import com.sina.weibo.sdk.openapi.models.StatusList;
 import com.sina.weibo.sdk.utils.LogUtil;
 
 import java.util.ArrayList;
@@ -154,23 +152,21 @@ public class FTimeLinsFragment extends Fragment {
 
         @Override
         public void onWeiboException(WeiboException e) {
+            isRefresing = false;
             LogUtil.e(TAG, e.getMessage());
             ErrorInfo info = ErrorInfo.parse(e.getMessage());
             Toast.makeText(mContext, info.toString(), Toast.LENGTH_LONG).show();
         }
     };
 
+    Gson mGson = new Gson();
     /**
      * 如果是第一次初始化，则运行initDatas()
      * 否则刷新RecycleView
      * @param response
      */
     private void refresh(String response) {
-        Gson gson = null;
-        if(gson == null){
-            gson = new Gson();
-        }
-        mFTimeLine = gson.fromJson(response, FTimeLine.class);
+        mFTimeLine = mGson.fromJson(response, FTimeLine.class);
 
         if (isInit == true) {
             initDatas();

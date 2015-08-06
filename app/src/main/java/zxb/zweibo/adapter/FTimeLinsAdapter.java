@@ -15,6 +15,7 @@ import zxb.zweibo.R;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
+import zxb.zweibo.common.ImageUtil;
 import zxb.zweibo.common.VolleyHelper;
 
 /**
@@ -25,12 +26,14 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
     Context mContext;
     List<StatusContent> mStatusesList;
+    private ImageUtil imageUtil;
 
     private FTimeLinsAdapter(){}
 
     private FTimeLinsAdapter(Context context, List<StatusContent> statusesList){
         this.mContext = context;
         this.mStatusesList = statusesList;
+        imageUtil = new ImageUtil(mContext);
     }
 
     public static FTimeLinsAdapter newInstance(Context context, List<StatusContent> statusesList) {
@@ -146,43 +149,49 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
     }
 
 
-    private VolleyHelper mVolleyHelper;
+//    private VolleyHelper mVolleyHelper;
     /**
      * 显示图像，把不需要的ImageView设置为GONE
      * @param viewHolder
      * @param statusContent
      */
     private void initImage(Holder viewHolder, StatusContent statusContent) {
-        if(mVolleyHelper == null){
+        /*if(mVolleyHelper == null){
             mVolleyHelper = new VolleyHelper(mContext);
-        }
+        }*/
         resetImage(viewHolder.imgAvatar, R.drawable.icon_github);
         resetImages(viewHolder.imgList, R.drawable.icon_github);
 
         User user = statusContent.getUser();
 
         //获取头像图片
-        mVolleyHelper.loadImg(mContext, viewHolder.imgAvatar, user.getProfile_image_url());
+//        mVolleyHelper.loadImg(viewHolder.imgAvatar, user.getProfile_image_url());
+        imageUtil.showImage(viewHolder.imgAvatar, user.getProfile_image_url());
 
         PicUrls[] oriPicUrls = statusContent.getPic_urls();
         int length = oriPicUrls.length;
 
         PicUrls[] rePicUrls = null;
         int rePicLength = 0;
+        // 若为转发，则进入if里面
         if (statusContent.getRetweeted_status() != null) {
             rePicUrls = statusContent.getRetweeted_status().getPic_urls();
+            // 转发内容有多少张图片
             if (rePicUrls != null) {
                 rePicLength = rePicUrls.length;
             }
         }
 
         if (length != 0) {
-            mVolleyHelper.loadMultiImg(mContext, viewHolder.imgList, oriPicUrls);
+//            mVolleyHelper.loadMultiImg(viewHolder.imgList, oriPicUrls);
+            imageUtil.showImages(viewHolder.imgList, oriPicUrls);
         } else if (rePicLength != 0) {
-            mVolleyHelper.loadMultiImg(mContext, viewHolder.imgList, rePicUrls);
+//            mVolleyHelper.loadMultiImg(viewHolder.imgList, rePicUrls);
+            imageUtil.showImages(viewHolder.imgList, rePicUrls);
         }
 
-        for (int i = length != 0 ? length : rePicLength; i < 9; i++) {
+        // 把没有图片的ImageView隐藏
+        for (int i = (length != 0 ? length : rePicLength); i < 9; i++) {
             viewHolder.imgList.get(i).setVisibility(View.GONE);
         }
     }
@@ -211,7 +220,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
     }
 
     public void cleanCache(){
-        mVolleyHelper.clearCache();
+        imageUtil.clearMemoryCache();
     }
 
 

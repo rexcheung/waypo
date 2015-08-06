@@ -1,2 +1,3 @@
 include ':app'
-include ':WeiboSDK'
+include ':libraries:WeiboSDK'
+include ':libraries:base-diskcache'

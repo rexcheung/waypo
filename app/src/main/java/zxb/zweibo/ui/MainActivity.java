@@ -25,8 +25,8 @@ import org.androidannotations.annotations.ViewById;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.bean.EAuth;
-import zxb.zweibo.fragment.FTimeLinsFragment;
-import zxb.zweibo.fragment.NavigationDrawerFragment;
+import zxb.zweibo.ui.fragment.FTimeLinsFragment;
+import zxb.zweibo.ui.fragment.NavigationDrawerFragment;
 import zxb.zweibo.R;
 import zxb.zweibo.widget.AppManager;
 

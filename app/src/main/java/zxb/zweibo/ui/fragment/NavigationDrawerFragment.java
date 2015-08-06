@@ -1,4 +1,4 @@
-package zxb.zweibo.fragment;
+package zxb.zweibo.ui.fragment;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;

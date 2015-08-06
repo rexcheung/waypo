@@ -20,7 +20,8 @@ public class TestMainActivity extends Activity{
     String AUTH = "OAuth2";
     String TIME_LINE = "TimeLine";
     String BIT_MAP = "BitMap";
-    String[] datas = {AUTH, TIME_LINE, BIT_MAP};
+    String VOLLEY_CACHE = "Volley cache test";
+    String[] datas = {AUTH, TIME_LINE, BIT_MAP, VOLLEY_CACHE};
     ListView listView;
 
     @Override
@@ -47,6 +48,8 @@ public class TestMainActivity extends Activity{
                 cls = TestFTimeLinesActivity.class;
             } else if (BIT_MAP.equals(item)) {
                 cls = TestBitmapActivity.class;
+            } else if (VOLLEY_CACHE.equals(item)) {
+                cls = TestVolleyCache.class;
             }
 
             Intent intent = new Intent(TestMainActivity.this, cls);

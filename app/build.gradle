@@ -36,7 +36,7 @@ dependencies {
     //volley
     compile files('libs/volley-1.0.17.jar')
     //WeiboSDK
-    compile project(':WeiboSDK')
+    compile project(':libraries:WeiboSDK')
     //RecycleView
     compile files('libs/recyclerview.jar')
     //EventBus
@@ -45,6 +45,7 @@ dependencies {
     apt "org.androidannotations:androidannotations:$AAVersion"
     compile "org.androidannotations:androidannotations-api:$AAVersion"
     //-----------------
+    compile project(':libraries:base-diskcache')
 }
 
 buildscript {
