@@ -44,6 +44,7 @@
         <activity android:name=".ui.test.TestBitmapActivity" />
         <!--Volley缓存测试-->
         <activity android:name=".ui.test.TestVolleyCache" />
+        <activity android:name=".ui.test.TestDBActivity" />
 
 
         <!-- 网页授权Activity -->

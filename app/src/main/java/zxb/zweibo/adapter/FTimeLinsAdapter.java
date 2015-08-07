@@ -1,7 +1,9 @@
 package zxb.zweibo.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +18,8 @@ import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
 import zxb.zweibo.common.ImageUtil;
-import zxb.zweibo.common.VolleyHelper;
+import zxb.zweibo.common.JsonCacheUtil;
+import zxb.zweibo.common.Utils;
 
 /**
  * FriendsTimeLine Fragment里面RecyclerView的Adapter.
@@ -28,18 +31,50 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
     List<StatusContent> mStatusesList;
     private ImageUtil imageUtil;
 
+    private JsonCacheUtil jsonCacheUtil;
+
     private FTimeLinsAdapter(){}
 
     private FTimeLinsAdapter(Context context, List<StatusContent> statusesList){
         this.mContext = context;
         this.mStatusesList = statusesList;
         imageUtil = new ImageUtil(mContext);
+        jsonCacheUtil = new JsonCacheUtil(mContext);
+
+        getScreenSize(context);
     }
 
     public static FTimeLinsAdapter newInstance(Context context, List<StatusContent> statusesList) {
         FTimeLinsAdapter adapter = new FTimeLinsAdapter(context,statusesList);
         return adapter;
     }
+
+
+    private int mImgH;
+    private int mImgW;
+    private int mSingleImgH;
+    private int mSingleImgW;
+
+    /**
+     * 检测当前设备的屏幕尺寸
+     * @param context 必须要Activity的实体才能获取WindowManager，所以需要传入Activity
+     */
+    private void getScreenSize(Context context){
+        DisplayMetrics metric = Utils.getMetrics((Activity) context);
+//        Activity activity = (Activity) context;
+//        activity.getWindowManager().getDefaultDisplay().getMetrics(metric);
+        int width = metric.widthPixels;  // 屏幕宽度（像素）
+        int height = metric.heightPixels;  // 屏幕高度（像素）
+//        float density = metric.density;  // 屏幕密度（0.75 / 1.0 / 1.5）
+//        int densityDpi = metric.densityDpi;  // 屏幕密度DPI（120 / 160 / 240）
+
+        mImgH = height / 6;
+        mImgW = width / 6;
+        mSingleImgH = height / 3;
+        mSingleImgW = width / 3;
+    }
+
+
 
     @Override
     public FTimeLinsAdapter.Holder onCreateViewHolder(ViewGroup viewGroup, int position) {
@@ -69,6 +104,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
     /**
      * 处理文字信息.
+     *
      * @param viewHolder ViewHolder
      * @param statusContent
      */
@@ -183,11 +219,17 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
         }
 
         if (length != 0) {
-//            mVolleyHelper.loadMultiImg(viewHolder.imgList, oriPicUrls);
             imageUtil.showImages(viewHolder.imgList, oriPicUrls);
+//            if(length == 1){
+//                viewHolder.img1.getLayoutParams().height = mSingleImgH;
+//                viewHolder.img1.getLayoutParams().width = mSingleImgW;
+//            }
         } else if (rePicLength != 0) {
-//            mVolleyHelper.loadMultiImg(viewHolder.imgList, rePicUrls);
             imageUtil.showImages(viewHolder.imgList, rePicUrls);
+//            if(rePicLength == 1){
+//                viewHolder.img1.getLayoutParams().height = mSingleImgH;
+//                viewHolder.img1.getLayoutParams().width = mSingleImgW;
+//            }
         }
 
         // 把没有图片的ImageView隐藏
@@ -209,6 +251,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
         if (imgList != null) {
             for (ImageView img : imgList) {
                 resetImage(img, resId);
+//                resetDimens(img);
             }
         }
     }
@@ -216,7 +259,13 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
     private void resetImage(ImageView img, int resId) {
         if (img != null) {
             img.setImageResource(resId);
+            img.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void resetDimens(ImageView img) {
+        img.getLayoutParams().height = mImgH;
+        img.getLayoutParams().width = mImgW;
     }
 
     public void cleanCache(){

@@ -3,6 +3,11 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
+              android:layout_marginTop="5dp"
+              android:layout_marginBottom="5dp"
+              android:layout_marginLeft="10dp"
+              android:layout_marginRight="10dp"
+              android:background="#44000000"
               android:padding="10dp">
 
     <LinearLayout
@@ -31,9 +36,7 @@
                 <!--用户昵称-->
                 <TextView
                     android:id="@+id/tvScreenName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
+                    style="@style/FriendsTimeLineText"
                     android:text="我是思聪"/>
 
                 <!--是否认证用户-->
@@ -48,9 +51,7 @@
 
             <TextView
                 android:id="@+id/tvFrom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                style="@style/FriendsTimeLineText"
                 android:text="10分钟前发自iPhone6Plus"/>
 
         </LinearLayout>
@@ -58,9 +59,7 @@
 
     <TextView
         android:id="@+id/tvContent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        style="@style/FriendsTimeLineText"
         android:text="昨天去海天盛宴被拍了"/>
 
     <View
@@ -76,16 +75,12 @@
 
         <TextView
             android:id="@+id/tvReUser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            style="@style/FriendsTimeLineText"
             android:text="啪啪啪..."/>
 
         <TextView
             android:id="@+id/tvReContent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            style="@style/FriendsTimeLineText"
             android:text="啪啪啪..."/>
     </LinearLayout>
 
@@ -98,21 +93,15 @@
 
         <ImageView
             android:id="@+id/img1"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
 
         <ImageView
             android:id="@+id/img2"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
 
         <ImageView
             android:id="@+id/img3"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
     </LinearLayout>
 
     <LinearLayout
@@ -123,21 +112,15 @@
 
         <ImageView
             android:id="@+id/img4"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
 
         <ImageView
             android:id="@+id/img5"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
 
         <ImageView
             android:id="@+id/img6"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
     </LinearLayout>
 
     <LinearLayout
@@ -148,21 +131,15 @@
 
         <ImageView
             android:id="@+id/img7"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
 
         <ImageView
             android:id="@+id/img8"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
 
         <ImageView
             android:id="@+id/img9"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_margin="3dp" />
+            style="@style/itemImageView" />
     </LinearLayout>
 
     <RelativeLayout
@@ -171,23 +148,20 @@
 
         <TextView
             android:id="@+id/tvLikeCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/FriendsTimeLineText"
             android:drawableLeft="@drawable/timeline_icon_unlike"
             android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/tvCommentCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/FriendsTimeLineText"
             android:layout_alignParentRight="true"
             android:drawableLeft="@drawable/timeline_icon_comment"
             android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/tvRepostCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/FriendsTimeLineText"
             android:layout_toLeftOf="@id/tvCommentCount"
             android:layout_marginRight="15dp"
             android:drawableLeft="@drawable/timeline_icon_redirect"

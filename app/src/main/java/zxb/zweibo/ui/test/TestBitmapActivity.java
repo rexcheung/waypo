@@ -20,6 +20,7 @@ public class TestBitmapActivity extends Activity {
 
     private Button webBtn;
     private TextView content;
+    private ImageView imgTest;
 
     private String TAG = null;
 
@@ -30,40 +31,41 @@ public class TestBitmapActivity extends Activity {
         initViews();
     }
 
-    private void initViews(){
+    private void initViews() {
         setContentView(R.layout.test_auth_activity);
 
         TAG = getClass().getSimpleName();
 
         content = (TextView) findViewById(R.id.content);
+        imgTest = (ImageView) findViewById(R.id.imgTest);
+        imgTest.setImageResource(R.drawable.ship);
+        imgTest.setScaleType(ImageView.ScaleType.CENTER);
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ship, options);
+        options.inJustDecodeBounds = false;
+
+        Log.i(TAG, "SourceHeight = " + options.outHeight+", SourceWidth = "+ options.outWidth);
+
+        Bitmap bitmapTest = BitmapFactory.decodeResource(getResources(), R.drawable.ship, null);
+        Log.i(TAG, "BitmapHeight = " + bitmapTest.getHeight() +", BitmapWidth = "+ bitmapTest.getWidth());
 
         webBtn = (Button) findViewById(R.id.web);
         webBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-                Log.i(TAG, "Max memory is " + maxMemory + "KB");  //65535KB == 64MB
-                ImageView iv = new ImageView(TestBitmapActivity.this);
-                iv.getResources();
+                Log.i(TAG, "ImgV height = " + imgTest.getHeight() + ", ImgV Width = " + imgTest.getWidth());
+                Bitmap bitmap = decodeSampledBitmapFromResource(getResources(), R.drawable.ship,
+                        imgTest.getWidth(), imgTest.getHeight());
+                imgTest.setImageBitmap(bitmap);
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeResource(getResources(), R.drawable.head, options);
-                int imageHeight = options.outHeight;
-                int imageWidth = options.outWidth;
-                String imageType = options.outMimeType;
-                int inSampleSize = options.inSampleSize;
-                Log.i(TAG, "imageHeight = " + imageHeight
-                        + ", imageWidth = " + imageWidth
-                        + ", imageType = " + imageType);
-
-                Log.i(TAG, "inSampleSize = " + calculateInSampleSize(options, 100, 100));
+                Log.i(TAG, "height = " + bitmap.getHeight()+", width = "+bitmap.getWidth());
             }
         });
     }
 
-    public static int calculateInSampleSize(BitmapFactory.Options options,
-                                            int reqWidth, int reqHeight) {
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // 源图片的高度和宽度
         final int sourceHeight = options.outHeight;
         final int sourceWidth = options.outWidth;

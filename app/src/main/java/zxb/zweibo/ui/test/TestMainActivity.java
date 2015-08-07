@@ -21,7 +21,8 @@ public class TestMainActivity extends Activity{
     String TIME_LINE = "TimeLine";
     String BIT_MAP = "BitMap";
     String VOLLEY_CACHE = "Volley cache test";
-    String[] datas = {AUTH, TIME_LINE, BIT_MAP, VOLLEY_CACHE};
+    String SQLITE = "SQLite";
+    String[] datas = {AUTH, TIME_LINE, BIT_MAP, VOLLEY_CACHE, SQLITE};
     ListView listView;
 
     @Override
@@ -50,6 +51,8 @@ public class TestMainActivity extends Activity{
                 cls = TestBitmapActivity.class;
             } else if (VOLLEY_CACHE.equals(item)) {
                 cls = TestVolleyCache.class;
+            } else if (SQLITE.equals(item)) {
+                cls = TestDBActivity.class;
             }
 
             Intent intent = new Intent(TestMainActivity.this, cls);
