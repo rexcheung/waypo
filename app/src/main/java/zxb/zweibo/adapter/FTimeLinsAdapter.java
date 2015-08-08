@@ -74,8 +74,6 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
         mSingleImgW = width / 3;
     }
 
-
-
     @Override
     public FTimeLinsAdapter.Holder onCreateViewHolder(ViewGroup viewGroup, int position) {
         View view = LayoutInflater.from(mContext)
@@ -94,7 +92,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
         initWord(viewHolder, statusContent);
 
-        initAttitudes(viewHolder, statusContent);
+//        initAttitudes(viewHolder, statusContent);
     }
 
     @Override
@@ -116,7 +114,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
         int end = source.indexOf("</a");
 
         //XX分钟前，发自iPhoneX
-        viewHolder.tvFrom.setText(statusContent.getCreated_at()+"  " + source.substring(begin+1, end-1));
+        viewHolder.tvFrom.setText(statusContent.getCreated_at()/*+"  " + source.substring(begin+1, end-1)*/);
         source = null;
 
         viewHolder.tvContent.setText(statusContent.getText());

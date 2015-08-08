@@ -2,4 +2,6 @@
 <resources>
     <color name="grey">#AAAFB1</color>
     <color name="white">#FFFFFF</color>
+    <color name="alphaGrey">#44000000</color>
+
 </resources>

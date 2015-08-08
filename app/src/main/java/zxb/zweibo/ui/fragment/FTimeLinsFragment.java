@@ -85,7 +85,8 @@ public class FTimeLinsFragment extends Fragment {
      */
     private boolean isRefresing = false;
 
-
+    private JsonCacheUtil mJsonUtil;
+    private boolean noMore = false;
     /**
      * 初始化.
      * @param position 位置.
@@ -120,6 +121,10 @@ public class FTimeLinsFragment extends Fragment {
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rvContent);
         mRecyclerView.setLayoutManager(llm);
 
+        mJsonUtil = new JsonCacheUtil(mContext);
+
+        mStatusesList = new ArrayList<StatusContent>();
+
         if(isInit == true){
             sendRequest();
         }
@@ -129,7 +134,7 @@ public class FTimeLinsFragment extends Fragment {
 
     private void readJsonCache(){
         JsonCacheUtil jsonCacheUtil = new JsonCacheUtil(mContext);
-        mStatusesList = jsonCacheUtil.read(mAccessToken.getUid());
+        mStatusesList = (ArrayList<StatusContent>) jsonCacheUtil.readCache(mAccessToken.getUid());
         initDatas();
     };
 
@@ -137,23 +142,42 @@ public class FTimeLinsFragment extends Fragment {
     private void initDatas() {
         mStatusesList = mFTimeLine.getStatuses();
 
+        initEvents();
+
+        // 若刷新后有部分数据已经有缓存，则从缓存中合并数据后，刷新列表
+        if(mJsonUtil.combineCache(mAccessToken.getUid(), mStatusesList, true)){
+            mAdapter.notifyDataSetChanged();
+            noMore = true;
+        }
+    }
+
+    private void initEvents(){
         mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList);
+
         mRecyclerView.setAdapter(mAdapter);
 
         mRecyclerView.setOnScrollListener(new OnBottomListener(llm) {
             @Override
             public void onBottom() {
-                if (isRefresing == false) {
-                    sendRequest();
-                    isRefresing = true;
-                    Log.i(TAG, "Now refreshing...");
+                if (!noMore) {
+                    if (isRefresing == false) {
+                        sendRequest();
+                        isRefresing = true;
+                        Log.i(TAG, "Now refreshing...");
+                    }
                 }
             }
         });
     }
 
+    private void initWithCache() {
+        mJsonUtil.combineCache(mAccessToken.getUid(), mStatusesList, false);
+        noMore = true;
+        initEvents();
+    }
+
     private void sendRequest(){
-        mStatusesAPI.friendsTimeline(0L, 0L, 20, ++page, false, 0, false, mListener);
+        mStatusesAPI.friendsTimeline(0L, 0L, 10, ++page, false, 0, false, mListener);
     }
 
     private RequestListener mListener = new RequestListener() {
@@ -161,10 +185,7 @@ public class FTimeLinsFragment extends Fragment {
         @Override
         public void onComplete(String response) {
             if (!TextUtils.isEmpty(response)) {
-                refresh(response);
-
-//                sqliteDemo(response);
-//                jsonobject
+                refreshDatas(response);
             }
         }
 
@@ -183,7 +204,13 @@ public class FTimeLinsFragment extends Fragment {
             LogUtil.e(TAG, e.getMessage());
             ErrorInfo info = ErrorInfo.parse(e.getMessage());
             Toast.makeText(mContext, info.toString(), Toast.LENGTH_LONG).show();
+
+            // 请求失败后则把缓存数据取出显示，并禁用底部加载
+            initWithCache();
+
         }
+
+
 
         class DBHelper extends SQLiteOpenHelper {
 
@@ -204,33 +231,45 @@ public class FTimeLinsFragment extends Fragment {
         }
     };
 
+
+
     Gson mGson = new Gson();
     /**
      * 如果是第一次初始化，则运行initDatas()
      * 否则刷新RecycleView
      * @param response
      */
-    private void refresh(String response) {
+    private void refreshDatas(String response) {
         mFTimeLine = mGson.fromJson(response, FTimeLine.class);
 
 //        JsonCacheUtil jsonCacheUtil = new JsonCacheUtil(mContext);
-//        mStatusesList = jsonCacheUtil.read(mAccessToken.getUid());
+//        mStatusesList = jsonCacheUtil.readCache(mAccessToken.getUid());
         if (isInit == true) {
             initDatas();
             isInit = false;
-//            jsonCacheUtil.write(mAccessToken.getUid(), mStatusesList);
+//            jsonCacheUtil.insertAll(mAccessToken.getUid(), mStatusesList);
             return;
         }
 
         for (StatusContent sc : mFTimeLine.getStatuses()){
             mStatusesList.add(sc);
         }
+
+        if(mJsonUtil.combineCache(mAccessToken.getUid(), mStatusesList, true)){
+            noMore = true;
+        }
         mAdapter.notifyDataSetChanged();
 
 
-//        jsonCacheUtil.write(mAccessToken.getUid(), mStatusesList);
+//        jsonCacheUtil.insertAll(mAccessToken.getUid(), mStatusesList);
         isRefresing = false;
         Log.i(TAG, "Refresh finish");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mJsonUtil.initDB();
     }
 
     @Override
@@ -238,6 +277,10 @@ public class FTimeLinsFragment extends Fragment {
         super.onPause();
         if (mAdapter != null) {
             mAdapter.cleanCache();
+        }
+
+        if(mJsonUtil != null){
+            mJsonUtil.closeDB();
         }
         Log.i(getClass().getSimpleName(), "onPause()");
     }
