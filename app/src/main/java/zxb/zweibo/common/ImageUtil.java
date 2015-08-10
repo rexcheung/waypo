@@ -18,7 +18,7 @@ import zxb.zweibo.bean.PicUrls;
  * 否则使用Volley下载图片
  * Created by rex on 15-8-6.
  */
-public class ImageUtil implements ICacheInterface{
+public class ImageUtil {
     private Context mContext = null;
     private DiskLruCacheHelper diskHelper;
     private VolleyHelper volleyHelper;
@@ -35,7 +35,7 @@ public class ImageUtil implements ICacheInterface{
             e.printStackTrace();
         }
 
-        volleyHelper = new VolleyHelper(mContext, this);
+        volleyHelper = new VolleyHelper(mContext);
 
         initMemoryCache();
     }
@@ -109,14 +109,14 @@ public class ImageUtil implements ICacheInterface{
     }
 
 
-    @Override
-    public void write(String key, Bitmap bitmap) {
+    /*@Override
+    public void OnCacheComplete(String key, Bitmap bitmap) {
         Bitmap cachePic = diskHelper.getAsBitmap(key);
         if(cachePic == null){
             mMemoryCache.put(key, bitmap);
             diskHelper.put(key, bitmap);
         }
-    }
+    }*/
 
     /**
      * 先检查内存有无图片，有则返回

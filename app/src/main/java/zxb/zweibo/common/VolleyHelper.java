@@ -75,7 +75,7 @@ public class VolleyHelper {
 
 //                        setDismens(imgView, response);
 //                            Log.i("VolleyHelper", "response = " + response.toString());
-                        imgUtil.write(picUrl, response);
+//                        imgUtil.write(picUrl, response);
                     }
                 }, 0, 0, ImageView.ScaleType.FIT_CENTER, Bitmap.Config.RGB_565,
 

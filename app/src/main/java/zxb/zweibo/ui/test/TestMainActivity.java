@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -35,6 +36,8 @@ public class TestMainActivity extends Activity{
         listView.setAdapter(
                 new MyAdapter(this, android.R.layout.simple_list_item_1, datas));
         listView.setOnItemClickListener(new ItemClick());
+
+        half(13, 20);
     }
 
     class ItemClick implements AdapterView.OnItemClickListener{
@@ -64,6 +67,21 @@ public class TestMainActivity extends Activity{
 
         public MyAdapter(Context context, int resource, Object[] objects) {
             super(context, resource, objects);
+        }
+    }
+
+    private void half(int target, int max){
+        for (int a = 0, z = max; a < z; ) {
+            Log.i("TestMain", "a = " + a + ", z = " + z);
+            int now = ((z - a) / 2)+a;
+            if (now > target) {
+                z=now;
+            } else if (now < target) {
+                a=now;
+            } else if (now == target) {
+                Log.i("TestMain", "结束了： a = " + a + ", z = " + z);
+                return;
+            }
         }
     }
 }

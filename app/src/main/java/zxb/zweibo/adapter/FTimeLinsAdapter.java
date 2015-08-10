@@ -85,7 +85,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
     @Override
     public void onBindViewHolder(final FTimeLinsAdapter.Holder viewHolder, int position) {
-        ArrayList<StatusContent> list = (ArrayList<StatusContent>) mStatusesList;
+//        ArrayList<StatusContent> list = (ArrayList<StatusContent>) mStatusesList;
         final StatusContent statusContent = mStatusesList.get(position);
 
         initImage(viewHolder, statusContent);
@@ -97,6 +97,9 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
     @Override
     public int getItemCount() {
+        if (mStatusesList == null) {
+            return 0;
+        }
         return mStatusesList.size();
     }
 
@@ -104,28 +107,27 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
      * 处理文字信息.
      *
      * @param viewHolder ViewHolder
-     * @param statusContent
+     * @param statusContent 当前Json实体
      */
     private void initWord(Holder viewHolder, StatusContent statusContent) {
         viewHolder.tvScreenName.setText(statusContent.getUser().getScreen_name());
 
-        StringBuilder source = new StringBuilder(statusContent.getSource());
-        int begin = source.indexOf(">");
-        int end = source.indexOf("</a");
+//        StringBuilder source = new StringBuilder(statusContent.getSource());
+//        int begin = source.indexOf(">");
+//        int end = source.indexOf("</a");
 
         //XX分钟前，发自iPhoneX
         viewHolder.tvFrom.setText(statusContent.getCreated_at()/*+"  " + source.substring(begin+1, end-1)*/);
-        source = null;
 
         viewHolder.tvContent.setText(statusContent.getText());
 
         //如果为转发
         StatusContent retweeted_status = statusContent.getRetweeted_status();
-        User reUser = null;
+//        User reUser;
         //判断是否原创微博
         if (retweeted_status != null) {
             if (retweeted_status.getUser() != null) {
-                reUser = retweeted_status.getUser();
+                User reUser = retweeted_status.getUser();
                 viewHolder.tvReUser.setVisibility(View.VISIBLE);
                 viewHolder.tvReUser.setText(reUser.getScreen_name()+": ");
             }
@@ -313,7 +315,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
             imgAvatar = (ImageView) itemView.findViewById(R.id.imgAvatar);
 
-            imgList = new ArrayList<ImageView>();
+            imgList = new ArrayList<>();
             imgList.add(img1 = (ImageView) itemView.findViewById(R.id.img1));
             imgList.add(img2 = (ImageView) itemView.findViewById(R.id.img2));
             imgList.add(img3 = (ImageView) itemView.findViewById(R.id.img3));

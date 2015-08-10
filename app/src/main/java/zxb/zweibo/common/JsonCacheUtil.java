@@ -9,11 +9,16 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.openapi.StatusesAPI;
+import com.sina.weibo.sdk.openapi.models.Status;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import zxb.zweibo.bean.FTimeLine;
 import zxb.zweibo.bean.StatusContent;
+import zxb.zweibo.listener.WeiboRequestListener;
 
 
 /**
@@ -23,6 +28,7 @@ import zxb.zweibo.bean.StatusContent;
  */
 public class JsonCacheUtil {
 
+    private Oauth2AccessToken mAccessToken;
     private Context mContext;
     private SQLiteOpenHelper mdbHelper;
     private SQLiteDatabase db;
@@ -37,16 +43,25 @@ public class JsonCacheUtil {
     private int UPDATE_TIME = MINUTE * 5;
     private String TABLE= "jsonobject";
 
-    private List<StatusContent> cacheList;
+//    private List<StatusContent> cacheList;
 
     Gson gson;
 
     private String TAG = getClass().getSimpleName();
 
     public JsonCacheUtil(Context context) {
+        super();
         this.mContext = context;
-//        initDB();
         gson = new Gson();
+    }
+
+    WeiboAPIUtils mWeiboAPI;
+    public JsonCacheUtil(Context context, Oauth2AccessToken accessToken, StatusesAPI weiboAPI) {
+//        this(context);
+        this.mContext = context;
+        gson = new Gson();
+        this.mWeiboAPI = (WeiboAPIUtils) weiboAPI;
+        this.mAccessToken = accessToken;
     }
 
     public void initDB(){
@@ -82,10 +97,220 @@ public class JsonCacheUtil {
         db.setTransactionSuccessful();
         db.endTransaction();
 
+        Log.i(TAG, "+++插入缓存 " + jsonList.size() + "条");
+
 //        closeDB();
 
         // 插入新数据后检查是否需要删除多余缓存
         removeExcessDB(id);
+    }
+
+    CacheListener mCacheListener;
+    List<StatusContent> mStatusesList;
+    /**
+     * 检查数据是否已经缓存需要的JSON，若其中一条没有，则发送请求并缓存.
+     *
+     * @param scList Adapter操作的List
+     * @param requestIds 微博条目的ID集合
+     * @param listener 监听器，数据成功加载后调用
+     */
+    public void getCacheFrom(List<StatusContent> scList, List<Long> requestIds,
+                             CacheListener listener){
+        if(scList==null){
+            Log.i(TAG, "StatusContent List can't null");
+        }
+        if (scList == null){
+            return;
+        }
+        this.mStatusesList = scList;
+        this.mCacheListener = listener;
+
+        if (requestIds == null){
+            return;
+        } else if (requestIds.size() == 0){
+            return;
+        }
+
+        Log.i(TAG, "该用户有缓存 "+checkCount(mAccessToken.getUid())+"条");
+
+        /*int index = 0;
+        if(idList.get(0) > 0){
+            index = getIndex(idList, from);
+        }*/
+//        List<Long> targetList = getTargetList(idList, index, num);
+//        int count = checkHow(idList, index, num, userId);
+        int count = checkHow(requestIds, mAccessToken.getUid());
+
+        // 如果其中一条没有缓存，则发送网络请求，然后把请求的数据显示并缓存
+        if (count < requestIds.size()) {
+
+            // 在加载更加的时候，传入的请求列表第一条为画面显示的最后一条数据
+            // 所以page总是第一页就可以了， 每次max_id这个参数都不同
+            mWeiboAPI.friendsTimeline(0L, requestIds.get(0), 10, 1, false, 0, false,
+                    mRequestListener);
+            Log.i(TAG, "发送微博请求");
+        //全部都有缓存，则从缓存中获取数据
+        } else {
+            List<StatusContent> cacheList = null;
+//            cacheList = getCache(requestIds, mAccessToken.getUid());
+            cacheList = getBetweenCache(mAccessToken.getUid(),
+                    String.valueOf(requestIds.get(0)), String.valueOf(requestIds.get(requestIds.size() - 1)));
+            if( cacheList == null){
+                return;
+            }
+            scList.addAll(cacheList);
+            listener.OnCacheComplete();
+        }
+
+        Log.i(TAG, "该用户有缓存 "+checkCount(mAccessToken.getUid())+"条");
+
+
+    }
+
+    private int checkHow(List<Long> targetList, String userId) {
+        int count = 0;
+
+        List<Long> cacheIds =
+                getBetweenIds(userId, String.valueOf(targetList.get(0)),
+                        String.valueOf(targetList.get(targetList.size() - 1)));
+        if(cacheIds==null){
+            return 0;
+        } else if (cacheIds.size() == 0){
+            return 0;
+        }
+
+        int targetSize = targetList.size();
+        for (int i = 0; i < targetSize; i++) {
+            int cacheSize = cacheIds.size();
+            innner:for (int a = 0; a < cacheSize; a++) {
+                long cacheId = cacheIds.get(a);
+                long targetId = targetList.get(i);
+
+                if( cacheIds.get(a).longValue() == targetList.get(i).longValue()){
+                    count++;
+                    break innner;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * 需要获取缓存的IDS
+     * @param idList
+     * @param index
+     * @param num
+     * @return
+     */
+    private List<Long> getTargetList(List<Long> idList, int index, int num) {
+        List<Long> targetList = new ArrayList<>();
+        for (int i=index; i<num; i++){
+            targetList.add(idList.get(i));
+        }
+        return targetList;
+    }
+
+    public interface CacheListener {
+        public void OnCacheComplete();
+    }
+
+    private List<StatusContent> getCache(List<Long> targetList, String userId) {
+        long start = targetList.get(0);
+        long end = targetList.get(targetList.size()-1);
+
+        StringBuilder sqlString = new StringBuilder();
+        sqlString.append("SELECT * FROM jsonobject");
+        sqlString.append("WHERE userid = ? AND weibo < ? AND weibo > ? ");
+        sqlString.append("ORDER BY weiboid DESC ");
+
+        int index = 0;
+        List<StatusContent> resultList = new ArrayList<>();
+        Cursor cs = db.rawQuery(sqlString.toString(), new String[]{userId, String.valueOf(start), String.valueOf(end)});
+        while (cs.moveToNext()){
+            if (targetList.get(index) == cs.getLong(1)){
+                StatusContent statusContent = gson.fromJson(cs.getString(2), StatusContent.class);
+                resultList.add(statusContent);
+                index++;
+            }
+        }
+        cs.close();
+
+        return resultList;
+    }
+
+
+
+//    private FTimeLine mFTimeLine;
+    WeiboRequestListener mRequestListener = new WeiboRequestListener(mContext){
+        @Override
+        protected void onSuccess(String response) {
+            FTimeLine mFTimeLine = gson.fromJson(response, FTimeLine.class);
+            List<StatusContent> tempList = mFTimeLine.getStatuses();
+
+            mStatusesList.addAll(tempList);
+            mCacheListener.OnCacheComplete();
+
+            insertNew(mAccessToken.getUid(), tempList);
+        }
+    };
+
+    /**
+     * 对比已缓存的ID，计算有多少条已经缓存.
+     *
+     * @param idList 微博条目的ID集合
+     * @param index 从哪个下标数据开始检索
+     * @param num 检索多少条数据
+     * @param userId 用户ID
+     * @return 根据ID查询现有多少条数据已经缓存
+     */
+    private int checkHow(List<Long> idList, int index, int num, String userId) {
+        int to = index + num;
+        int count = 0;
+
+        ArrayList<Long> allCacheId = getAllCacheId(userId);
+        List<Long> tempId =
+                getBetweenIds(userId, String.valueOf(idList.get(index)), String.valueOf(idList.get(to-1)));
+        if (allCacheId == null) {
+            return 0;
+        }
+        if (allCacheId.size() == 0) {
+            return 0;
+        }
+
+        for (int i = index; i < to; i++) {
+            long targetId = idList.get(i);
+            int size = allCacheId.size();
+            inner:for (int a = 0, z = size; a < z; ) {
+                int currsor = ((z - a) / 2) + a;
+                long curId = allCacheId.get(i);
+                if (targetId < curId) {
+                    a=currsor;
+                } else if (targetId > curId) {
+                    z=currsor;
+                } else if (targetId == curId){
+                    count++;
+                    break inner;
+                }
+            }
+        }
+
+        return count;
+    }
+    /**
+     * 获取指定ID在idList里面的下标.
+     * @param idList list
+     * @param from from
+     * @return 返回下标，没有错误则返回-1
+     */
+    private int getIndex(List<Long> idList, long from) {
+        int size = idList.size();
+        for (int i = 0; i < size; i++) {
+            if (idList.get(i) == from) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -109,6 +334,54 @@ public class JsonCacheUtil {
         return weiboIds;
     }
 
+    /**
+     * 查询指定用户两条微博之间的微博ID
+     * @param userId UserId
+     * @param start startId
+     * @param end
+     * @return
+     */
+    private List<Long> getBetweenIds(String userId, String start, String end){
+        ArrayList<Long> weiboIds = new ArrayList<>();
+
+        String sql = "SELECT weiboid " +
+                "FROM jsonobject " +
+                "WHERE userid=? AND weiboid BETWEEN ? AND ? ORDER BY weiboid DESC";
+
+        Cursor cs = db.rawQuery(sql, new String[]{userId, end, start});
+        while (cs.moveToNext()) {
+            weiboIds.add(cs.getLong(0));
+        }
+        cs.close();
+
+        /*if(weiboIds.size() == 0){
+            return null;
+        }*/
+        return weiboIds;
+    }
+
+    private List<StatusContent> getBetweenCache(String userId, String start, String end){
+        ArrayList<StatusContent> resultList = new ArrayList<>();
+
+        String sql = "SELECT * " +
+                "FROM jsonobject " +
+                "WHERE userid=? AND weiboid BETWEEN ? AND ? ORDER BY weiboid DESC";
+
+        Cursor cs = db.rawQuery(sql, new String[]{userId, end, start});
+        while (cs.moveToNext()) {
+            StatusContent sc = gson.fromJson(cs.getString(2), StatusContent.class);
+            if (resultList.size()!=0){
+                if (resultList.get(resultList.size()-1).getId() == sc.getId()){
+                    continue;
+                }
+            }
+            resultList.add(sc);
+        }
+        cs.close();
+
+        return resultList;
+    }
+
 
     /**
      * 根据登陆用户ID，返回缓存对象.
@@ -123,7 +396,7 @@ public class JsonCacheUtil {
 
 //        initDB();
 
-        cacheList = new ArrayList<StatusContent>();
+        List<StatusContent> cacheList = new ArrayList<StatusContent>();
         StringBuilder sql = new StringBuilder();
 
         // 数据由最近开始排列
@@ -134,8 +407,13 @@ public class JsonCacheUtil {
 
         Cursor cs = db.rawQuery(sql.toString(), new String[]{id});
         while (cs.moveToNext()) {
-            StatusContent statusContent = gson.fromJson(cs.getString(COL_JSON), StatusContent.class);
-            cacheList.add(statusContent);
+            StatusContent sc = gson.fromJson(cs.getString(COL_JSON), StatusContent.class);
+            if (cacheList.size()!=0){
+                if (cacheList.get(cacheList.size()-1).getId() == sc.getId()){
+                    continue;
+                }
+            }
+            cacheList.add(sc);
         }
         cs.close();
 
@@ -195,19 +473,17 @@ public class JsonCacheUtil {
 
     /**
      * 如果缓存数量大于100条，则删除多余的条目
-     * @param userid
+     * @param userid UserID
      */
     private void removeExcessDB(String userid){
         if (TextUtils.isEmpty(userid)) {
             return;
         }
 
-
         int count = checkCount(userid);
         if (count < 100){
             return;
         }
-
 
         Log.i(TAG, "删除前的数据 = "+count+" 条");
         //降序排列weiboid前100条
@@ -280,8 +556,8 @@ public class JsonCacheUtil {
         }
 
         int size = weiboList.size();
-        for (int i=0; i<weiboList.size(); i++){
-            if (weiboList.get(i).getId() == mNewest){
+        for (int i = 0; i < size; i++) {
+            if (weiboList.get(i).getId() == mNewest) {
                 return i;
             }
         }
@@ -293,38 +569,55 @@ public class JsonCacheUtil {
      * 插入比较新的JSON缓存，若没有缓存则全部插入.
      *
      * @param userId UserId
-     * @param weiboList DataList
+     * @param scList DataList
      */
-    public void insertNew(String userId, List<StatusContent> weiboList) {
+    public void insertNew(String userId, List<StatusContent> scList) {
         if (TextUtils.isEmpty(userId)) {
             return;
         }
 
         mNewest = getNewest(userId);
 
-        //若没有缓存则全部插入，有则插入最新的
-        if (mNewest < 0) {
-            insertAll(userId, weiboList);
-        } else {
-//            initDB();
-            db.beginTransaction();
+        List<Long> cacheIds = getBetweenIds(mAccessToken.getUid(),
+                String.valueOf(scList.get(0)), String.valueOf(scList.get(scList.size() - 1)));
 
-            for (StatusContent sc : weiboList) {
-                if (sc.getId() > mNewest) {
-                    ContentValues values = new ContentValues();
-                    values.put("id", userId);
-                    values.put("time", System.currentTimeMillis());
-                    values.put("json", gson.toJson(sc));
-                    db.insert("jsonobject", null, values);
-                } else {
-                    break;
+        if (cacheIds == null){
+            return;
+        }
+
+        //若没有缓存则全部插入
+        if (cacheIds.size() == 0) {
+            insertAll(userId, scList);
+
+        // 把没有缓存的提取出来，然后再插入数据库
+        } else {
+            insertAll(mAccessToken.getUid(), getNoCache(scList, cacheIds));
+        }
+    }
+
+
+    /**
+     * 把没有缓存的ITEM抽取出来返回.
+     *
+     * @param scList 需要缓存的数据
+     * @param cacheIds 现有缓存的ID集合
+     * @return 如果全部都已经缓存，则返回的List.size()为0
+     */
+    private List<StatusContent> getNoCache(List<StatusContent> scList, List<Long> cacheIds) {
+        List<StatusContent> tempList = new ArrayList<>();
+        out:for (StatusContent sc : scList) {
+            long id = sc.getId();
+
+            int size = cacheIds.size();
+            for (int i=0; i<size; i++){
+                if(id == cacheIds.get(i)){
+                    continue out;
                 }
             }
 
-            db.setTransactionSuccessful();
-            db.endTransaction();
-//            closeDB();
+            tempList.add(sc);
         }
+        return tempList;
     }
 
     /**
@@ -388,9 +681,9 @@ public class JsonCacheUtil {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            String sql = " create table jsonobject(id varchar(128) not null, " +
+            /*String sql = " create table jsonobject(id varchar(128) not null, " +
                     " time int(128) not null ," +
-                    " json varchar(5120) not null);";
+                    " json varchar(5120) not null);";*/
             StringBuilder sqlString = new StringBuilder();
             sqlString.append(" create table ");
             sqlString.append(TABLE);
