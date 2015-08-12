@@ -2,6 +2,7 @@ package zxb.zweibo.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -13,13 +14,17 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
+import zxb.zweibo.bean.ImageBrowserBean;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
 import zxb.zweibo.common.ImageUtil;
 import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.Utils;
+import zxb.zweibo.ui.ImageBrowserActivity;
+import zxb.zweibo.widget.AppManager;
 
 /**
  * FriendsTimeLine Fragment里面RecyclerView的Adapter.
@@ -85,7 +90,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
     @Override
     public void onBindViewHolder(final FTimeLinsAdapter.Holder viewHolder, int position) {
-//        ArrayList<StatusContent> list = (ArrayList<StatusContent>) mStatusesList;
+        ArrayList<StatusContent> list = (ArrayList<StatusContent>) mStatusesList;
         final StatusContent statusContent = mStatusesList.get(position);
 
         initImage(viewHolder, statusContent);
@@ -191,7 +196,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
      * @param viewHolder
      * @param statusContent
      */
-    private void initImage(Holder viewHolder, StatusContent statusContent) {
+    private void initImage(Holder viewHolder, final StatusContent statusContent) {
         /*if(mVolleyHelper == null){
             mVolleyHelper = new VolleyHelper(mContext);
         }*/
@@ -235,6 +240,25 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
         // 把没有图片的ImageView隐藏
         for (int i = (length != 0 ? length : rePicLength); i < 9; i++) {
             viewHolder.imgList.get(i).setVisibility(View.GONE);
+        }
+
+        for (ImageView iv : viewHolder.imgList){
+            if (iv.getVisibility() == View.VISIBLE){
+                iv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ImageBrowserActivity imageBrowse = (ImageBrowserActivity) AppManager.getAppManager().getActivity(ImageBrowserActivity.class);
+//                        if (imageBrowse==null){
+                            EventBus.getDefault().postSticky(statusContent);
+                            Intent intent = new Intent(mContext, ImageBrowserActivity.class);
+                            mContext.startActivity(intent);
+//                        } else {
+//                            EventBus.getDefault().postSticky(statusContent);
+//                            imageBrowse.refreshDatas();
+//                        }
+                    }
+                });
+            }
         }
     }
 

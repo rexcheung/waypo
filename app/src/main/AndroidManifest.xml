@@ -35,6 +35,8 @@
 
         <!-- 启动画面 -->
         <activity android:name=".ui.AuthActivity" />
+        <!--图片浏览-->
+        <activity android:name=".ui.ImageBrowserActivity" />
 
         <!-- 用户授权测试页-->
         <activity android:name=".ui.test.TestAuthActivity" />

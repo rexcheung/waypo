@@ -133,12 +133,6 @@ public class JsonCacheUtil {
 
         Log.i(TAG, "该用户有缓存 "+checkCount(mAccessToken.getUid())+"条");
 
-        /*int index = 0;
-        if(idList.get(0) > 0){
-            index = getIndex(idList, from);
-        }*/
-//        List<Long> targetList = getTargetList(idList, index, num);
-//        int count = checkHow(idList, index, num, userId);
         int count = checkHow(requestIds, mAccessToken.getUid());
 
         // 如果其中一条没有缓存，则发送网络请求，然后把请求的数据显示并缓存
@@ -146,7 +140,7 @@ public class JsonCacheUtil {
 
             // 在加载更加的时候，传入的请求列表第一条为画面显示的最后一条数据
             // 所以page总是第一页就可以了， 每次max_id这个参数都不同
-            mWeiboAPI.friendsTimeline(0L, requestIds.get(0), 10, 1, false, 0, false,
+            mWeiboAPI.friendsTimeline(0L, requestIds.get(0), 10, 1, false, 2, false,
                     mRequestListener);
             Log.i(TAG, "发送微博请求");
         //全部都有缓存，则从缓存中获取数据
@@ -167,6 +161,12 @@ public class JsonCacheUtil {
 
     }
 
+    /**
+     *
+     * @param targetList
+     * @param userId
+     * @return
+     */
     private int checkHow(List<Long> targetList, String userId) {
         int count = 0;
 
@@ -182,10 +182,8 @@ public class JsonCacheUtil {
         int targetSize = targetList.size();
         for (int i = 0; i < targetSize; i++) {
             int cacheSize = cacheIds.size();
-            innner:for (int a = 0; a < cacheSize; a++) {
-                long cacheId = cacheIds.get(a);
-                long targetId = targetList.get(i);
 
+            innner:for (int a = 0; a < cacheSize; a++) {
                 if( cacheIds.get(a).longValue() == targetList.get(i).longValue()){
                     count++;
                     break innner;
@@ -197,11 +195,12 @@ public class JsonCacheUtil {
     }
 
     /**
-     * 需要获取缓存的IDS
-     * @param idList
-     * @param index
-     * @param num
-     * @return
+     * 需要获取缓存的IDS.
+     *
+     * @param idList 全部ID
+     * @param index  从这个开始
+     * @param num 每次多少条
+     * @return 返回需要的IDS
      */
     private List<Long> getTargetList(List<Long> idList, int index, int num) {
         List<Long> targetList = new ArrayList<>();
@@ -215,6 +214,12 @@ public class JsonCacheUtil {
         public void OnCacheComplete();
     }
 
+    /**
+     * 获取指定用户的所有缓存
+     * @param targetList 需要获取缓存ID的列表
+     * @param userId UserID
+     * @return 缓存列表
+     */
     private List<StatusContent> getCache(List<Long> targetList, String userId) {
         long start = targetList.get(0);
         long end = targetList.get(targetList.size()-1);
@@ -631,7 +636,7 @@ public class JsonCacheUtil {
             return -2;
         }
 
-//        initDB();
+        initDB();
 
         StringBuilder sql = new StringBuilder();
         sql.append(" SELECT MAX(weiboid) FROM ");
