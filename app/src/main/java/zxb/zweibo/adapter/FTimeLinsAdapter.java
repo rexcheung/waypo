@@ -247,15 +247,9 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
                 iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ImageBrowserActivity imageBrowse = (ImageBrowserActivity) AppManager.getAppManager().getActivity(ImageBrowserActivity.class);
-//                        if (imageBrowse==null){
-                            EventBus.getDefault().postSticky(statusContent);
-                            Intent intent = new Intent(mContext, ImageBrowserActivity.class);
-                            mContext.startActivity(intent);
-//                        } else {
-//                            EventBus.getDefault().postSticky(statusContent);
-//                            imageBrowse.refreshDatas();
-//                        }
+                        EventBus.getDefault().postSticky(statusContent);
+                        Intent intent = new Intent(mContext, ImageBrowserActivity.class);
+                        mContext.startActivity(intent);
                     }
                 });
             }

@@ -25,6 +25,7 @@ import com.zhy.base.cache.disk.DiskLruCacheHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,38 +73,23 @@ public class VolleyHelper {
         }
 
         ImgRequest req = new ImgRequest(imgView, picUrl, listener);
-
+        req.setShouldCache(false);
+//        req.
         mQueue.add(req);
     }
-
-   /* public void loadImg(final ImageView imgView, final String picUrl, ImgRequest imageRequest) {
-
-        if (mQueue == null) {
-            mQueue = Volley.newRequestQueue(mContext);
-        }
-        ImgRequest req = new ImgRequest(imgView, picUrl);
-
-        if (!isCache) {
-            req.setShouldCache(false);
-        }
-
-        mQueue.add(req);
-
-//        imageRequest(imgView, picUrl);
-    }*/
 
     public void loadLargeImg(final ImageView imgView, final String picUrl, Response.Listener<Bitmap> listener){
         if (mQueue == null) {
             mQueue = Volley.newRequestQueue(mContext);
         }
         ImgRequest req = new ImgRequest(imgView, picUrl, listener);
-
         req.setShouldCache(false);
 
+//        WeakReference<ImgRequest> imgRequestWeakReference = new WeakReference<ImgRequest>(req);
         mQueue.add(req);
     }
 
-    class ImgRequest extends ImageRequest{
+    static class ImgRequest extends ImageRequest{
         public ImgRequest(final ImageView imgView, String url, Response.Listener<Bitmap> listener) {
             super(url, listener, 0, 0, ImageView.ScaleType.FIT_CENTER, Bitmap.Config.RGB_565, null);
         }
@@ -157,24 +143,23 @@ public class VolleyHelper {
         mQueue.add(imageRequest);
     }
 
-    private void notCache(ImageRequest imageRequest){
+    /*private void notCache(ImageRequest imageRequest){
         imageRequest.setShouldCache(false);
-    }
+    }*/
 
-    private void setDismens(ImageView imgView, Bitmap response) {
+    /*private void setDismens(ImageView imgView, Bitmap response) {
         imgView.getLayoutParams().height = response.getHeight();
         imgView.getLayoutParams().width = response.getWidth();
+    }*/
 
-    }
-
-    public void loadMultiImg(List<ImageView> imgList, PicUrls[] urlList) {
+    /*public void loadMultiImg(List<ImageView> imgList, PicUrls[] urlList) {
         for (int i = 0; i < urlList.length; i++) {
             imgList.get(i).setVisibility(View.VISIBLE);
             loadImg(imgList.get(i), urlList[i].getThumbnail_pic());
         }
-    }
+    }*/
 
-    public void load(ImageView img, final String url, final ImageLoader.ImageCache imageCache){
+    /*public void load(ImageView img, final String url, final ImageLoader.ImageCache imageCache){
 
         ImageLoader imageLoader = new ImageLoader(Volley.newRequestQueue(mContext), imageCache);
         imageLoader.get(url, new ImageLoader.ImageListener() {
@@ -190,7 +175,7 @@ public class VolleyHelper {
                 error.printStackTrace();
             }
         });
-    }
+    }*/
 
     public void clearCache(){
         File cacheDir = new File(mContext.getCacheDir(), "volley");
@@ -263,8 +248,11 @@ public class VolleyHelper {
     }
 
     public void destory(){
+        if (mQueue!=null){
+            mQueue.stop();
+//            mQueue.cancelAll();
+        }
         mContext = null;
-        mQueue.stop();
         mQueue = null;
     }
 

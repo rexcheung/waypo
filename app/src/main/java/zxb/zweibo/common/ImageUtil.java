@@ -74,17 +74,10 @@ public class ImageUtil {
 
         Bitmap bitmap = checkCache(url);
         if (bitmap == null) {
+//            mImgListener.key = url;
+//            mImgListener.imgView = imageView;
+            /*new ImgListener(url, imageView)*/
             volleyHelper.loadImg(imageView, url, new ImgListener(url, imageView));
-//            volleyHelper.loadImg(imageView, url);
-//            volleyHelper.loadImg(imageView, url, false);
-            /*volleyHelper.loadImg(imageView, url, new Response.Listener<Bitmap>() {
-                @Override
-                public void onResponse(Bitmap bitmap) {
-                    addCache(url, bitmap);
-                    imageView.setImageBitmap(mMemoryCache.get(url));
-                }
-            });*/
-
         } else {
             imageView.setImageBitmap(bitmap);
         }
@@ -102,6 +95,9 @@ public class ImageUtil {
 
         Bitmap bitmap = checkCache(url);
         if (bitmap == null) {
+//            mImgListener.key = url;
+//            mImgListener.imgView = imageView;
+            /*new ImgListener(url, imageView)*/
             volleyHelper.loadLargeImg(imageView, url, new ImgListener(url, imageView));
         } else {
             imageView.setImageBitmap(bitmap);
@@ -156,7 +152,7 @@ public class ImageUtil {
     }
 
     public void destory(){
-        volleyHelper.clearCache();
+//        volleyHelper.clearCache();
         volleyHelper.destory();
         volleyHelper = null;
         try {
@@ -213,6 +209,11 @@ public class ImageUtil {
         return bitmap;
     }
 
+    /**
+     * 把图片加入到LruCache和DiskLruCache
+     * @param key url
+     * @param bitmap bitmap
+     */
     private void addCache(String key, Bitmap bitmap){
         if (TextUtils.isEmpty(key) || bitmap == null){
             return;
@@ -222,9 +223,17 @@ public class ImageUtil {
         if (diskHelper != null) diskHelper.put(key, bitmap);
     }
 
+    ImgListener mImgListener = new ImgListener();
+    /**
+     * ImageRequest会把请求到的bitmap传到监听器，
+     * 需要把这个bitmap拿到才能添加到缓存，所以此监听器需要在这里实现.
+     */
     class ImgListener implements Response.Listener<Bitmap> {
         ImageView imgView;
         String key;
+
+        public ImgListener(){};
+
         public ImgListener(String key, ImageView imageView){
             this.imgView = imageView;
             this.key = key;
@@ -233,6 +242,8 @@ public class ImageUtil {
         public void onResponse(Bitmap bitmap) {
             imgView.setImageBitmap(bitmap);
             addCache(key, bitmap);
+            imgView = null;
+            key = null;
         }
     }
 

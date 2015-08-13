@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -15,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
+import zxb.zweibo.MyApplication;
 import zxb.zweibo.R;
 import zxb.zweibo.adapter.ImageBrowserAdapter;
 import zxb.zweibo.bean.ImageBrowserBean;
@@ -42,12 +41,17 @@ public class ImageBrowserActivity extends FragmentActivity{
     ImageBrowserAdapter mAdapter;
 
     private Oauth2AccessToken mAccessToken;
-    private WeiboAPIUtils mWeiboAPI;
-    private Gson gson;
+//    private WeiboAPIUtils mWeiboAPI;
+//    private Gson gson;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mImgUtil = new ImageUtil(this);
+//        mImgUtil = new ImageUtil(this);
+
+        // 自定义Application
+        MyApplication app = (MyApplication) getApplication();
+        mImgUtil = app.getmImageUtil();
+
         initView();
         checkParams();
         initWeibo();
@@ -70,11 +74,14 @@ public class ImageBrowserActivity extends FragmentActivity{
 
             mTabs.add(f);
         }
+
+        smallPicUrls.clear();
+        middlePicUrls.clear();
     }
 
     private void initWeibo() {
         mAccessToken = AccessTokenKeeper.readAccessToken(this);
-        mWeiboAPI = new WeiboAPIUtils(this, Constants.APP_KEY, mAccessToken);
+//        mWeiboAPI = new WeiboAPIUtils(this, Constants.APP_KEY, mAccessToken);
     }
 
     /**
@@ -156,13 +163,11 @@ public class ImageBrowserActivity extends FragmentActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mImgUtil.clearMemoryCache();
-        mImgUtil.destory();
-//        mImgUtil.clearVolleyCache();
-        mImgUtil = null;
-        mTabs.clear();
-        mTabs = null;
+//        mImgUtil.clearMemoryCache();
+//        mImgUtil.destory();
+//        mImgUtil = null;
+//        mTabs.clear();
+//        mTabs = null;
 
-//        mViewPager.setAdapter(null);
     }
 }

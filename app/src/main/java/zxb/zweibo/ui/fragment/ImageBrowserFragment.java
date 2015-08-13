@@ -40,13 +40,9 @@ public class ImageBrowserFragment extends Fragment{
         img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                getActivity().setVisible(false);
-//                getActivity().moveTaskToBack(true);
-//                getActivity().setContentView(null);
                 getActivity().finish();
             }
         });
-//        mImageUtil.showImage(img, mBean.getSmallPic());
 
         mImageUtil.showLargeImage(img, mBean.getMiddlePic());
 
@@ -56,19 +52,15 @@ public class ImageBrowserFragment extends Fragment{
     @Override
     public void onPause() {
         super.onPause();
-        mImageUtil.removeFromMemory(mBean.getMiddlePic());
+//        mImageUtil.removeFromMemory(mBean.getMiddlePic());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        view = null;
-//        mImageUtil.removeFromMemory(mBean.getMiddlePic());
-        mImageUtil.clearMemoryCache();
-        mImageUtil.clearVolleyCache();
-////        mImageUtil = null;
-//        mImageUtil.destory();
-//        mImageUtil = null;
+        view = null;
+//        mImageUtil.clearMemoryCache();
+        mBean = null;
 
     }
 }
