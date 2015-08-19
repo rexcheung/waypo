@@ -1,11 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+    android:background="@color/black">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/vpImgBrowser"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
     </android.support.v4.view.ViewPager>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true">
+
+        <View
+            android:id="@+id/vPage1"
+            style="@style/viewNumber"
+            android:background="@color/blue"/>
+
+        <View
+            android:id="@+id/vPage2"
+            style="@style/viewNumber"
+            android:background="@color/white"/>
+
+        <View
+            android:id="@+id/vPage3"
+            style="@style/viewNumber"
+            android:background="@color/blue"/>
+
+        <View
+            android:id="@+id/vPage4"
+            style="@style/viewNumber"
+            android:background="@color/white"/>
+
+        <View
+            android:id="@+id/vPage5"
+            style="@style/viewNumber"
+            android:background="@color/blue"/>
+
+        <View
+            android:id="@+id/vPage6"
+            style="@style/viewNumber"
+            android:background="@color/white"/>
+
+        <View
+            android:id="@+id/vPage7"
+            style="@style/viewNumber"
+            android:background="@color/blue"/>
+
+        <View
+            android:id="@+id/vPage8"
+            style="@style/viewNumber"
+            android:background="@color/white"/>
+
+        <View
+            android:id="@+id/vPage9"
+            style="@style/viewNumber"
+            android:background="@color/blue"/>
+
+    </LinearLayout>
 </RelativeLayout>

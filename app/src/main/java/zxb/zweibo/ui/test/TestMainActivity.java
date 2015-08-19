@@ -23,7 +23,11 @@ public class TestMainActivity extends Activity{
     String BIT_MAP = "BitMap";
     String VOLLEY_CACHE = "Volley cache test";
     String SQLITE = "SQLite";
-    String[] datas = {AUTH, TIME_LINE, BIT_MAP, VOLLEY_CACHE, SQLITE};
+    String SPANNABLE = "SpannableString";
+    String EMOTINO = "Emotion";
+
+    String[] datas = {AUTH, TIME_LINE, BIT_MAP, VOLLEY_CACHE, SQLITE, SPANNABLE,
+                    EMOTINO};
     ListView listView;
 
     @Override
@@ -56,6 +60,10 @@ public class TestMainActivity extends Activity{
                 cls = TestVolleyCache.class;
             } else if (SQLITE.equals(item)) {
                 cls = TestDBActivity.class;
+            } else if(SPANNABLE.equals(item)){
+                cls = TestSpannableString.class;
+            } else if(EMOTINO.equals(item)){
+                cls = TestEmotionActivity.class;
             }
 
             Intent intent = new Intent(TestMainActivity.this, cls);

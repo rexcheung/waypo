@@ -18,11 +18,12 @@ import zxb.zweibo.R;
 import zxb.zweibo.bean.EAuth;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
+//import zxb.zweibo.ui.MainActivity_;
 import zxb.zweibo.ui.view.IAuthView;
-import zxb.zweibo.ui.MainActivity_;
 import zxb.zweibo.widget.AppManager;
 
 /**
+ * 授权页面的Presenter类
  * Created by rex on 15-7-30.
  */
 public class AuthPresenter {
@@ -35,7 +36,7 @@ public class AuthPresenter {
     /**
      * MainActivity实例，用于保存SharePerfences的参数
      */
-    Activity mainActivity;
+//    Activity mainActivity;
 
     /**
      * AuthActivity实例，显示Toast的参数
@@ -47,7 +48,7 @@ public class AuthPresenter {
     public AuthPresenter(IAuthView authView){
         this.authView = authView;
 
-        mainActivity = AppManager.getActivity(MainActivity_.class);
+//        mainActivity = AppManager.getActivity(MainActivity_.class);
         authActivity = AppManager.getAppManager().currentActivity();
 
         mAuthInfo = new AuthInfo(
@@ -85,7 +86,8 @@ public class AuthPresenter {
 
 
                 // 保存 Token 到 SharedPreferences
-                AccessTokenKeeper.writeAccessToken(mainActivity, mAccessToken);
+                AccessTokenKeeper.writeAccessToken(authActivity, mAccessToken);
+//                AccessTokenKeeper.writeAccessToken(mainActivity, mAccessToken);
 
 
                 Toast.makeText(authActivity,

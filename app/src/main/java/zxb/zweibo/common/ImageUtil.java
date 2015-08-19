@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.LruCache;
@@ -11,10 +12,8 @@ import android.widget.ImageView;
 
 import com.android.volley.Response;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageRequest;
 import com.zhy.base.cache.disk.DiskLruCacheHelper;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -30,6 +29,9 @@ public class ImageUtil {
     private DiskLruCacheHelper diskHelper;
     private VolleyHelper volleyHelper;
 
+    private final String CACHE_DIR = "diskCache";
+    private final int DISK_CACHE_SIZE = 50*1024*1024;  //50M
+
     private LruCache<String, Bitmap> mMemoryCache;
 
     private String TAG = "ImageUtil";
@@ -37,7 +39,7 @@ public class ImageUtil {
     public ImageUtil(Context context){
         this.mContext = context;
         try {
-            diskHelper = new DiskLruCacheHelper(mContext);
+            diskHelper = new DiskLruCacheHelper(mContext, CACHE_DIR, DISK_CACHE_SIZE);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -74,16 +76,13 @@ public class ImageUtil {
 
         Bitmap bitmap = checkCache(url);
         if (bitmap == null) {
-//            mImgListener.key = url;
-//            mImgListener.imgView = imageView;
-            /*new ImgListener(url, imageView)*/
-            volleyHelper.loadImg(imageView, url, new ImgListener(url, imageView));
+            volleyHelper.loadImg(url, new ImgListener(url, imageView));
         } else {
             imageView.setImageBitmap(bitmap);
         }
     }
 
-    public void showLargeImage(final ImageView imageView, final String url){
+    /*public void showLargeImage(final ImageView imageView, final String url){
 
         if(mMemoryCache == null){
             initMemoryCache();
@@ -95,14 +94,11 @@ public class ImageUtil {
 
         Bitmap bitmap = checkCache(url);
         if (bitmap == null) {
-//            mImgListener.key = url;
-//            mImgListener.imgView = imageView;
-            /*new ImgListener(url, imageView)*/
             volleyHelper.loadLargeImg(imageView, url, new ImgListener(url, imageView));
         } else {
             imageView.setImageBitmap(bitmap);
         }
-    }
+    }*/
 
     /*public void showImages(List<ImageView> imgList, List<String> urlList){
         if(imgList == null || urlList == null){
@@ -125,7 +121,7 @@ public class ImageUtil {
     }
 
     public Bitmap getBitmap(String key){
-        if(key.isEmpty() || key == null){
+        if(TextUtils.isEmpty(key)){
             return null;
         }
 
@@ -134,6 +130,10 @@ public class ImageUtil {
             return bitmap;
         }else {
             bitmap = diskHelper.getAsBitmap(key);
+        }
+
+        if (bitmap == null) {
+//            volleyHelper.
         }
 
         return null;
@@ -163,15 +163,6 @@ public class ImageUtil {
         diskHelper = null;
         mContext = null;
     }
-
-    /*@Override
-    public void OnCacheComplete(String key, Bitmap bitmap) {
-        Bitmap cachePic = diskHelper.getAsBitmap(key);
-        if(cachePic == null){
-            mMemoryCache.put(key, bitmap);
-            diskHelper.put(key, bitmap);
-        }
-    }*/
 
     /**
      * 先检查内存有无图片，有则返回
@@ -220,10 +211,29 @@ public class ImageUtil {
         }
 
         if (mMemoryCache != null) mMemoryCache.put(key, bitmap);
-        if (diskHelper != null) diskHelper.put(key, bitmap);
+        new Put2DiskThread(key, bitmap).execute();
     }
 
-    ImgListener mImgListener = new ImgListener();
+    /**
+     * 写入磁盘缓存的操作比较耗CPU，默认是在主线程的，
+     * 需要开新线程操作，才不影响流畅度.
+     */
+    class Put2DiskThread extends AsyncTask<Void, Void, Void>{
+        String key;
+        Bitmap bitmap;
+
+        public Put2DiskThread(String key, Bitmap bitmap){
+            this.key = key;
+            this.bitmap = bitmap;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            if (diskHelper != null) diskHelper.put(key, bitmap);
+            return null;
+        }
+    }
+
     /**
      * ImageRequest会把请求到的bitmap传到监听器，
      * 需要把这个bitmap拿到才能添加到缓存，所以此监听器需要在这里实现.
@@ -231,8 +241,6 @@ public class ImageUtil {
     class ImgListener implements Response.Listener<Bitmap> {
         ImageView imgView;
         String key;
-
-        public ImgListener(){};
 
         public ImgListener(String key, ImageView imageView){
             this.imgView = imageView;
@@ -247,11 +255,24 @@ public class ImageUtil {
         }
     }
 
+
+    class EmoListener implements Response.Listener<Bitmap> {
+        String key;
+
+        public EmoListener(String key){
+            this.key = key;
+        }
+        @Override
+        public void onResponse(Bitmap bitmap) {
+            addCache(key, bitmap);
+        }
+    }
+
     public void clearMemoryCache(){
         mMemoryCache.evictAll();
     }
 
-    public static int calculateInSampleSize(BitmapFactory.Options options,
+   /* public static int calculateInSampleSize(BitmapFactory.Options options,
                                             int reqWidth, int reqHeight) {
         // 源图片的高度和宽度
         final int height = options.outHeight;
@@ -292,5 +313,5 @@ public class ImageUtil {
             mMemoryCache.put(url, bitmap);
             diskHelper.put(url, bitmap);
         }
-    };
+    }*/
 }

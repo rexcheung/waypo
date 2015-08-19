@@ -76,7 +76,8 @@
         <TextView
             android:id="@+id/tvReUser"
             style="@style/FriendsTimeLineText"
-            android:text="啪啪啪..."/>
+            android:text="啪啪啪..."
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvReContent"

@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 //AndroidAnnotation
-apply plugin: 'android-apt'
+//apply plugin: 'android-apt'
 def AAVersion = '3.2+'
 //----------------
 
@@ -31,6 +31,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.1'
+
     //gson
     compile 'com.google.code.gson:gson:2.2.4'
     //volley
@@ -42,10 +43,19 @@ dependencies {
     //EventBus
     compile files('libs/EventBus-2.4.1.jar')
     //AndroidAnnotation
-    apt "org.androidannotations:androidannotations:$AAVersion"
-    compile "org.androidannotations:androidannotations-api:$AAVersion"
+//    apt "org.androidannotations:androidannotations:$AAVersion"
+//    compile "org.androidannotations:androidannotations-api:$AAVersion"
     //-----------------
     compile project(':libraries:base-diskcache')
+    //Fresco
+    compile 'com.facebook.fresco:fresco:0.6.0+'
+    //ButterKnife
+    compile 'com.jakewharton:butterknife:7.0.1'
+
+    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:cardview-v7:22.2.1'
+
+//    compile 'com.android.support.design.widget.CoordinatorLayout'
 }
 
 buildscript {
@@ -53,18 +63,18 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2+'
+//        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2+'
 
     }
 }
 
 //AndroidAnnotation
-apt {
+/*apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
 //        resourcePackageName zxb.zweibo
     }
-}
+}*/
 
 
 //------------------

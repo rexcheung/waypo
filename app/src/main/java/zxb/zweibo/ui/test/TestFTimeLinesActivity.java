@@ -44,7 +44,7 @@ public class TestFTimeLinesActivity extends Activity {
         mAccessToken = AccessTokenKeeper.readAccessToken(this);
         mStatusesAPI = new StatusesAPI(this, Constants.APP_KEY, mAccessToken);
 
-        content = (TextView) findViewById(R.id.content);
+        content = (TextView) findViewById(R.id.tvText);
         content.setText("获取最新微博");
         content.setOnClickListener(new View.OnClickListener() {
             @Override

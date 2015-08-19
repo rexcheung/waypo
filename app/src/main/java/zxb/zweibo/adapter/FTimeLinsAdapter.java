@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +17,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
-import zxb.zweibo.bean.ImageBrowserBean;
+import zxb.zweibo.Utils.EmotionUtil;
+import zxb.zweibo.Utils.SpanHelper;
+import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
@@ -24,13 +31,12 @@ import zxb.zweibo.common.ImageUtil;
 import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.Utils;
 import zxb.zweibo.ui.ImageBrowserActivity;
-import zxb.zweibo.widget.AppManager;
 
 /**
  * FriendsTimeLine Fragment里面RecyclerView的Adapter.
  * Created by rex on 15-8-4.
  */
-public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Holder> {
+public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.SimpleHolder> {
 
     Context mContext;
     List<StatusContent> mStatusesList;
@@ -38,19 +44,23 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
 
     private JsonCacheUtil jsonCacheUtil;
 
+    private SpanHelper spanHelper;
+
     private FTimeLinsAdapter(){}
 
-    private FTimeLinsAdapter(Context context, List<StatusContent> statusesList){
+    private FTimeLinsAdapter(Context context, List<StatusContent> statusesList, ImageUtil imageUtil){
         this.mContext = context;
         this.mStatusesList = statusesList;
-        imageUtil = new ImageUtil(mContext);
+        this.imageUtil = imageUtil;
         jsonCacheUtil = new JsonCacheUtil(mContext);
+
+        spanHelper = new SpanHelper(context);
 
         getScreenSize(context);
     }
 
-    public static FTimeLinsAdapter newInstance(Context context, List<StatusContent> statusesList) {
-        FTimeLinsAdapter adapter = new FTimeLinsAdapter(context,statusesList);
+    public static FTimeLinsAdapter newInstance(Context context, List<StatusContent> statusesList, ImageUtil imageUtil) {
+        FTimeLinsAdapter adapter = new FTimeLinsAdapter(context,statusesList, imageUtil);
         return adapter;
     }
 
@@ -80,16 +90,16 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
     }
 
     @Override
-    public FTimeLinsAdapter.Holder onCreateViewHolder(ViewGroup viewGroup, int position) {
+    public FTimeLinsAdapter.SimpleHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_timeline, viewGroup, false);
-        Holder holder = new Holder(view);
+        SimpleHolder holder = new SimpleHolder(view);
 
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(final FTimeLinsAdapter.Holder viewHolder, int position) {
+    public void onBindViewHolder(final FTimeLinsAdapter.SimpleHolder viewHolder, int position) {
         ArrayList<StatusContent> list = (ArrayList<StatusContent>) mStatusesList;
         final StatusContent statusContent = mStatusesList.get(position);
 
@@ -114,7 +124,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
      * @param viewHolder ViewHolder
      * @param statusContent 当前Json实体
      */
-    private void initWord(Holder viewHolder, StatusContent statusContent) {
+    private void initWord(SimpleHolder viewHolder, StatusContent statusContent) {
         viewHolder.tvScreenName.setText(statusContent.getUser().getScreen_name());
 
 //        StringBuilder source = new StringBuilder(statusContent.getSource());
@@ -124,20 +134,33 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
         //XX分钟前，发自iPhoneX
         viewHolder.tvFrom.setText(statusContent.getCreated_at()/*+"  " + source.substring(begin+1, end-1)*/);
 
-        viewHolder.tvContent.setText(statusContent.getText());
+        SpannableString original = spanHelper.newSpanInstance(statusContent.getText());
+        viewHolder.tvContent.setText(original);
+        viewHolder.tvContent.setMovementMethod(LinkMovementMethod.getInstance());
 
         //如果为转发
         StatusContent retweeted_status = statusContent.getRetweeted_status();
 //        User reUser;
         //判断是否原创微博
         if (retweeted_status != null) {
-            if (retweeted_status.getUser() != null) {
+            /*if (retweeted_status.getUser() != null) {
                 User reUser = retweeted_status.getUser();
                 viewHolder.tvReUser.setVisibility(View.VISIBLE);
                 viewHolder.tvReUser.setText(reUser.getScreen_name()+": ");
+            }*/
+
+            User reUser = retweeted_status.getUser();
+            String reContentText = null;
+            if(reUser == null){
+                reContentText = reUser.getScreen_name()+retweeted_status.getText();
+            } else {
+                reContentText = retweeted_status.getText();
             }
+
+            SpannableString reSpan = spanHelper.newSpanInstance(reContentText);
             viewHolder.tvReContent.setVisibility(View.VISIBLE);
-            viewHolder.tvReContent.setText(retweeted_status.getText());
+            viewHolder.tvReContent.setText(reSpan);
+            viewHolder.tvReContent.setMovementMethod(LinkMovementMethod.getInstance());
 
             viewHolder.layDiver.setVisibility(View.VISIBLE);
         } else {
@@ -148,6 +171,8 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
             //隐藏分隔线
             viewHolder.layDiver.setVisibility(View.GONE);
         }
+
+
     }
 
     /**
@@ -155,7 +180,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
      * @param viewHolder ViewHolder
      * @param statusContent 该条微博的内容
      */
-    private void initAttitudes(Holder viewHolder, StatusContent statusContent) {
+    private void initAttitudes(SimpleHolder viewHolder, StatusContent statusContent) {
         String like;
         String rePost;
         String commentCount;
@@ -196,7 +221,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
      * @param viewHolder
      * @param statusContent
      */
-    private void initImage(Holder viewHolder, final StatusContent statusContent) {
+    private void initImage(SimpleHolder viewHolder, final StatusContent statusContent) {
         /*if(mVolleyHelper == null){
             mVolleyHelper = new VolleyHelper(mContext);
         }*/
@@ -242,18 +267,21 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
             viewHolder.imgList.get(i).setVisibility(View.GONE);
         }
 
-        for (ImageView iv : viewHolder.imgList){
+        for (int i=0; i<viewHolder.imgList.size(); i++){
+            ImageView iv = viewHolder.imgList.get(i);
             if (iv.getVisibility() == View.VISIBLE){
+                final int finalI = i;
                 iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EventBus.getDefault().postSticky(statusContent);
+                        EventBus.getDefault().postSticky(new ImgBrowserWeiBoItem(statusContent, finalI));
                         Intent intent = new Intent(mContext, ImageBrowserActivity.class);
                         mContext.startActivity(intent);
                     }
                 });
             }
         }
+
     }
 
     /**
@@ -294,57 +322,30 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTimeLinsAdapter.Hold
     /**
      * ViewHolder
      */
-    class Holder extends RecyclerView.ViewHolder {
-        TextView tvScreenName;
-        TextView tvFrom;
-        TextView tvContent;
-        TextView tvReContent;
-        TextView tvReUser;
-        TextView tvRepostCount;
-        TextView tvCommentCount;
-        TextView tvLikeCount;
+    class SimpleHolder extends RecyclerView.ViewHolder {
+        /** 屏幕上显示的名字 */
+        @Bind(R.id.tvScreenName) TextView tvScreenName;
+        /** 发自XX */
+        @Bind(R.id.tvFrom) TextView tvFrom;
+        /** 作者的话 */
+        @Bind(R.id.tvContent) TextView tvContent;
+        /** 补转发者的内容 */
+        @Bind(R.id.tvReContent) TextView tvReContent;
+        @Bind(R.id.tvReUser) TextView tvReUser;
+        @Bind(R.id.tvRepostCount) TextView tvRepostCount;
+        @Bind(R.id.tvCommentCount) TextView tvCommentCount;
+        @Bind(R.id.tvLikeCount) TextView tvLikeCount;
+        @Bind(R.id.layDiver) View layDiver;
+        @Bind(R.id.imgAvatar) ImageView imgAvatar;
 
-        View layDiver;
+        @Bind({R.id.img1, R.id.img2,R.id.img3,
+                R.id.img4,R.id.img5,R.id.img6,
+                R.id.img7,R.id.img8,R.id.img9})
+        List<ImageView> imgList;
 
-        ImageView imgAvatar;
-        ArrayList<ImageView> imgList;
-
-        ImageView img1;
-        ImageView img2;
-        ImageView img3;
-        ImageView img4;
-        ImageView img5;
-        ImageView img6;
-        ImageView img7;
-        ImageView img8;
-        ImageView img9;
-
-        public Holder(View itemView) {
+        public SimpleHolder(View itemView) {
             super(itemView);
-            tvScreenName = (TextView) itemView.findViewById(R.id.tvScreenName);
-            tvFrom = (TextView) itemView.findViewById(R.id.tvFrom);
-            tvContent = (TextView) itemView.findViewById(R.id.tvContent);
-            tvReContent = (TextView) itemView.findViewById(R.id.tvReContent);
-            tvReUser = (TextView) itemView.findViewById(R.id.tvReUser);
-            tvRepostCount = (TextView) itemView.findViewById(R.id.tvRepostCount);
-            tvCommentCount = (TextView) itemView.findViewById(R.id.tvCommentCount);
-            tvLikeCount = (TextView) itemView.findViewById(R.id.tvLikeCount);
-            layDiver = itemView.findViewById(R.id.layDiver);
-
-            imgAvatar = (ImageView) itemView.findViewById(R.id.imgAvatar);
-
-            imgList = new ArrayList<>();
-            imgList.add(img1 = (ImageView) itemView.findViewById(R.id.img1));
-            imgList.add(img2 = (ImageView) itemView.findViewById(R.id.img2));
-            imgList.add(img3 = (ImageView) itemView.findViewById(R.id.img3));
-            imgList.add(img4 = (ImageView) itemView.findViewById(R.id.img4));
-            imgList.add(img5 = (ImageView) itemView.findViewById(R.id.img5));
-            imgList.add(img6 = (ImageView) itemView.findViewById(R.id.img6));
-            imgList.add(img7 = (ImageView) itemView.findViewById(R.id.img7));
-            imgList.add(img8 = (ImageView) itemView.findViewById(R.id.img8));
-            imgList.add(img9 = (ImageView) itemView.findViewById(R.id.img9));
-
+            ButterKnife.bind(this, itemView);
         }
     }
 }
-

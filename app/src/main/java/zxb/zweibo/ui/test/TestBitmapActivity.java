@@ -36,7 +36,7 @@ public class TestBitmapActivity extends Activity {
 
         TAG = getClass().getSimpleName();
 
-        content = (TextView) findViewById(R.id.content);
+        content = (TextView) findViewById(R.id.tvText);
         imgTest = (ImageView) findViewById(R.id.imgTest);
         imgTest.setImageResource(R.drawable.ship);
         imgTest.setScaleType(ImageView.ScaleType.CENTER);

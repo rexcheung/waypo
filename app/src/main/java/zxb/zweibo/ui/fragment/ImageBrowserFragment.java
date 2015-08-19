@@ -11,19 +11,23 @@ import android.widget.ImageView;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
 import zxb.zweibo.bean.ImageBrowserBean;
+import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.common.ImageUtil;
 import zxb.zweibo.common.VolleyHelper;
 
 /**
+ * 大图浏览里面ViewPager包含的每个图片为一个Fragment
  * Created by rex on 15-8-11.
  */
 public class ImageBrowserFragment extends Fragment{
 
     ImageBrowserBean mBean;
+//    StatusContent
 
     private ImageUtil mImageUtil;
 
     View view;
+
     public ImageBrowserFragment() {
         ImageBrowserBean stickyEvent = EventBus.getDefault().getStickyEvent(ImageBrowserBean.class);
         this.mBean = stickyEvent;
@@ -33,7 +37,6 @@ public class ImageBrowserFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-//        mImageUtil = new ImageUtil(getActivity());
 
         view = inflater.inflate(R.layout.item_img_browser, null);
         ImageView img = (ImageView) view.findViewById(R.id.imgContent);
@@ -44,7 +47,7 @@ public class ImageBrowserFragment extends Fragment{
             }
         });
 
-        mImageUtil.showLargeImage(img, mBean.getMiddlePic());
+        mImageUtil.showImage(img, mBean.getMiddlePic());
 
         return view;
     }

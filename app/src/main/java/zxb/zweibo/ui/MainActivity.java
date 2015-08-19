@@ -7,7 +7,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,10 +18,8 @@ import android.widget.Toast;
 
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 
-import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.ViewById;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.bean.EAuth;
@@ -31,7 +28,6 @@ import zxb.zweibo.ui.fragment.NavigationDrawerFragment;
 import zxb.zweibo.R;
 import zxb.zweibo.widget.AppManager;
 
-@EActivity(R.layout.activity_main)
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -47,15 +43,15 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
-    @ViewById(R.id.drawer_layout)
-    DrawerLayout drawer;
+    @Bind(R.id.drawer_layout) DrawerLayout drawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         EventBus.getDefault().register(this);
-        checkLogin();
+//        checkLogin();
 
        /* DisplayMetrics metric = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metric);
@@ -63,10 +59,9 @@ public class MainActivity extends ActionBarActivity
         int height = metric.heightPixels;  // 屏幕高度（像素）
         float density = metric.density;  // 屏幕密度（0.75 / 1.0 / 1.5）
         int densityDpi = metric.densityDpi;  // 屏幕密度DPI（120 / 160 / 240）*/
-
+        init();
     }
 
-    @AfterViews
     protected void init() {
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);

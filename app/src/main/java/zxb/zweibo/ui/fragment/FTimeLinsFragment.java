@@ -22,6 +22,7 @@ import com.sina.weibo.sdk.openapi.models.ErrorInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
 import zxb.zweibo.adapter.FTimeLinsAdapter;
 import zxb.zweibo.bean.FTLIds;
@@ -126,19 +127,9 @@ public class FTimeLinsFragment extends Fragment {
         mIds = new ArrayList<>();
 
         if(isInit){
-//            sendRequest();
             requestIds();
         }
-
-//        readJsonCache();
     }
-
-    /*private void readJsonCache(){
-        JsonCacheUtil jsonCacheUtil = new JsonCacheUtil(mContext);
-        mStatusesList = (ArrayList<StatusContent>) jsonCacheUtil.readCache(mAccessToken.getUid());
-        initDatas();
-    }*/
-
 
     private void initDatas() {
         mStatusesList = mFTimeLine.getStatuses();
@@ -153,23 +144,10 @@ public class FTimeLinsFragment extends Fragment {
     }
 
     private void initEvents(){
-        mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList);
+        GlobalApp app = (GlobalApp) getActivity().getApplication();
+        mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList, app.getmImageUtil());
 
         mRecyclerView.setAdapter(mAdapter);
-
-        /*mRecyclerView.setOnScrollListener(new OnBottomListener(llm) {
-            @Override
-            public void onBottom() {
-                if (!noMore) {
-                    if (!isRefresing) {
-                        sendRequest();
-                        Log.i(TAG, "Now refreshing...");
-                    }
-                }
-
-                Log.i(TAG, "Bttom");
-            }
-        });*/
 
         mRecyclerView.setOnScrollListener(new OnBottomListener(llm) {
             @Override
@@ -184,69 +162,9 @@ public class FTimeLinsFragment extends Fragment {
         });
     }
 
-    /*private void initWithCache() {
-        mJsonUtil.combineCache(mAccessToken.getUid(), mStatusesList, false);
-//        noMore = true;
-        initEvents();
-    }*/
-
     private void initWidtJsonUtil(){
         initEvents();
     }
-
-    /*private void sendRequest(){
-//        mStatusesAPI.friendsTimeline(0L, 0L, 10, ++currentPage, false, 0, false, friendTimeLineListener);
-        mWeiboAPI.friendsTimeline(0L, 0L, 10, ++currentPage, false, 0, false, friendTimeLineListener);
-        isRefresing = true;
-    }*/
-
-    /*private RequestListener friendTimeLineListener = new RequestListener() {
-
-        @Override
-        public void onComplete(String response) {
-            if (!TextUtils.isEmpty(response)) {
-                refreshDatas(response);
-            }
-        }
-        @Override
-        public void onWeiboException(WeiboException e) {
-            isRefresing = false;
-            LogUtil.e(TAG, e.getMessage());
-            ErrorInfo info = ErrorInfo.parse(e.getMessage());
-            Toast.makeText(mContext, info != null ? info.toString() : "", Toast.LENGTH_LONG).show();
-
-            // 请求失败后则把缓存数据取出显示，并禁用底部加载
-            initWithCache();
-
-        }
-
-        *//*private void sqliteDemo(String response) {
-            SQLiteOpenHelper sqliteHelper = new DBHelper(mContext, "test", null, 1);
-            SQLiteDatabase db = sqliteHelper.getWritableDatabase();
-
-            ContentValues values = new ContentValues();
-            values.put("json", response);
-            db.insert("jsonobject",null,values);
-        }*//*
-
-        *//*class DBHelper extends SQLiteOpenHelper {
-
-            public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-                super(context, name, factory, version);
-            }
-
-            @Override
-            public void onCreate(SQLiteDatabase db) {
-                String sql = "create table jsonobject(json varchar(65535) not null);";
-                db.execSQL(sql);
-            }
-
-            @Override
-            public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-            }
-        }*//*
-    };*/
 
     private int idsPage;
 
@@ -262,7 +180,6 @@ public class FTimeLinsFragment extends Fragment {
     }
 
 
-//    private FTLIds mIds = new FTLIds();
     private RequestListener idsListener = new RequestListener() {
         @Override
         public void onComplete(String json) {
@@ -272,8 +189,6 @@ public class FTimeLinsFragment extends Fragment {
             }
 
             loadMore();
-//            String j = json;
-//            Log.i(TAG, json);
         }
 
         @Override
@@ -291,39 +206,6 @@ public class FTimeLinsFragment extends Fragment {
     };
 
     Gson mGson = new Gson();
-    /**
-     * 如果是第一次初始化，则运行initDatas()
-     * 否则刷新RecycleView
-     * @param response Json
-     */
-    /*private void refreshDatas(String response) {
-        mFTimeLine = mGson.fromJson(response, FTimeLine.class);
-
-//        JsonCacheUtil jsonCacheUtil = new JsonCacheUtil(mContext);
-//        mStatusesList = jsonCacheUtil.readCache(mAccessToken.getUid());
-        if (isInit) {
-            initDatas();
-            isInit = false;
-            isRefresing = false;
-//            jsonCacheUtil.insertAll(mAccessToken.getUid(), mStatusesList);
-            return;
-        }
-
-        for (StatusContent sc : mFTimeLine.getStatuses()){
-            mStatusesList.add(sc);
-        }
-
-        if(mJsonUtil.combineCache(mAccessToken.getUid(), mStatusesList, true)){
-            // TODO 读取缓存后长度为21条，正常应该是可以继续之前的网络JSON的，但因为之前的noMore机制设置成了true，不发送更新
-            noMore = true;
-        }
-        mAdapter.notifyDataSetChanged();
-
-
-//        jsonCacheUtil.insertAll(mAccessToken.getUid(), mStatusesList);
-        isRefresing = false;
-        Log.i(TAG, "Refresh finish");
-    }*/
 
     private int PAGE_SIZE = 10;
 

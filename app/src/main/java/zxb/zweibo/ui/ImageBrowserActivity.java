@@ -4,84 +4,72 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.view.View;
 import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
-import zxb.zweibo.MyApplication;
+import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
 import zxb.zweibo.adapter.ImageBrowserAdapter;
 import zxb.zweibo.bean.ImageBrowserBean;
+import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.common.AccessTokenKeeper;
-import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.ImageUtil;
-import zxb.zweibo.common.WeiboAPIUtils;
-import zxb.zweibo.listener.WeiboRequestListener;
+import zxb.zweibo.listener.PageTracker;
 import zxb.zweibo.ui.fragment.ImageBrowserFragment;
 
-import static zxb.zweibo.R.id.vpImgBrowser;
 
 /**
+ * 大图浏览的Activity.
+ *
  * Created by rex on 15-8-11.
  */
 public class ImageBrowserActivity extends FragmentActivity{
 
+    @Bind(R.id.vpImgBrowser)
     ViewPager mViewPager;
-     StatusContent mStatusContent;
-    List<Fragment> mTabs;
-    ImageUtil mImgUtil;
 
-    ImageBrowserAdapter mAdapter;
+    /**
+     * 该条微博的内容.
+     */
+    private StatusContent mStatusContent;
+    /**
+     * ViewPager每页的内容.
+     */
+    private List<Fragment> mTabs;
+    /**
+     * 图像载入.
+     */
+    private ImageUtil mImgUtil;
+    /**
+     * 点击了哪张图片.
+     */
+    private int mPosition;
 
-    private Oauth2AccessToken mAccessToken;
-//    private WeiboAPIUtils mWeiboAPI;
-//    private Gson gson;
+    /**
+     * 底部导航条.
+     */
+    @Bind({R.id.vPage1, R.id.vPage2,R.id.vPage3,
+                R.id.vPage4,R.id.vPage5,R.id.vPage6,
+                R.id.vPage7,R.id.vPage8,R.id.vPage9})
+    List<View> navigatorBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        mImgUtil = new ImageUtil(this);
-
+        setContentView(R.layout.ftl_image_browser_activity);
+        ButterKnife.bind(this);
         // 自定义Application
-        MyApplication app = (MyApplication) getApplication();
+        GlobalApp app = (GlobalApp) getApplication();
         mImgUtil = app.getmImageUtil();
 
         initView();
-        checkParams();
-        initWeibo();
-        initDatas();
-        initEvents();
-//        requestJson();
-//        testRequest();
-    }
-
-    private void initDatas() {
-        List<String> smallPicUrls = getSmallPicUrls();
-        List<String> middlePicUrls = getMiddlePicUrls(smallPicUrls);
-
-        int size = smallPicUrls.size();
-        for (int i=0; i<size; i++){
-            ImageBrowserBean img = new ImageBrowserBean(smallPicUrls.get(i), middlePicUrls.get(i));
-            img.setImgUtil(mImgUtil);
-            EventBus.getDefault().postSticky(img);
-            ImageBrowserFragment f = new ImageBrowserFragment();
-
-            mTabs.add(f);
-        }
-
-        smallPicUrls.clear();
-        middlePicUrls.clear();
-    }
-
-    private void initWeibo() {
-        mAccessToken = AccessTokenKeeper.readAccessToken(this);
-//        mWeiboAPI = new WeiboAPIUtils(this, Constants.APP_KEY, mAccessToken);
     }
 
     /**
@@ -89,7 +77,10 @@ public class ImageBrowserActivity extends FragmentActivity{
      * 若对象为空，则关闭
      */
     private void checkParams() {
-        mStatusContent = EventBus.getDefault().getStickyEvent(StatusContent.class);
+        ImgBrowserWeiBoItem imgItem = EventBus.getDefault().getStickyEvent(ImgBrowserWeiBoItem.class);
+        this.mStatusContent = imgItem.getSc();
+        this.mPosition = imgItem.getPosition();
+
         if (mStatusContent == null){
             Toast.makeText(this, "参数不正确", Toast.LENGTH_SHORT).show();
             finish();
@@ -139,25 +130,46 @@ public class ImageBrowserActivity extends FragmentActivity{
     /**
      * 初始化页面控件
      */
-    private void initView() {
-        setContentView(R.layout.ftl_image_browser_activity);
-
-        mViewPager = (ViewPager) findViewById(vpImgBrowser);
+    public void initView() {
 
         mTabs = new ArrayList<>();
+
+        checkParams();
+        initDatas();
+        initEvents();
+    }
+
+    private void initDatas() {
+        List<String> smallPicUrls = getSmallPicUrls();
+        List<String> middlePicUrls = getMiddlePicUrls(smallPicUrls);
+
+        int size = smallPicUrls.size();
+        for (int i=0; i<size; i++){
+            ImageBrowserBean img = new ImageBrowserBean(smallPicUrls.get(i), middlePicUrls.get(i));
+            img.setImgUtil(mImgUtil);
+            EventBus.getDefault().postSticky(img);
+            ImageBrowserFragment f = new ImageBrowserFragment();
+
+            mTabs.add(f);
+        }
+
+        smallPicUrls.clear();
+        middlePicUrls.clear();
     }
 
     private void initEvents(){
-        mAdapter = new ImageBrowserAdapter(getSupportFragmentManager(), mTabs);
+        initPages();
+        ImageBrowserAdapter mAdapter = new ImageBrowserAdapter(getSupportFragmentManager(), mTabs);
         mViewPager.setAdapter(mAdapter);
-    }
+        mViewPager.addOnPageChangeListener(new PageTracker() {
+            @Override
+            public void resetState(int position) {
+                reset();
+                setSelect(position);
+            }
+        });
 
-    public void refreshDatas(){
-        mStatusContent = EventBus.getDefault().getStickyEvent(StatusContent.class);
-        mTabs.clear();
-        initDatas();
-        mAdapter.notifyDataSetChanged();
-        this.setVisible(true);
+        mViewPager.setCurrentItem(mPosition);
     }
 
     @Override
@@ -170,4 +182,46 @@ public class ImageBrowserActivity extends FragmentActivity{
 //        mTabs = null;
 
     }
+
+    // ---------------底部进度条的操作---------------------
+
+    /**
+     * 初始化进度条颜色
+     */
+    public void initPages(){
+        reset();
+        setSelect(mPosition);
+        reSizePages(mTabs);
+    }
+
+    /**
+     * 设定哪个被选中.
+     *
+     * @param pos position
+     */
+    public void setSelect(int pos){
+        navigatorBar.get(pos).setBackgroundColor(0xFF4271B2);
+    }
+
+    /**
+     * 重围进度条颜色
+     */
+    public void reset(){
+        for (View view : navigatorBar){
+            view.setBackgroundColor(0xFFFFFFFF);
+        }
+    }
+
+    /**
+     * 把不需要的隐藏，使用weight属性会自动适应屏幕宽度.
+     *
+     * @param mTabs 每页的内容
+     */
+    public void reSizePages(List<Fragment> mTabs) {
+        for (int i=mTabs.size(); i<9; i++){
+            navigatorBar.get(i).setVisibility(View.GONE);
+        }
+    }
+
+    // 底部进度条
 }

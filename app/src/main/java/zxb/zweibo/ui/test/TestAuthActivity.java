@@ -48,7 +48,7 @@ public class TestAuthActivity extends Activity{
 
         mAccessToken = new Oauth2AccessToken();
 
-        content = (TextView) findViewById(R.id.content);
+        content = (TextView) findViewById(R.id.tvText);
 
         webBtn = (Button) findViewById(R.id.web);
         webBtn.setOnClickListener(new View.OnClickListener() {

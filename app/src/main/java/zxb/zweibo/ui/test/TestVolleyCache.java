@@ -49,7 +49,7 @@ public class TestVolleyCache extends Activity{
 //        urls.add("");
 
 
-        content = (TextView) findViewById(R.id.content);
+        content = (TextView) findViewById(R.id.tvText);
         imgTest = (ImageView) findViewById(R.id.imgTest);
         try {
             helper = new DiskLruCacheHelper(this);

@@ -33,90 +33,101 @@ import java.util.List;
 import zxb.zweibo.bean.PicUrls;
 
 /**
+ * 简化Volley的操作.
+ *
  * Created by rex on 15-8-4.
  */
 public class VolleyHelper {
+    /**
+     * 已经start的请求队列.
+     */
     private static RequestQueue mQueue = null;
 
+    /**
+     * 上来文，最好传入ApplicationContext，整个APP只持有一个实例
+     * 避免频繁创建注销，导致资源消耗.
+     */
     private Context mContext;
 
+    /**
+     * TAG, 一般在LOG的时候使用
+     */
     private String TAG;
-//    private ICacheInterface imgUtil;
 
     public VolleyHelper(Context context){
         this.mContext = context;
         if(mContext!=null){
             this.mQueue = Volley.newRequestQueue(mContext);
-//            DiskBasedCache()
         }
 
         TAG = getClass().getSimpleName();
     }
 
-    public VolleyHelper(Context context, ICacheInterface imgUtil){
-        this(context);
-//        this.imgUtil = imgUtil;
-    }
-
-    public void loadImg(final ImageView imgView, final String picUrl) {
+    /*public void loadImg(final ImageView imgView, final String picUrl) {
 
         if (mQueue == null) {
             mQueue = Volley.newRequestQueue(mContext);
         }
 
         imageRequest(imgView, picUrl);
-    }
-    public void loadImg(final ImageView imgView, final String picUrl, Response.Listener<Bitmap> listener) {
-
-        if (mQueue == null) {
-            mQueue = Volley.newRequestQueue(mContext);
-        }
-
-        ImgRequest req = new ImgRequest(imgView, picUrl, listener);
-        req.setShouldCache(false);
-//        req.
-        mQueue.add(req);
-    }
-
-    public void loadLargeImg(final ImageView imgView, final String picUrl, Response.Listener<Bitmap> listener){
-        if (mQueue == null) {
-            mQueue = Volley.newRequestQueue(mContext);
-        }
-        ImgRequest req = new ImgRequest(imgView, picUrl, listener);
-        req.setShouldCache(false);
-
-//        WeakReference<ImgRequest> imgRequestWeakReference = new WeakReference<ImgRequest>(req);
-        mQueue.add(req);
-    }
-
-    static class ImgRequest extends ImageRequest{
-        public ImgRequest(final ImageView imgView, String url, Response.Listener<Bitmap> listener) {
-            super(url, listener, 0, 0, ImageView.ScaleType.FIT_CENTER, Bitmap.Config.RGB_565, null);
-        }
-    }
-
-    /*public void loadImg(final ImageView imgView, final String picUrl, Response.Listener listener) {
-
-        if (mQueue == null) {
-            mQueue = Volley.newRequestQueue(mContext);
-        }
-
-        ImageRequest imageRequest = new ImageRequest(
-                picUrl,
-                listener, 0, 0, ImageView.ScaleType.FIT_CENTER, Bitmap.Config.RGB_565,
-
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //...
-                    }
-                }
-        );
-
-        mQueue.add(imageRequest);
     }*/
 
-    private void imageRequest(final ImageView imgView, final String picUrl) {
+    /**
+     * 从网络图片并进行Volley自身的缓存.
+     *
+     * @param imgView 要显示在哪个ImageView上面
+     * @param picUrl 图片的URL
+     * @param listener 收到图片后的处理，这个应该由上一个类传入，否则拿到Bitmap后不能进行缓存
+     */
+    public void loadImg(String picUrl, Response.Listener<Bitmap> listener) {
+
+        if (mQueue == null) {
+            mQueue = Volley.newRequestQueue(mContext);
+        }
+
+        ImgRequest req = new ImgRequest(picUrl, listener);
+        req.setShouldCache(false);
+
+        mQueue.add(req);
+    }
+
+    /**
+     * 从网络获取图片，但不使用Volley自身的缓存，
+     * 已经使用了DiskLruCache缓存，避免资源消耗.
+     *
+     * @param picUrl 图片的URL
+     * @param listener 收到图片后的处理，这个应该由上一个类传入，否则拿到Bitmap后不能进行缓存
+     */
+    public void loadLargeImg(String picUrl, Response.Listener<Bitmap> listener){
+        if (mQueue == null) {
+            mQueue = Volley.newRequestQueue(mContext);
+        }
+
+        ImgRequest req = new ImgRequest(picUrl, listener);
+        req.setShouldCache(false);
+
+        mQueue.add(req);
+    }
+
+    /**
+     * Volley需要的请求类，会添加到请求队列中，
+     * 为了方便使用，所以把里面的参数写死，
+     * 需要的时候可以修改.
+     */
+    class ImgRequest extends ImageRequest {
+        public ImgRequest(String url, Response.Listener<Bitmap> listener) {
+            super(url, listener, 0, 0, ImageView.ScaleType.FIT_CENTER, Bitmap.Config.RGB_565,
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            Log.i("VolleyError", "-----volleyError-----");
+                            volleyError.printStackTrace();
+                        }
+                    });
+        }
+    }
+
+    /*private void imageRequest(final ImageView imgView, final String picUrl) {
         final ImageRequest imageRequest = new ImageRequest(
                 picUrl,
                 new Response.Listener<Bitmap>() {
@@ -141,41 +152,8 @@ public class VolleyHelper {
         );
 
         mQueue.add(imageRequest);
-    }
-
-    /*private void notCache(ImageRequest imageRequest){
-        imageRequest.setShouldCache(false);
     }*/
 
-    /*private void setDismens(ImageView imgView, Bitmap response) {
-        imgView.getLayoutParams().height = response.getHeight();
-        imgView.getLayoutParams().width = response.getWidth();
-    }*/
-
-    /*public void loadMultiImg(List<ImageView> imgList, PicUrls[] urlList) {
-        for (int i = 0; i < urlList.length; i++) {
-            imgList.get(i).setVisibility(View.VISIBLE);
-            loadImg(imgList.get(i), urlList[i].getThumbnail_pic());
-        }
-    }*/
-
-    /*public void load(ImageView img, final String url, final ImageLoader.ImageCache imageCache){
-
-        ImageLoader imageLoader = new ImageLoader(Volley.newRequestQueue(mContext), imageCache);
-        imageLoader.get(url, new ImageLoader.ImageListener() {
-            @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                Bitmap bitmap = response.getBitmap();
-                if (url != null && bitmap != null)
-                    imageCache.putBitmap(url, bitmap);
-            }
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
-    }*/
 
     public void clearCache(){
         File cacheDir = new File(mContext.getCacheDir(), "volley");
@@ -188,12 +166,7 @@ public class VolleyHelper {
         });
         queue.start();
 
-// clear all volley caches.
         queue.add(new ClearCacheRequest(cache, null));
-
-        /*for (File cacheFile : cacheDir.listFiles()) {
-            if (cacheFile.isFile() && cacheFile.length() > 10000000) cacheFile.delete();
-        }*/
     }
 
     private byte[] transferToArray(Bitmap bitmap){

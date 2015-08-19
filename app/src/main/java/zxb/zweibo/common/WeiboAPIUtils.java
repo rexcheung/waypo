@@ -18,6 +18,7 @@ public class WeiboAPIUtils extends StatusesAPI {
      */
     private String IDS = "https://api.weibo.com/2/statuses/friends_timeline/ids.json";
     private String SHOW = "https://api.weibo.com/2/statuses/show.json";
+    private String EMOTIONS = "https://api.weibo.com/2/emotions.json";
 
     /**
      * 构造函数，使用各个 API 接口提供的服务前必须先获取 Token。
@@ -32,6 +33,7 @@ public class WeiboAPIUtils extends StatusesAPI {
 
     /**
      * 获取当前登录用户及其所关注用户的最新微博的ID.
+     * 注意：是ID号，不是微博
      * http://open.weibo.com/wiki/2/statuses/friends_timeline/ids.
      *
      * @param since_id    若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
@@ -62,7 +64,31 @@ public class WeiboAPIUtils extends StatusesAPI {
     }
 
     /**
+     * 获取微博官方表情的详细信息.
+     *
+     * @param type 表情类别，face：普通表情、ani：魔法表情、cartoon：动漫表情，默认为face。
+     * @param language 语言类别，cnname：简体、twname：繁体，默认为cnname。
+     * @param listener    异步请求回调接口
+     */
+    public void getEmotions(String type, String language, RequestListener listener) {
+        WeiboParameters params =
+                buildEmotionsParams(type, language);
+        requestAsync(EMOTIONS, params, HTTPMETHOD_GET, listener);
+    }
+
+    protected WeiboParameters buildEmotionsParams(String type, String language) {
+        WeiboParameters params = new WeiboParameters(mAppKey);
+        params.put("type", type);
+        params.put("language", language);
+        return params;
+    }
+
+    /**
      * 发送单条微博的请求.
+     * Note: 返回错误信息，因为隐私设置，唯有另外找方法获取单条微博的信息.
+     * 原本是打算从这个方法获取该微博里面大图的URL，返回错误信息后，就改为用字符串拼接，
+     * 发现原来大图和小图的URL仅是目录不同而已。
+     *
      * @param id 该条微博号
      * @param listener 监听器
      */
