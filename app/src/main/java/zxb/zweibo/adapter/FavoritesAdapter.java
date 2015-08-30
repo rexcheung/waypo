@@ -7,27 +7,26 @@ import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.Utils.SpanHelper;
 import zxb.zweibo.bean.CommentsJson;
+import zxb.zweibo.bean.FavoriteItem;
 import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
@@ -40,53 +39,52 @@ import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.Utils;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.ui.CommentActivity;
+import zxb.zweibo.ui.GifBrowserActivity;
 import zxb.zweibo.ui.ImageBrowserActivity;
 
 /**
  * FriendsTimeLine Fragment里面RecyclerView的Adapter.
  * Created by rex on 15-8-4.
  */
-public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
+public class FavoritesAdapter extends RecyclerView.Adapter<FTLHolder> {
 
     Context mContext;
     List<StatusContent> mStatusesList;
     private ImageUtil imageUtil;
 
-    private JsonCacheUtil jsonCacheUtil;
-
     private SpanHelper spanHelper;
 
-    private WeiboAPIUtils mWeiboAPI;
+    private FavoritesAdapter(){}
 
-    private FTimeLinsAdapter(){}
-
-    private FTimeLinsAdapter(Context context, List<StatusContent> statusesList, ImageUtil imageUtil){
+    private FavoritesAdapter(Context context, List<FavoriteItem> favList){
         this.mContext = context;
-        this.mStatusesList = statusesList;
-        this.imageUtil = imageUtil;
-        jsonCacheUtil = new JsonCacheUtil(mContext);
 
         spanHelper = new SpanHelper(context);
 
         getScreenSize(context);
 
-        Oauth2AccessToken mAccessToken = AccessTokenKeeper.readAccessToken(context);
-        mWeiboAPI = new WeiboAPIUtils(context, Constants.APP_KEY, mAccessToken);
+        GlobalApp app = (GlobalApp) context.getApplicationContext();
+        imageUtil = app.getmImageUtil();
+
+        mStatusesList = new ArrayList<>();
+        for (FavoriteItem item : favList) {
+            mStatusesList.add(item.status);
+        }
     }
 
-    public static FTimeLinsAdapter newInstance(Context context, List<StatusContent> statusesList, ImageUtil imageUtil) {
-        FTimeLinsAdapter adapter = new FTimeLinsAdapter(context,statusesList, imageUtil);
-        return adapter;
+    public static FavoritesAdapter newInstance(Context context, List<FavoriteItem> favList) {
+        return new FavoritesAdapter(context,favList);
     }
 
 
     private int mImgH;
     private int mImgW;
-    private int mSingleImgH;
-    private int mSingleImgW;
+//    private int mSingleImgH;
+//    private int mSingleImgW;
 
     /**
-     * 检测当前设备的屏幕尺寸
+     * 检测当前设备的屏幕尺寸.
+     *
      * @param context 必须要Activity的实体才能获取WindowManager，所以需要传入Activity
      */
     private void getScreenSize(Context context){
@@ -100,17 +98,17 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
 
         mImgH = height / 6;
         mImgW = width / 6;
-        mSingleImgH = height / 3;
-        mSingleImgW = width / 3;
+//        mSingleImgH = height / 3;
+//        mSingleImgW = width / 3;
     }
 
     @Override
     public FTLHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_timeline, viewGroup, false);
-        FTLHolder holder = new FTLHolder(view);
+//        FTLHolder holder = new FTLHolder(view);
 
-        return holder;
+        return new FTLHolder(view);
     }
 
     @Override
@@ -310,7 +308,7 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
                     @Override
                     public void onClick(View v) {
                         EventBus.getDefault().postSticky(new ImgBrowserWeiBoItem(statusContent, finalI));
-                        Intent intent = new Intent(mContext, ImageBrowserActivity.class);
+                        Intent intent = new Intent(mContext, GifBrowserActivity.class);
                         mContext.startActivity(intent);
                     }
                 });
@@ -354,19 +352,5 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
         imageUtil.clearMemoryCache();
     }
 
-    RequestListener commentListener = new RequestListener(){
-
-        @Override
-        public void onComplete(String s) {
-            Logger.i(s);
-            CommentsJson commentsJson = gson.fromJson(s, CommentsJson.class);
-
-        }
-
-        @Override
-        public void onWeiboException(WeiboException e) {
-            e.printStackTrace();
-        }
-    };
 
 }

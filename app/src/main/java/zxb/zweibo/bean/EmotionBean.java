@@ -8,7 +8,7 @@ public class EmotionBean {
 
     /**
      * phrase : [微笑]
-     * common : true
+     * Common : true
      * icon : http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/5c/huanglianwx_thumb.gif
      * type : face
      * hot : false

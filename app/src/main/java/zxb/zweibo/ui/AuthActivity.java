@@ -62,7 +62,8 @@ public class AuthActivity extends Activity implements IAuthView {
 
     @Override
     public void finishActivity() {
-        startActivity(new Intent(this, MainActivity.class));
+//        startActivity(new Intent(this, MainActivityNew.class));
+        startActivity(new Intent(this, MainActivityF.class));
         AppManager.getAppManager().finishActivity();
     }
 }

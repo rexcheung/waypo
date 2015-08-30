@@ -2,9 +2,14 @@ package zxb.zweibo.ui.fragment;
 
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,37 +26,40 @@ import com.sina.weibo.sdk.openapi.models.ErrorInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import de.greenrobot.event.EventBus;
 import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.adapter.FTimeLinsAdapter;
 import zxb.zweibo.bean.FTLIds;
 import zxb.zweibo.bean.FTimeLine;
+import zxb.zweibo.bean.LastWeibo;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.listener.OnBottomListener;
+import zxb.zweibo.service.CheckUpdateService;
 
 
 /**
  * 显示FriendsTimeLine最新关注用户的微博
  * Created by rex on 15-7-31.
  */
-public class FTimeLinsFragment extends Fragment {
+public class FTLFragment extends Fragment {
 
     /**
      * 初始化时传入的父类Activity, LayoutInflater需要使用
      */
     private static Activity mContext;
-    private static int mPosition;
 
     /**
      * 新浪SDK.
      */
     private Oauth2AccessToken mAccessToken;
-//    private StatusesAPI mStatusesAPI;
     private WeiboAPIUtils mWeiboAPI;
     /**
      * 接收最近10条微博的实体类.
@@ -65,10 +73,13 @@ public class FTimeLinsFragment extends Fragment {
 
     private String TAG;
 
-    private LinearLayoutManager llm;
-    private RecyclerView mRecyclerView;
+    @Bind(R.id.swipeRefreshLayout)
+    SwipeRefreshLayout mSwipeLayout;
 
-    private int currentPage;
+    private LinearLayoutManager llm;
+
+    @Bind(R.id.listContent)
+    RecyclerView mRecyclerView;
 
     private FTimeLinsAdapter mAdapter;
 
@@ -85,16 +96,13 @@ public class FTimeLinsFragment extends Fragment {
     private List<Long> mIds;
 
     private JsonCacheUtil mJsonUtil;
-//    private boolean noMore = false;
     /**
      * 初始化.
-     * @param position 位置.
      * @param content  Content.
      * @return 该类的实例
      */
-    public static FTimeLinsFragment newInstance(int position, Activity content) {
-        FTimeLinsFragment fragment = new FTimeLinsFragment();
-        mPosition = position;
+    public static FTLFragment newInstance(Activity content) {
+        FTLFragment fragment = new FTLFragment();
         mContext = content;
         return fragment;
     }
@@ -102,14 +110,16 @@ public class FTimeLinsFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_timeline, null);
+        View view = inflater.inflate(R.layout.ftl_fragment, null);
 
-        init(view);
+        ButterKnife.bind(this, view);
+
+        init();
 
         return view;
     }
 
-    private void init(View view) {
+    private void init() {
         llm = new LinearLayoutManager(mContext);
 
         TAG = getClass().getSimpleName();
@@ -118,7 +128,7 @@ public class FTimeLinsFragment extends Fragment {
 //        mStatusesAPI = new StatusesAPI(mContext, Constants.APP_KEY, mAccessToken);
         mWeiboAPI = new WeiboAPIUtils(mContext, Constants.APP_KEY, mAccessToken);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.listContent);
+//        mRecyclerView = (RecyclerView) view.findViewById(R.id.rvContent);
         mRecyclerView.setLayoutManager(llm);
 
         mJsonUtil = new JsonCacheUtil(mContext, mAccessToken, mWeiboAPI);
@@ -148,18 +158,41 @@ public class FTimeLinsFragment extends Fragment {
         mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList, app.getmImageUtil());
 
         mRecyclerView.setAdapter(mAdapter);
-
         mRecyclerView.setOnScrollListener(new OnBottomListener(llm) {
             @Override
             public void onBottom() {
-                    if (!isRefresing) {
-                        loadMore();
-                        Logger.i("Now refreshing...");
-                    }
+                if (!isRefresing) {
+                    loadMore();
+                    Logger.i("Now refreshing...");
+                }
 
                 Logger.i("Bttom");
             }
         });
+
+        mSwipeLayout.setOnRefreshListener(mRefreshSwipe);
+    }
+
+    SwipeRefreshLayout.OnRefreshListener mRefreshSwipe = new SwipeRefreshLayout.OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+//            Toast.makeText(MainActivityNew.this, "Refresh", Toast.LENGTH_SHORT).show();
+            Snackbar.make(mRecyclerView, "Refreshing", Snackbar.LENGTH_SHORT).show();
+//            requestIds();
+            refreshList();
+        }
+    };
+
+    public void refreshList(){
+        mSwipeLayout.setRefreshing(true);
+        requestIds();
+        cancelNotifi();
+    }
+
+    private void cancelNotifi(){
+        NotificationManager notifi =
+                (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notifi.cancelAll();
     }
 
     private void initWidtJsonUtil(){
@@ -185,10 +218,23 @@ public class FTimeLinsFragment extends Fragment {
         public void onComplete(String json) {
             FTLIds tempIds = mGson.fromJson(json, FTLIds.class);
             if(tempIds!=null){
-                mIds.addAll(tempIds.getStatuses());
-            }
+                if(tempIds.getStatuses().size() != 0){
+                    mIds.clear();
+                    mIds.addAll(tempIds.getStatuses());
+                    //3877868491180738 3877868419452707
+                    if (mSwipeLayout.isRefreshing()){
+                        mStatusesList.clear();
+                        mSwipeLayout.setRefreshing(false);
+                    }
 
-            loadMore();
+//                    Logger.i(mIds.get(0));
+                    loadMore();
+
+                } else {
+                    Snackbar.make(mSwipeLayout, "暂时没更新，休息下吧骚年", Snackbar.LENGTH_SHORT).show();
+                    mSwipeLayout.setRefreshing(false);
+                }
+            }
         }
 
         @Override
@@ -202,6 +248,7 @@ public class FTimeLinsFragment extends Fragment {
                 initEvents();
                 mAdapter.notifyDataSetChanged();
             }
+            if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
         }
     };
 
@@ -214,17 +261,26 @@ public class FTimeLinsFragment extends Fragment {
      */
     private void loadMore(){
         isRefresing = true;
-        long lastId = 0;
+        long lastId;
         if (mStatusesList.size() > 0){
             lastId = mStatusesList.get(mStatusesList.size()-1).getId();
         } else {
             lastId = mIds.get(0);
         }
-//        mJsonUtil.getCacheFrom(mStatusesList, mIds, lastId, PAGE_SIZE, mCacheListener);
+
         List<Long> tempList = getPageItems(mIds, lastId, PAGE_SIZE);
         if (tempList!=null){
             mJsonUtil.getCacheFrom(mStatusesList, tempList, mCacheListener);
         }
+
+        restartService();
+    }
+
+    private void restartService() {
+//        stopService(new Intent(getApplicationContext(), CheckUpdateService.class) );
+        EventBus.getDefault().getStickyEvent(LastWeibo.class);
+        EventBus.getDefault().postSticky(new LastWeibo(mIds.get(0)));
+        mContext.startService(new Intent(mContext, CheckUpdateService.class));
     }
 
     JsonCacheUtil.CacheListener mCacheListener = new JsonCacheUtil.CacheListener(){
@@ -329,5 +385,8 @@ public class FTimeLinsFragment extends Fragment {
         mWeiboAPI = null;
         mJsonUtil = null;
         mGson = null;
+
+        cancelNotifi();
+        mContext.stopService(new Intent(mContext, CheckUpdateService.class));
     }
 }

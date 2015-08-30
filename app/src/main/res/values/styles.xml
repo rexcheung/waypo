@@ -4,18 +4,24 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
     </style>
-    <!--<style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
-        <!--&lt;!&ndash; Customize your theme here. &ndash;&gt;-->
-    <!--</style>-->
+    <style name="NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+    </style>
 
     <!--android:layout_width="wrap_content"-->
     <!--android:layout_height="wrap_content"-->
     <style name="FriendsTimeLineText" >
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="CommentText" >
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="itemImageView">
@@ -33,4 +39,9 @@
         <item name="android:layout_weight">1</item>
     </style>
 
+    <style name="commentImage">
+        <item name="android:layout_width">70dp</item>
+        <item name="android:layout_height">70dp</item>
+        <item name="android:layout_margin">3dp</item>
+    </style>
 </resources>

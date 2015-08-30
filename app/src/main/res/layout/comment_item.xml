@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:fresco="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
@@ -7,7 +8,7 @@
               android:layout_marginBottom="5dp"
               android:layout_marginLeft="10dp"
               android:layout_marginRight="10dp"
-              android:background="@color/alphaGrey"
+              android:background="@color/littleAlphaGrey"
               android:padding="10dp">
 
     <LinearLayout
@@ -16,11 +17,13 @@
         android:orientation="horizontal">
 
         <!--头像-->
-        <zxb.zweibo.widget.CircleImageView
+
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/imgAvatar"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_sina_logo"/>
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            fresco:roundAsCircle="true"
+            fresco:placeholderImage="@drawable/ic_sina_logo"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -36,7 +39,8 @@
                 <!--用户昵称-->
                 <TextView
                     android:id="@+id/tvScreenName"
-                    style="@style/FriendsTimeLineText"
+                    style="@style/CommentText"
+                    android:layout_marginTop="0dp"
                     android:text="我是思聪"/>
 
                 <!--是否认证用户-->
@@ -45,13 +49,13 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="0dp"
                     android:src="@drawable/ic_sina_v"/>
             </LinearLayout>
 
             <TextView
                 android:id="@+id/tvFrom"
-                style="@style/FriendsTimeLineText"
+                style="@style/CommentText"
                 android:text="10分钟前发自iPhone6Plus"/>
 
         </LinearLayout>
@@ -59,7 +63,7 @@
 
     <TextView
         android:id="@+id/tvContent"
-        style="@style/FriendsTimeLineText"
+        style="@style/CommentText"
         android:text="昨天去海天盛宴被拍了"/>
 
     <View
@@ -75,13 +79,13 @@
 
         <TextView
             android:id="@+id/tvReUser"
-            style="@style/FriendsTimeLineText"
+            style="@style/CommentText"
             android:text="啪啪啪..."
             android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvReContent"
-            style="@style/FriendsTimeLineText"
+            style="@style/CommentText"
             android:text="啪啪啪..."/>
     </LinearLayout>
 
@@ -92,17 +96,19 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <ImageView
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img1"
-            style="@style/itemImageView" />
-
-        <ImageView
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img2"
-            style="@style/itemImageView" />
-
-        <ImageView
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img3"
-            style="@style/itemImageView" />
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
+
     </LinearLayout>
 
     <LinearLayout
@@ -111,17 +117,18 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <ImageView
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img4"
-            style="@style/itemImageView" />
-
-        <ImageView
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img5"
-            style="@style/itemImageView" />
-
-        <ImageView
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img6"
-            style="@style/itemImageView" />
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
     </LinearLayout>
 
     <LinearLayout
@@ -130,17 +137,18 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <ImageView
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img7"
-            style="@style/itemImageView" />
-
-        <ImageView
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img8"
-            style="@style/itemImageView" />
-
-        <ImageView
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
+        <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/img9"
-            style="@style/itemImageView" />
+            style="@style/itemImageView"
+            fresco:placeholderImage="@drawable/icon_sina_grey"/>
     </LinearLayout>
 
     <RelativeLayout
@@ -150,20 +158,20 @@
 
         <TextView
             android:id="@+id/tvLikeCount"
-            style="@style/FriendsTimeLineText"
+            style="@style/CommentText"
             android:drawableLeft="@drawable/timeline_icon_unlike"
             android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/tvCommentCount"
-            style="@style/FriendsTimeLineText"
+            style="@style/CommentText"
             android:layout_alignParentRight="true"
             android:drawableLeft="@drawable/timeline_icon_comment"
             android:textSize="20dp"/>
 
         <TextView
             android:id="@+id/tvRepostCount"
-            style="@style/FriendsTimeLineText"
+            style="@style/CommentText"
             android:layout_toLeftOf="@id/tvCommentCount"
             android:layout_marginRight="15dp"
             android:drawableLeft="@drawable/timeline_icon_redirect"

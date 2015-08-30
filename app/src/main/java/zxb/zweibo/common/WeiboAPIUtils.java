@@ -1,6 +1,7 @@
 package zxb.zweibo.common;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.net.RequestListener;
@@ -16,10 +17,16 @@ public class WeiboAPIUtils extends StatusesAPI {
     /**
      * 获取当前登录用户及其所关注用户的最新微博的ID
      */
-    private String IDS = "https://api.weibo.com/2/statuses/friends_timeline/ids.json";
-    private String SHOW = "https://api.weibo.com/2/statuses/show.json";
-    private String EMOTIONS = "https://api.weibo.com/2/emotions.json";
+    private final String IDS = "https://api.weibo.com/2/statuses/friends_timeline/ids.json";
+    private final String SHOW = "https://api.weibo.com/2/statuses/show.json";
+    private final String EMOTIONS = "https://api.weibo.com/2/emotions.json";
+    private final String COMMENT = "https://api.weibo.com/2/comments/show.json";
+    private final String ADD_FAVORTIE = "https://api.weibo.com/2/favorites/create.json";
+    private final String FORWARD = "https://api.weibo.com/2/statuses/repost.json";
+    private final String GET_FAVORITE = "https://api.weibo.com/2/favorites.json";
 
+
+    private Oauth2AccessToken mAccessToken;
     /**
      * 构造函数，使用各个 API 接口提供的服务前必须先获取 Token。
      *
@@ -29,6 +36,7 @@ public class WeiboAPIUtils extends StatusesAPI {
      */
     public WeiboAPIUtils(Context context, String appKey, Oauth2AccessToken accessToken) {
         super(context, appKey, accessToken);
+        mAccessToken = accessToken;
     }
 
     /**
@@ -44,10 +52,22 @@ public class WeiboAPIUtils extends StatusesAPI {
      * @param featureType 过滤类型ID，0：全部、1：原创、2：图片、3：视频、4：音乐，默认为0。
      * @param listener    异步请求回调接口
      */
-    public void friendsTimeLineIds(long since_id, long max_id, int count, int page, boolean base_app,
-                                   int featureType, RequestListener listener) {
+    public void imageFTLIds(long since_id, long max_id, int count, int page, boolean base_app,
+                            int featureType, RequestListener listener) {
         WeiboParameters params =
                 buildTimeLineParamsBase(since_id, max_id, count, page, base_app, featureType);
+        requestAsync(IDS, params, HTTPMETHOD_GET, listener);
+    }
+
+    /**
+     * 获取100条微博的ID， 微博的类型为图片
+     * @param since_id  若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
+     * @param max_id    若指定此参数，则返回ID小于或等于max_id的微博，默认为0。
+     * @param listener  异步请求回调接口
+     */
+    public void imageFTLIds(long since_id, long max_id, RequestListener listener) {
+        WeiboParameters params =
+                buildTimeLineParamsBase(since_id, max_id, 100, 1, false, 2);
         requestAsync(IDS, params, HTTPMETHOD_GET, listener);
     }
 
@@ -101,5 +121,100 @@ public class WeiboAPIUtils extends StatusesAPI {
         WeiboParameters params = new WeiboParameters(mAppKey);
         params.put("id", id);
         return params;
+    }
+
+    /**
+     * https://api.weibo.com/2/comments/show.json
+     * id	true	int64	需要查询的微博ID。
+     since_id	false	int64	若指定此参数，则返回ID比since_id大的评论（即比since_id时间晚的评论），默认为0。
+     max_id	false	int64	若指定此参数，则返回ID小于或等于max_id的评论，默认为0。
+     count	false	int	单页返回的记录条数，默认为50。
+     page	false	int	返回结果的页码，默认为1。
+     filter_by_author	false	int	作者筛选类型，0：全部、1：我关注的人、2：陌生人，默认为0。
+     */
+    public void requestCommentsById(long id, RequestListener listener){
+        WeiboParameters params = buildCommentParams(id);
+        requestAsync(COMMENT, params, HTTPMETHOD_GET, listener);
+    }
+
+    /**
+     * 除了ID，全部都是默认参数
+     * @param id ID
+     * @return WeiboParameters
+     */
+    protected WeiboParameters buildCommentParams(long id) {
+        WeiboParameters params = new WeiboParameters(mAppKey);
+        params.put("id", id);
+        params.put("since_id", 0);
+        params.put("max_id", 0);
+        params.put("count", 50);
+        params.put("page", 1);
+        params.put("filter_by_author", 0);
+        return params;
+    }
+
+
+    /**
+     *收藏一条微博.
+     * @param id	true	int64	要收藏的微博ID。
+     */
+    public void addFavorites(Long id, RequestListener listener){
+        WeiboParameters params = buildFavoriteParams(id);
+        requestAsync(ADD_FAVORTIE, params, HTTPMETHOD_POST, listener);
+    }
+
+    protected WeiboParameters buildFavoriteParams(long id) {
+        WeiboParameters params = new WeiboParameters(mAppKey);
+        params.put("id", id);
+        return params;
+    }
+
+
+    /**
+     * 转发当前微博， 做了些默认的处理，就是没有传入的参数.
+     *
+     * @param id	true	int64	要转发的微博ID。
+     * @param status	false	string	添加的转发文本，必须做URLencode，内容不超过140个汉字，不填则默认为“转发微博”。
+     * @param is_comment	false	int	是否在转发的同时发表评论，0：否、1：评论给当前微博、2：评论给原微博、3：都评论，默认为0 。
+     * @param rip	false	string	开发者上报的操作用户真实IP，形如：211.156.0.1。
+     */
+    public void forward(Long id, String status, RequestListener listener){
+        WeiboParameters params = buildForwardParams(id, status);
+        requestAsync(FORWARD, params, HTTPMETHOD_POST, listener);
+    }
+
+    protected WeiboParameters buildForwardParams(long id, String status) {
+        WeiboParameters params = new WeiboParameters(mAppKey);
+        params.put("id", id);   //要转发的微博ID
+        if (!TextUtils.isEmpty(status)){
+            params.put("status", status);   //添加的转发文本
+        }
+//        params.put("is_comment", 0);   //是否在转发的同时发表评论
+//        params.put("rip", "");   //开发者上报的操作用户真实IP
+        return params;
+    }
+
+    /**
+     * 获取当前登录用户的收藏列表.
+     *
+     * @param count false	int	单页返回的记录条数，默认为50。
+     * @param page false	int	返回结果的页码，默认为1。
+     */
+    public void reqFavorites(int count, int page, RequestListener listener){
+        WeiboParameters params = buildFavoritesParams(count, page);
+        requestAsync(GET_FAVORITE, params, HTTPMETHOD_GET, listener);
+    }
+
+    protected WeiboParameters buildFavoritesParams(int count, int page) {
+        WeiboParameters params = new WeiboParameters(mAppKey);
+        if (count != 0){
+            params.put("count", count);   //单页返回的记录条数
+        }
+        params.put("page", page);   //返回结果的页码
+        return params;
+    }
+
+    public Oauth2AccessToken getmAccessToken() {
+        return mAccessToken;
     }
 }

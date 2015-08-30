@@ -22,6 +22,7 @@ import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.common.ImageUtil;
 import zxb.zweibo.listener.PageTracker;
+import zxb.zweibo.ui.fragment.GifFragment;
 import zxb.zweibo.ui.fragment.ImageBrowserFragment;
 import zxb.zweibo.widget.AppManager;
 
@@ -31,7 +32,7 @@ import zxb.zweibo.widget.AppManager;
  *
  * Created by rex on 15-8-11.
  */
-public class ImageBrowserActivity extends FragmentActivity{
+public class GifBrowserActivity extends FragmentActivity{
 
     @Bind(R.id.vpImgBrowser)
     ViewPager mViewPager;
@@ -151,7 +152,7 @@ public class ImageBrowserActivity extends FragmentActivity{
             ImageBrowserBean img = new ImageBrowserBean(smallPicUrls.get(i), middlePicUrls.get(i));
             img.setImgUtil(mImgUtil);
             EventBus.getDefault().postSticky(img);
-            ImageBrowserFragment f = new ImageBrowserFragment();
+            GifFragment f = new GifFragment();
 
             mTabs.add(f);
         }
