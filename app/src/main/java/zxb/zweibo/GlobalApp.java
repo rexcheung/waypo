@@ -6,14 +6,11 @@ import android.content.Intent;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 
-import java.util.HashMap;
-
 import zxb.zweibo.Utils.EmotionUtil;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.ImageUtil;
 import zxb.zweibo.common.WeiboAPIUtils;
-import zxb.zweibo.service.CheckNewWeiboService;
 
 /**
  * 自定义的Application.
@@ -60,7 +57,7 @@ public class GlobalApp extends Application {
     }
 
     private void initService() {
-        startService(new Intent(this, CheckNewWeiboService.class));
+//        startService(new Intent(this, CheckNewWeiboService.class));
     }
 
     private void initFresco() {

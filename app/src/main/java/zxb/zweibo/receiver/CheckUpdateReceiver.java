@@ -1,12 +1,9 @@
 package zxb.zweibo.receiver;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import zxb.zweibo.service.CheckUpdateService;
-import zxb.zweibo.ui.MainActivityNew;
-import zxb.zweibo.widget.AppManager;
 
 /**
  * 启动CheckUpdateService的广播接收器.

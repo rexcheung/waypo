@@ -28,7 +28,6 @@ import zxb.zweibo.bean.LastWeibo;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.receiver.CheckUpdateReceiver;
 import zxb.zweibo.ui.MainActivityF;
-import zxb.zweibo.ui.MainActivityNew;
 
 /**
  * 后台检查有多少条微博更新.
@@ -51,7 +50,7 @@ public class CheckUpdateService extends Service{
     /**
      * 检查更新的间隔，单位分钟.
      */
-    private final int UPDATE_MINS = 1;
+    private final int UPDATE_MINS = 5;
 
     @Override
     public void onCreate() {
@@ -69,13 +68,14 @@ public class CheckUpdateService extends Service{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         lastId = 0l;
         lastId = EventBus.getDefault().getStickyEvent(LastWeibo.class).getLastId();
         Logger.i("LastId = " + lastId);
 
         // 首次运行时不检查，因为首次一定已经是最新的
         if (!firstStart) {
-//            mWeiboUtil.imageFTLIds(lastId, 0, mListener);
+            mWeiboUtil.imageFTLIds(lastId, 0, mListener);
             Logger.i("检查更新...");
         }else {
             firstStart = false;

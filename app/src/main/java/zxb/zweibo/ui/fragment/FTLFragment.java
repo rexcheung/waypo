@@ -47,7 +47,7 @@ import zxb.zweibo.service.CheckUpdateService;
 
 /**
  * 显示FriendsTimeLine最新关注用户的微博
- * Created by rex on 15-7-31.
+ * Created by rex on 15-8-20.
  */
 public class FTLFragment extends Fragment {
 
@@ -386,7 +386,7 @@ public class FTLFragment extends Fragment {
         mJsonUtil = null;
         mGson = null;
 
-        cancelNotifi();
-        mContext.stopService(new Intent(mContext, CheckUpdateService.class));
+//        cancelNotifi();
+//        mContext.stopService(new Intent(mContext, CheckUpdateService.class));
     }
 }

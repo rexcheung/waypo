@@ -39,16 +39,14 @@
         <activity android:name=".ui.ImageBrowserActivity" />
         <activity android:name=".ui.GifBrowserActivity" />
         <!-- FriendsTimeLine -->
-        <activity android:name=".ui.MainActivity"/>
+        <!--<activity android:name=".ui.MainActivity"/>-->
         <!-- 用户授权测试页-->
         <activity android:name=".ui.test.TestAuthActivity" />
         <!-- 个人微博详细 -->
         <activity android:name=".ui.PersonalDetailActivity" />
-        <activity android:name=".ui.MainActivityNew" />
+        <!--<activity android:name=".ui.MainActivityNew" />-->
         <activity android:name=".ui.MainActivityF" />
         <activity android:name=".ui.CommentActivity" />
-
-
 
         <!-- 测试接口：statuses/friends_timeline, 获取当前登录用户及其所关注用户的最新微博 -->
         <activity android:name=".ui.test.TestFTimeLinesActivity" />
@@ -60,11 +58,7 @@
         <activity android:name=".ui.test.TestSpannableString" />
         <activity android:name=".ui.test.TestEmotionActivity" />
 
-        <service android:name=".service.CheckNewWeiboService"/>
         <service android:name=".service.CheckUpdateService"/>
-
-
-        <receiver android:name=".service.CheckActivityReceiver"/>
         <receiver android:name=".receiver.CheckUpdateReceiver"/>
 
         <!-- 网页授权Activity -->
