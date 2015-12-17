@@ -8,5 +8,5 @@
 
 2015.12.17 - 更新WeiboSDK到3.0, 代码没有
 
+
 ![](#https://github.com/rexcheung/waypo/blob/master/demo.gif)
-![](https://github.com/guodongxiaren/ImageCache/raw/master/Logo/foryou.gif)
