@@ -10,3 +10,4 @@
 
 ![](#https://github.com/rexcheung/waypo/blob/master/demo.gif)
 ![](https://assets-cdn.github.com/images/modules/contact/goldstar.gif)
+![baidu](http://www.baidu.com/img/bdlogo.gif "百度logo")
