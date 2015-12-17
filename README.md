@@ -10,3 +10,4 @@
 
 
 [效果Gif](https://github.com/rexcheung/waypo/blob/master/demo.gif)
+![image](https://github.com/rexcheung/waypo/blob/master/demo.gif)   
