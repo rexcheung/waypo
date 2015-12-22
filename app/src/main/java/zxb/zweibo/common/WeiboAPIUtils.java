@@ -17,16 +17,25 @@ public class WeiboAPIUtils extends StatusesAPI {
     /**
      * 获取当前登录用户及其所关注用户的最新微博的ID
      */
-    private final String IDS = "https://api.weibo.com/2/statuses/friends_timeline/ids.json";
-    private final String SHOW = "https://api.weibo.com/2/statuses/show.json";
-    private final String EMOTIONS = "https://api.weibo.com/2/emotions.json";
-    private final String COMMENT = "https://api.weibo.com/2/comments/show.json";
-    private final String ADD_FAVORTIE = "https://api.weibo.com/2/favorites/create.json";
-    private final String FORWARD = "https://api.weibo.com/2/statuses/repost.json";
-    private final String GET_FAVORITE = "https://api.weibo.com/2/favorites.json";
+    private static final String IDS = "https://api.weibo.com/2/statuses/friends_timeline/ids.json";
+    private static final String SHOW = "https://api.weibo.com/2/statuses/show.json";
+    private static final String EMOTIONS = "https://api.weibo.com/2/emotions.json";
+    private static final String COMMENT = "https://api.weibo.com/2/comments/show.json";
+    private static final String ADD_FAVORTIE = "https://api.weibo.com/2/favorites/create.json";
+    private static final String FORWARD = "https://api.weibo.com/2/statuses/repost.json";
+    private static final String GET_FAVORITE = "https://api.weibo.com/2/favorites.json";
 
 
-    private Oauth2AccessToken mAccessToken;
+    private static Oauth2AccessToken mAccessToken;
+    private static WeiboAPIUtils instance;
+
+    public static WeiboAPIUtils getInstance(){
+        return instance;
+    }
+
+    public static Oauth2AccessToken getAccessToken(){
+        return mAccessToken;
+    }
     /**
      * 构造函数，使用各个 API 接口提供的服务前必须先获取 Token。
      *
@@ -37,6 +46,9 @@ public class WeiboAPIUtils extends StatusesAPI {
     public WeiboAPIUtils(Context context, String appKey, Oauth2AccessToken accessToken) {
         super(context, appKey, accessToken);
         mAccessToken = accessToken;
+        if (instance == null){
+            instance = this;
+        }
     }
 
     /**
@@ -56,7 +68,7 @@ public class WeiboAPIUtils extends StatusesAPI {
                             int featureType, RequestListener listener) {
         WeiboParameters params =
                 buildTimeLineParamsBase(since_id, max_id, count, page, base_app, featureType);
-        requestAsync(IDS, params, HTTPMETHOD_GET, listener);
+        this.requestAsync(IDS, params, HTTPMETHOD_GET, listener);
     }
 
     /**

@@ -23,6 +23,7 @@ import zxb.zweibo.bean.EmotionBean;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.WeiboAPIUtils;
+import zxb.zweibo.db.SqliteHelper;
 
 /**
  * 表情的JSON缓存，
@@ -38,6 +39,11 @@ public class EmotionUtil {
     private Context mContext;
     private SQLiteOpenHelper mdbHelper;
     private SQLiteDatabase db;
+
+    public static final String TABLE = "waypo_emotions";
+    public static final String KEY = "KEY";
+    public static final String FILE = "FILE";
+    public static final String VALUE = "VALUE";
 
     Gson gson;
 
@@ -58,7 +64,7 @@ public class EmotionUtil {
     public void initDB() {
         Log.i(TAG, "+++初始化EmotionCache.db");
         if (mdbHelper == null) {
-            mdbHelper = new DBHelper(mContext, "emo_cache", null, 1);
+            mdbHelper = SqliteHelper.getInstance();
         }
         db = mdbHelper.getWritableDatabase();
     }
@@ -129,7 +135,7 @@ public class EmotionUtil {
         }
     }
 
-    class DBHelper extends SQLiteOpenHelper {
+    /*class DBHelper extends SQLiteOpenHelper {
 
         public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
             super(context, name, factory, version);
@@ -149,17 +155,12 @@ public class EmotionUtil {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         }
-    }
+    }*/
 
     static class EmotionTable {
-
         static final String TABLE = "waypo_emotions";
-
         static final String KEY = "KEY";
-
         static final String FILE = "FILE";
-
         static final String VALUE = "VALUE";
-
     }
 }
