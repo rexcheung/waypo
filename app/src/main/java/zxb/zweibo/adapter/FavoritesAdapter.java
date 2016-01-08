@@ -13,9 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
-import com.sina.weibo.sdk.exception.WeiboException;
-import com.sina.weibo.sdk.net.RequestListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,24 +20,17 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
-import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.Utils.SpanHelper;
-import zxb.zweibo.bean.CommentsJson;
 import zxb.zweibo.bean.FavoriteItem;
 import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
 import zxb.zweibo.bean.holder.FTLHolder;
-import zxb.zweibo.common.AccessTokenKeeper;
-import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.ImageUtil;
-import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.Utils;
-import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.ui.CommentActivity;
 import zxb.zweibo.ui.GifBrowserActivity;
-import zxb.zweibo.ui.ImageBrowserActivity;
 
 /**
  * FriendsTimeLine Fragment里面RecyclerView的Adapter.
@@ -149,7 +139,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FTLHolder> {
      * @param statusContent 当前Json实体
      */
     private void initWord(FTLHolder viewHolder, StatusContent statusContent) {
-        viewHolder.tvScreenName.setText(statusContent.getUser().getScreen_name());
+        viewHolder.tvScreenName.setSpanText(statusContent.getUser().getScreen_name());
 
 //        StringBuilder source = new StringBuilder(statusContent.getSource());
 //        int begin = source.indexOf(">");
@@ -170,7 +160,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FTLHolder> {
             /*if (retweeted_status.getUser() != null) {
                 User reUser = retweeted_status.getUser();
                 viewHolder.tvReUser.setVisibility(View.VISIBLE);
-                viewHolder.tvReUser.setText(reUser.getScreen_name()+": ");
+                viewHolder.tvReUser.setSpanText(reUser.getScreen_name()+": ");
             }*/
 
             User reUser = retweeted_status.getUser();
