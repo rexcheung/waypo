@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,7 +24,6 @@ import com.sina.weibo.sdk.openapi.models.ErrorInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.GlobalApp;
@@ -50,7 +47,7 @@ import zxb.zweibo.service.CheckUpdateService;
  * 显示FriendsTimeLine最新关注用户的微博
  * Created by rex on 15-8-20.
  */
-public class FTLFragment extends Fragment {
+public class FTLFragmentNew extends SwipeListFragment {
 
     /**
      * 初始化时传入的父类Activity, LayoutInflater需要使用
@@ -62,25 +59,11 @@ public class FTLFragment extends Fragment {
      */
     private Oauth2AccessToken mAccessToken;
     private WeiboAPIUtils mWeiboAPI;
-    /**
-     * 接收最近10条微博的实体类.
-     */
-    private FTimeLine mFTimeLine;
 
     /**
      * 实体类中的10条微博.
      */
     private List<StatusContent> mStatusesList;
-
-    private String TAG;
-
-    @Bind(R.id.swipeRefreshLayout)
-    SwipeRefreshLayout mSwipeLayout;
-
-    private LinearLayoutManager llm;
-
-    @Bind(R.id.listContent)
-    RecyclerView mRecyclerView;
 
     private FTimeLinsAdapter mAdapter;
 
@@ -97,40 +80,43 @@ public class FTLFragment extends Fragment {
     private List<Long> mIds;
 
     private JsonCacheUtil mJsonUtil;
+
     /**
      * 初始化.
      * @param content  Content.
      * @return 该类的实例
      */
-    public static FTLFragment newInstance(Activity content) {
-        FTLFragment fragment = new FTLFragment();
+    public static FTLFragmentNew newInstance(Activity content) {
+        FTLFragmentNew fragment = new FTLFragmentNew();
         mContext = content;
         return fragment;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.ftl_fragment, null);
-
-        ButterKnife.bind(this, view);
-
-        init();
-
-        return view;
+    protected LinearLayoutManager initLayoutManager() {
+        return new LinearLayoutManager(mContext);
     }
 
-    private void init() {
-        llm = new LinearLayoutManager(mContext);
+    @Override
+    protected void onSwipeRefresh() {
+        Snackbar.make(mRecyclerView, "Refreshing", Snackbar.LENGTH_SHORT).show();
+        refreshList();
+    }
 
-        TAG = getClass().getSimpleName();
+    @Override
+    protected void onBottomAction() {
+        if (!isRefresing) {
+            loadMore();
+            Logger.i("Now refreshing...");
+        }
 
-        mAccessToken = AccessTokenKeeper.readAccessToken(mContext);
-//        mStatusesAPI = new StatusesAPI(mContext, Constants.APP_KEY, mAccessToken);
-        mWeiboAPI = new WeiboAPIUtils(mContext, Constants.APP_KEY, mAccessToken);
+        Logger.i("Bttom");
+    }
 
-//        mRecyclerView = (RecyclerView) view.findViewById(R.id.rvContent);
-        mRecyclerView.setLayoutManager(llm);
+    @Override
+    protected void initEvent() {
+        mAccessToken = WeiboAPIUtils.getAccessToken();
+        mWeiboAPI = WeiboAPIUtils.getInstance();
 
         mJsonUtil = new JsonCacheUtil(mContext, mAccessToken, mWeiboAPI);
 
@@ -142,47 +128,13 @@ public class FTLFragment extends Fragment {
         }
     }
 
-    private void initDatas() {
-        mStatusesList = mFTimeLine.getStatuses();
-
-        initEvents();
-
-        // 若刷新后有部分数据已经有缓存，则从缓存中合并数据后，刷新列表
-        if(mJsonUtil.combineCache(mAccessToken.getUid(), mStatusesList, true)){
-            mAdapter.notifyDataSetChanged();
-//            noMore = true;
-        }
-    }
-
     private void initEvents(){
         GlobalApp app = (GlobalApp) getActivity().getApplication();
         mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList, app.getmImageUtil());
-
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setOnScrollListener(new OnBottomListener(llm) {
-            @Override
-            public void onBottom() {
-                if (!isRefresing) {
-                    loadMore();
-                    Logger.i("Now refreshing...");
-                }
-
-                Logger.i("Bttom");
-            }
-        });
 
         mSwipeLayout.setOnRefreshListener(mRefreshSwipe);
     }
-
-    SwipeRefreshLayout.OnRefreshListener mRefreshSwipe = new SwipeRefreshLayout.OnRefreshListener() {
-        @Override
-        public void onRefresh() {
-//            Toast.makeText(MainActivityNew.this, "Refresh", Toast.LENGTH_SHORT).show();
-            Snackbar.make(mRecyclerView, "Refreshing", Snackbar.LENGTH_SHORT).show();
-//            requestIds();
-            refreshList();
-        }
-    };
 
     public void refreshList(){
         mSwipeLayout.setRefreshing(true);
@@ -386,8 +338,5 @@ public class FTLFragment extends Fragment {
         mWeiboAPI = null;
         mJsonUtil = null;
         mGson = null;
-
-//        cancelNotifi();
-//        mContext.stopService(new Intent(mContext, CheckUpdateService.class));
     }
 }

@@ -34,10 +34,14 @@
                 android:orientation="horizontal">
 
                 <!--用户昵称-->
-                <TextView
+                <!--<TextView
                     android:id="@+id/tvScreenName"
                     style="@style/FriendsTimeLineText"
-                    android:text="我是思聪"/>
+                    android:text="我是XX"/>-->
+                <zxb.zweibo.widget.WeiboText
+                    android:id="@+id/tvScreenName"
+                    style="@style/FriendsTimeLineText"
+                    android:text="我是XX"/>
 
                 <!--是否认证用户-->
                 <ImageView
@@ -57,7 +61,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <TextView
+    <zxb.zweibo.widget.WeiboText
         android:id="@+id/tvContent"
         style="@style/FriendsTimeLineText"
         android:text="昨天去海天盛宴被拍了"/>
@@ -79,7 +83,7 @@
             android:text="啪啪啪..."
             android:visibility="gone"/>
 
-        <TextView
+        <zxb.zweibo.widget.WeiboText
             android:id="@+id/tvReContent"
             style="@style/FriendsTimeLineText"
             android:text="啪啪啪..."/>

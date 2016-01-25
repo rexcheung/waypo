@@ -82,7 +82,7 @@ public class AuthPresenter {
                 // 显示 Token
                 updateTokenView(false);
                 authView.showHits(mAccessToken.toString() + "\n, Phone: " + phoneNum);
-//                content.setText(mAccessToken.toString() + "\n, Phone: " + phoneNum);
+//                content.setSpanText(mAccessToken.toString() + "\n, Phone: " + phoneNum);
 
 
                 // 保存 Token 到 SharedPreferences

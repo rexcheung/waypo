@@ -1,8 +1,4 @@
 apply plugin: 'com.android.application'
-//AndroidAnnotation
-//apply plugin: 'android-apt'
-def AAVersion = '3.2+'
-//----------------
 
 android {
     compileSdkVersion 22
@@ -10,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "zxb.zweibo"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
@@ -42,9 +38,6 @@ dependencies {
     compile files('libs/recyclerview.jar')
     //EventBus
     compile files('libs/EventBus-2.4.1.jar')
-    //AndroidAnnotation
-//    apt "org.androidannotations:androidannotations:$AAVersion"
-//    compile "org.androidannotations:androidannotations-api:$AAVersion"
     //-----------------
     compile project(':libraries:base-diskcache')
     //Fresco
@@ -67,14 +60,3 @@ buildscript {
 
     }
 }
-
-//AndroidAnnotation
-/*apt {
-    arguments {
-        androidManifestFile variant.outputs[0].processResources.manifestFile
-//        resourcePackageName zxb.zweibo
-    }
-}*/
-
-
-//------------------

@@ -15,6 +15,7 @@ import com.sina.weibo.sdk.net.RequestListener;
 
 import zxb.zweibo.bean.EmotionBean;
 import zxb.zweibo.bean.EmotionsBean;
+import zxb.zweibo.db.SqliteHelper;
 
 /**
  * 表情的JSON缓存，
@@ -24,12 +25,23 @@ import zxb.zweibo.bean.EmotionsBean;
  */
 public class EmotionCache {
 
-    private final String TABLE = "emocache.db";
+    public static final String TABLE = "emocache";
+    public static final String PHRASE = "phrase";
+    public static final String TYPE = "type";
+    public static final String URL = "url";
+    public static final String HOT = "hot";
+    public static final String COMMON = "common";
+    public static final String CATEGORY = "category";
+    public static final String ICON = "icon";
+    public static final String VALUE = "value";
+    public static final String PICID = "picid";
+
 
     private Oauth2AccessToken mAccessToken;
     private Context mContext;
     private SQLiteOpenHelper mdbHelper;
     private SQLiteDatabase db;
+
 
     Gson gson;
 
@@ -69,10 +81,10 @@ public class EmotionCache {
         db.endTransaction();
     }
 
-    public void getEmo(final String emo){
+    public void getEmo(final String emo) {
 
         String emoUrl = getEmoFromCache(emo);
-        if(TextUtils.isEmpty(emoUrl)){
+        if (TextUtils.isEmpty(emoUrl)) {
             //从网络加载
             WeiboAPIUtils mWeiboAPI = new WeiboAPIUtils(mContext, Constants.APP_KEY, mAccessToken);
             mWeiboAPI.getEmotions("face", "cnname", new RequestListener() {
@@ -80,13 +92,15 @@ public class EmotionCache {
                 public void onComplete(String jsonString) {
                     String json = jsonString;
                     EmotionBean[] emotionsBean = gson.fromJson(json, EmotionBean[].class);
-                    if (emotionsBean!=null || emotionsBean.length != 0){
+                    if (emotionsBean != null || emotionsBean.length != 0) {
                         insert(emotionsBean);
                     }
-                    Log.i("","");
+                    Log.i("", "");
                 }
+
                 @Override
-                public void onWeiboException(WeiboException e) {}
+                public void onWeiboException(WeiboException e) {
+                }
             });
         } else {
 
@@ -112,7 +126,7 @@ public class EmotionCache {
     public void initDB() {
         Log.i(TAG, "+++初始化EmotionCache.db");
         if (mdbHelper == null) {
-            mdbHelper = new DBHelper(mContext, "jsoncache", null, 1);
+            mdbHelper = SqliteHelper.getInstance();
         }
         db = mdbHelper.getWritableDatabase();
     }
@@ -125,7 +139,6 @@ public class EmotionCache {
         mdbHelper.close();
         Log.i(TAG, "---关闭数据库EmotionCache.db");
     }
-
 
 
     class DBHelper extends SQLiteOpenHelper {

@@ -11,7 +11,9 @@ public class Logger {
     private static String TAG = "WayPo Logger";
 
     public static void i(String msg){
+        Log.i(TAG, "================================START============================================");
         Log.i(TAG, msg);
+        Log.i(TAG, "================================END============================================");
     }
     public static void i(Long msg){
         i(String.valueOf(msg));
@@ -21,7 +23,9 @@ public class Logger {
     }
 
     public static void e(String msg){
+        Log.e(TAG, "================================START============================================");
         Log.e(TAG, msg);
+        Log.e(TAG, "================================END============================================");
     }
 
     public static void e(Long msg){

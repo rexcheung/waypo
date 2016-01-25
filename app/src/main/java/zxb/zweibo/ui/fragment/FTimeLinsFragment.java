@@ -32,6 +32,7 @@ import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.WeiboAPIUtils;
+import zxb.zweibo.db.JsonCacheDao;
 import zxb.zweibo.listener.OnBottomListener;
 
 
@@ -196,7 +197,7 @@ public class FTimeLinsFragment extends Fragment {
             Logger.i(e.getMessage());
             ErrorInfo info = ErrorInfo.parse(e.getMessage());
             Toast.makeText(mContext, info != null ? info.toString() : "", Toast.LENGTH_LONG).show();
-            mStatusesList = mJsonUtil.readCache(mAccessToken.getUid());
+            mStatusesList = JsonCacheDao.readCache(mAccessToken.getUid());
             if (isInit) {
                 isInit = false;
                 initEvents();
@@ -306,7 +307,6 @@ public class FTimeLinsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mJsonUtil.initDB();
     }
 
     @Override
