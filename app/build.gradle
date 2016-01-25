@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion '23.0.0 rc3'
+    buildToolsVersion '23.0.1'
 
     defaultConfig {
         applicationId "zxb.zweibo"
@@ -41,12 +41,15 @@ dependencies {
     //-----------------
     compile project(':libraries:base-diskcache')
     //Fresco
-    compile 'com.facebook.fresco:fresco:0.6.0+'
+    compile 'com.facebook.fresco:fresco:0.8.0+'
     //ButterKnife
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile 'com.android.support:design:22.2.1'
     compile 'com.android.support:cardview-v7:22.2.1'
+
+    //RxJava
+    compile 'io.reactivex:rxjava:1.1.0'
 
 //    compile 'com.android.support.design.widget.CoordinatorLayout'
 }
