@@ -35,7 +35,7 @@ import zxb.zweibo.widget.AppManager;
 /**
  * Created by rex on 15-8-27.
  */
-public class MainActivityF extends AppCompatActivity{
+public class MainActivityF extends BasicActivity{
 
     @Bind(R.id.container) FrameLayout mContainer;
 
@@ -58,7 +58,7 @@ public class MainActivityF extends AppCompatActivity{
 
         initMenu();
         initContiner();
-        AppManager.getAppManager().addActivity(this);
+//        AppManager.getAppManager().addActivity(this);
     }
 
     private void initContiner() {

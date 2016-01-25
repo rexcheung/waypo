@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import zxb.zweibo.Utils.Logger;
+import zxb.zweibo.bean.JsonCache;
 import zxb.zweibo.bean.StatusContent;
 
 /**
@@ -206,7 +207,7 @@ public class JsonCacheDao {
 
         String sql = "SELECT * " +
                 "FROM " + TABLE
-                + "WHERE " + userId + " = ? AND " + WEIBO_ID + " BETWEEN ? AND ? ORDER BY " + WEIBO_ID + " DESC";
+                + " WHERE " + USER_ID + " = ? AND " + WEIBO_ID + " BETWEEN ? AND ? ORDER BY " + WEIBO_ID + " DESC";
 
         Cursor cs = SqliteHelper.getInstance().getReadableDatabase()
                 .rawQuery(sql, new String[]{userId, end, start});
@@ -250,6 +251,29 @@ public class JsonCacheDao {
             return null;
         }*/
         return weiboIds;
+    }
+
+    public static int getBetweenCount(String userId, String start, String end) {
+        String sql = "SELECT * " /*+ WEIBO_ID*/
+                + " FROM " + TABLE
+                + " WHERE " + USER_ID + " = ? AND " + WEIBO_ID + " BETWEEN ? AND ? ORDER BY " + WEIBO_ID + " DESC";
+
+        int count;
+        ArrayList<JsonCache> cacheList = new ArrayList<>();
+        Cursor cs = SqliteHelper.getInstance().getReadableDatabase()
+                .rawQuery(sql, new String[]{userId, end, start});
+        count = cs.getCount();
+        while (cs.moveToNext()){
+            cacheList.add(JsonCache.newInstance(cs));
+        }
+        cs.close();
+
+        Logger.i(cacheList.size());
+
+        /*if(weiboIds.size() == 0){
+            return null;
+        }*/
+        return count;
     }
 
     /**

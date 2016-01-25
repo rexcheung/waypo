@@ -34,11 +34,6 @@ public class AuthPresenter {
     private Oauth2AccessToken mAccessToken;
 
     /**
-     * MainActivity实例，用于保存SharePerfences的参数
-     */
-//    Activity mainActivity;
-
-    /**
      * AuthActivity实例，显示Toast的参数
      */
     Activity authActivity;
@@ -48,8 +43,7 @@ public class AuthPresenter {
     public AuthPresenter(IAuthView authView){
         this.authView = authView;
 
-//        mainActivity = AppManager.getActivity(MainActivity_.class);
-        authActivity = AppManager.getAppManager().currentActivity();
+        authActivity = (Activity) authView;
 
         mAuthInfo = new AuthInfo(
                 authActivity, Constants.APP_KEY, Constants.REDIRECT_URL, Constants.SCOPE);
