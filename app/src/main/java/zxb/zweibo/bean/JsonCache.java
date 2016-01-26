@@ -1,5 +1,9 @@
 package zxb.zweibo.bean;
 
+import android.database.Cursor;
+
+import zxb.zweibo.db.JsonCacheDao;
+
 /**
  * Created by rex on 15-8-6.
  */
@@ -16,6 +20,21 @@ public class JsonCache {
         this.id = id;
         this.createTime = createTime;
         this.json = json;
+    }
+
+    public static JsonCache newInstance(Cursor cs){
+        JsonCache cache = new JsonCache();
+
+        int idIndex = cs.getColumnIndex(JsonCacheDao.USER_ID);
+        cache.id = cs.getString(idIndex);
+
+        int timeIndex = cs.getColumnIndex(JsonCacheDao.WEIBO_ID);
+        cache.createTime = cs.getDouble(timeIndex);
+
+        int jsonIndex = cs.getColumnIndex(JsonCacheDao.JSON);
+        cache.json = cs.getString(jsonIndex);
+
+        return cache;
     }
 
     public String getId() {

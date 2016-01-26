@@ -21,7 +21,7 @@ import zxb.zweibo.widget.AppManager;
  * 测试授权
  * Created by rex on 15-7-29.
  */
-public class AuthActivity extends Activity implements IAuthView {
+public class AuthActivity extends BasicActivity implements IAuthView {
 
     @Bind(R.id.tvText)
     TextView content;
@@ -35,23 +35,17 @@ public class AuthActivity extends Activity implements IAuthView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.test_auth_activity);
         ButterKnife.bind(this);
-        mAccessToken = new Oauth2AccessToken();
         mAccessToken = AccessTokenKeeper.readAccessToken(this);
-        initDatas();
-    }
-
-    public void initDatas(){
-        AppManager.getAppManager().addActivity(this);
-
-        authPresenter = new AuthPresenter(this);
-
-        if(mAccessToken.isSessionValid()){
+        if (mAccessToken.isSessionValid()) {
             this.finishActivity();
         }
     }
 
     @OnClick(R.id.web)
-    public void login(){
+    public void login() {
+        if (authPresenter == null) {
+            authPresenter = new AuthPresenter(this);
+        }
         authPresenter.login();
     }
 

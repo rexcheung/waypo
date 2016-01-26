@@ -16,6 +16,8 @@ public abstract class WeiboRequestListener implements RequestListener {
 
     private final String TAG = getClass().getSimpleName();
 
+    public WeiboRequestListener(){}
+
     public WeiboRequestListener(Context context){
         this.mContext = context;
     }
@@ -30,7 +32,7 @@ public abstract class WeiboRequestListener implements RequestListener {
         LogUtil.e(TAG, e.getMessage());
 
         ErrorInfo info = ErrorInfo.parse(e.getMessage());
-        Context context = this.mContext;
+//        Context context = this.mContext;
 //        Toast.makeText(mContext, info != null ? info.toString() : "微博请求失败，请检查网络", Toast.LENGTH_LONG).show();
         LogUtil.e(TAG, "微博请求失败，请检查网络");
     }

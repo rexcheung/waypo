@@ -13,6 +13,7 @@ import java.util.List;
 import rx.Observable;
 import rx.functions.Func1;
 import zxb.zweibo.Utils.Logger;
+import zxb.zweibo.bean.JsonCache;
 import zxb.zweibo.bean.StatusContent;
 
 /**
@@ -246,65 +247,28 @@ public class JsonCacheDao {
 		return resultList;
 	}
 
-	/**
-	 * 查询指定用户两条微博之间的微博ID
-	 *
-	 * @param userId UserId
-	 * @param start  startId
-	 * @param end
-	 *
-	 * @return
-	 */
-	public static List<Long> getBetweenIds(String userId, String start, String end) {
-		ArrayList<Long> weiboIds = new ArrayList<>();
+    /**
+     * 查询指定用户两条微博之间的微博ID
+     *
+     * @param userId UserId
+     * @param start  startId
+     * @param end
+     * @return
+     */
+    public static List<Long> getBetweenIds(String userId, String start, String end) {
+        ArrayList<Long> weiboIds = new ArrayList<>();
 
-		String sql = "SELECT " + WEIBO_ID
-				+ " FROM " + TABLE
-				+ " WHERE " + USER_ID + " = ? AND " + WEIBO_ID + " BETWEEN ? AND ? ORDER BY " + WEIBO_ID + " DESC";
+        String sql = "SELECT " + WEIBO_ID
+                + " FROM " + TABLE
+                + " WHERE " + USER_ID + " = ? AND " + WEIBO_ID + " BETWEEN ? AND ? ORDER BY " + WEIBO_ID + " DESC";
 
-		Cursor cs = SqliteHelper.getInstance().getReadableDatabase()
-				.rawQuery(sql, new String[]{userId, end, start});
-		while (cs.moveToNext()) {
-			weiboIds.add(cs.getLong(0));
-		}
-		cs.close();
-
-        /*if(weiboIds.size() == 0){
-			return null;
-        }*/
+        Cursor cs = SqliteHelper.getInstance().getReadableDatabase()
+                .rawQuery(sql, new String[]{userId, end, start});
+        while (cs.moveToNext()) {
+            weiboIds.add(cs.getLong(0));
+        }
+        cs.close();
 		return weiboIds;
-	}
-
-	/**
-	 * 获取指定用户的所有缓存
-	 *
-	 * @param targetList 需要获取缓存ID的列表
-	 * @param userId     UserID
-	 *
-	 * @return 缓存列表
-	 */
-	public static List<StatusContent> getCache(List<Long> targetList, String userId) {
-		long start = targetList.get(0);
-		long end = targetList.get(targetList.size() - 1);
-
-		StringBuilder sqlString = new StringBuilder();
-		sqlString.append("SELECT * FROM " + TABLE);
-		sqlString.append("WHERE " + USER_ID + " = ? AND weibo < ? AND weibo > ? ");
-		sqlString.append("ORDER BY " + WEIBO_ID + " DESC ");
-
-		int index = 0;
-		List<StatusContent> resultList = new ArrayList<>();
-		Cursor cs = SqliteHelper.getInstance().getReadableDatabase()
-				.rawQuery(sqlString.toString(), new String[]{userId, String.valueOf(start), String.valueOf(end)});
-		while (cs.moveToNext()) {
-			if (targetList.get(index++) == cs.getLong(1)) {
-				StatusContent statusContent = gson.fromJson(cs.getString(2), StatusContent.class);
-				resultList.add(statusContent);
-			}
-		}
-		cs.close();
-
-		return resultList;
 	}
 
 	/**
@@ -489,19 +453,71 @@ public class JsonCacheDao {
 		return -1;
 	}
 
+    public static int getBetweenCount(String userId, String start, String end) {
+        String sql = "SELECT * " /*+ WEIBO_ID*/
+                + " FROM " + TABLE
+                + " WHERE " + USER_ID + " = ? AND " + WEIBO_ID + " BETWEEN ? AND ? ORDER BY " + WEIBO_ID + " DESC";
 
-	/**
-	 * 清除某用户的JSON缓存.
-	 *
-	 * @param userId 用户ID
-	 *
-	 * @return 零则没有数据删除，非零为删除的数据条数
-	 */
-	public int cleanCache(String userId) {
-		if (!TextUtils.isEmpty(userId)) {
-			return SqliteHelper.getInstance().getReadableDatabase()
-					.delete(TABLE, USER_ID + " = ?", new String[]{userId});
-		}
-		return 0;
-	}
+        int count;
+        ArrayList<JsonCache> cacheList = new ArrayList<>();
+        Cursor cs = SqliteHelper.getInstance().getReadableDatabase()
+                .rawQuery(sql, new String[]{userId, end, start});
+        count = cs.getCount();
+        while (cs.moveToNext()){
+            cacheList.add(JsonCache.newInstance(cs));
+        }
+        cs.close();
+
+        Logger.i(cacheList.size());
+
+        /*if(weiboIds.size() == 0){
+            return null;
+        }*/
+        return count;
+    }
+
+    /**
+     * 获取指定用户的所有缓存
+     *
+     * @param targetList 需要获取缓存ID的列表
+     * @param userId     UserID
+     * @return 缓存列表
+     */
+    public static List<StatusContent> getCache(List<Long> targetList, String userId) {
+        long start = targetList.get(0);
+        long end = targetList.get(targetList.size() - 1);
+
+        StringBuilder sqlString = new StringBuilder();
+        sqlString.append("SELECT * FROM " + TABLE);
+        sqlString.append("WHERE " + USER_ID + " = ? AND weibo < ? AND weibo > ? ");
+        sqlString.append("ORDER BY " + WEIBO_ID + " DESC ");
+
+        int index = 0;
+        List<StatusContent> resultList = new ArrayList<>();
+        Cursor cs = SqliteHelper.getInstance().getReadableDatabase()
+                .rawQuery(sqlString.toString(), new String[]{userId, String.valueOf(start), String.valueOf(end)});
+        while (cs.moveToNext()) {
+            if (targetList.get(index++) == cs.getLong(1)) {
+                StatusContent statusContent = gson.fromJson(cs.getString(2), StatusContent.class);
+                resultList.add(statusContent);
+            }
+        }
+        cs.close();
+
+        return resultList;
+    }
+
+    /**
+     * 清除某用户的JSON缓存.
+     *
+     * @param userId 用户ID
+     * @return 零则没有数据删除，非零为删除的数据条数
+     */
+    public int cleanCache(String userId) {
+        if (!TextUtils.isEmpty(userId)) {
+            return SqliteHelper.getInstance().getReadableDatabase()
+                    .delete(TABLE, USER_ID + " = ?", new String[]{userId});
+        }
+        return 0;
+    }
 }

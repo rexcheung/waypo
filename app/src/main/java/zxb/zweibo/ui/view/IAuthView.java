@@ -6,8 +6,8 @@ package zxb.zweibo.ui.view;
  */
 public interface IAuthView {
 
-    public void showHits(String result);
+    void showHits(String result);
 
-    public void finishActivity();
+    void finishActivity();
 
 }

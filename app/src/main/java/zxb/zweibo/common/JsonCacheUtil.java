@@ -43,7 +43,7 @@ public class JsonCacheUtil {
 
 //    private List<StatusContent> cacheList;
 
-    static Gson gson = new Gson();
+    static Gson gson;
 
     private static final String TAG = "JsonCacheUtil";
 
@@ -97,7 +97,11 @@ public class JsonCacheUtil {
 
         Log.i(TAG, "该用户有缓存 " + JsonCacheDao.checkCount(mAccessToken.getUid()) + "条");
 
-        int count = JsonCacheDao.checkHow(requestIds, mAccessToken.getUid());
+//        int count = JsonCacheDao.checkHow(requestIds, mAccessToken.getUid());
+        int count = JsonCacheDao.getBetweenCount(mAccessToken.getUid(),
+                "" + requestIds.get(0),
+                "" + requestIds.get(requestIds.size() - 1));
+
 
         // 如果其中一条没有缓存，则发送网络请求，然后把请求的数据显示并缓存
         if (count < requestIds.size()) {
@@ -128,7 +132,7 @@ public class JsonCacheUtil {
     }
 
     //    private FTimeLine mFTimeLine;
-    WeiboRequestListener mRequestListener = new WeiboRequestListener(mContext) {
+    WeiboRequestListener mRequestListener = new WeiboRequestListener() {
         @Override
         protected void onSuccess(String response) {
             FTimeLine mFTimeLine = gson.fromJson(response, FTimeLine.class);

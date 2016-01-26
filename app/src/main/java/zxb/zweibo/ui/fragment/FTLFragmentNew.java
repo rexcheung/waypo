@@ -52,7 +52,7 @@ public class FTLFragmentNew extends SwipeListFragment {
     /**
      * 初始化时传入的父类Activity, LayoutInflater需要使用
      */
-    private static Activity mContext;
+    private Activity mContext;
 
     /**
      * 新浪SDK.
@@ -87,9 +87,9 @@ public class FTLFragmentNew extends SwipeListFragment {
      * @return 该类的实例
      */
     public static FTLFragmentNew newInstance(Activity content) {
-        FTLFragmentNew fragment = new FTLFragmentNew();
-        mContext = content;
-        return fragment;
+        FTLFragmentNew f = new FTLFragmentNew();
+        f.mContext = content;
+        return f;
     }
 
     @Override
