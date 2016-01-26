@@ -70,4 +70,10 @@
         </activity>
     </application>
 
+    // Fabric
+    <!--<meta-data
+        android:name="io.fabric.ApiKey"
+        android:value="943ff35c71ed0d2e1fc3ee5b7dc68eabe080e656" />-->
+    // Fabric
+    <!--<uses-permission android:name="android.permission.INTERNET" />-->
 </manifest>

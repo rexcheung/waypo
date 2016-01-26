@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
-
+/**Fabric*/
+//apply plugin: 'io.fabric'
 android {
     compileSdkVersion 22
     buildToolsVersion '23.0.1'
@@ -60,14 +61,27 @@ dependencies {
     //RxJava
     compile 'io.reactivex:rxjava:1.1.0'
 
+    // Fabric
+    /*compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true;
+    }*/
 //    compile 'com.android.support.design.widget.CoordinatorLayout'
 }
 buildscript {
     repositories {
         mavenCentral()
+        // Fabric
+//        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-//        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2+'
-
+        // Fabric
+//        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
+
+/**Fabric*/
+/*
+repositories {
+    mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
+}*/
