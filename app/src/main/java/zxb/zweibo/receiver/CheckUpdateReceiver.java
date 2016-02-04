@@ -3,6 +3,8 @@ package zxb.zweibo.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import zxb.zweibo.service.CheckUpdateIntentService;
 import zxb.zweibo.service.CheckUpdateService;
 
 /**
@@ -13,12 +15,12 @@ import zxb.zweibo.service.CheckUpdateService;
 public class CheckUpdateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-//        Activity activity = AppManager.getAppManager().currentActivity();
-//        Log.i("CheckActivityReceiver", "CurrenActivity = " + activity.getClass().getSimpleName());
-//        Toast.makeText(context, activity.getClass().getSimpleName(), Toast.LENGTH_SHORT).show();
-        context.getApplicationContext().startService(new Intent(context, CheckUpdateService.class));
-//        MainActivityNew mainActivity = (MainActivityNew) AppManager.getActivity(MainActivityNew.class);
-//        mainActivity.refreshList();
-//        mainActivity.
+        long id = intent.getLongExtra(CheckUpdateIntentService.LAST_ID, -1);
+        if (id == -1){
+            return;
+        }
+        Intent notify = new Intent(context, CheckUpdateIntentService.class);
+        notify.putExtra(CheckUpdateIntentService.LAST_ID, id);
+        context.getApplicationContext().startService(notify);
     }
 }

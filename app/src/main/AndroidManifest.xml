@@ -59,6 +59,7 @@
         <activity android:name=".ui.test.TestEmotionActivity" />
 
         <service android:name=".service.CheckUpdateService"/>
+        <service android:name=".service.CheckUpdateIntentService"/>
         <receiver android:name=".receiver.CheckUpdateReceiver"/>
 
         <!-- 网页授权Activity -->

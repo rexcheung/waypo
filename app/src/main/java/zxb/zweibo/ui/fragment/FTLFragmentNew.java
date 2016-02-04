@@ -20,15 +20,15 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.GlobalApp;
+import zxb.zweibo.Utils.GsonUtils;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.adapter.FTimeLinsAdapter;
 import zxb.zweibo.bean.FTLIds;
-import zxb.zweibo.bean.LastWeibo;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.db.JsonCacheDao;
-import zxb.zweibo.service.CheckUpdateService;
+import zxb.zweibo.service.CheckUpdateIntentService;
 
 
 /**
@@ -145,6 +145,7 @@ public class FTLFragmentNew extends SwipeListFragment {
         @Override
         public void onComplete(String json) {
             FTLIds tempIds = mGson.fromJson(json, FTLIds.class);
+            FTLIds gsonTest = GsonUtils.fromJson(json, FTLIds.class);
             if (tempIds != null) {
                 if (tempIds.getStatuses().size() != 0) {
                     if (mIds.size() != 0){
@@ -223,9 +224,11 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     private void restartNotifyService() {
 //        stopService(new Intent(getApplicationContext(), CheckUpdateService.class) );
-        EventBus.getDefault().getStickyEvent(LastWeibo.class);
-        EventBus.getDefault().postSticky(new LastWeibo(mIds.get(0)));
-        mContext.startService(new Intent(mContext, CheckUpdateService.class));
+//        EventBus.getDefault().getStickyEvent(LastWeibo.class);
+//        EventBus.getDefault().postSticky(new LastWeibo(mIds.get(0)));
+        Intent notifyIntent = new Intent(mContext, CheckUpdateIntentService.class);
+        notifyIntent.putExtra(CheckUpdateIntentService.LAST_ID, mIds.get(0));
+        mContext.startService(notifyIntent);
     }
 
     JsonCacheUtil.CacheListener mCacheListener = new JsonCacheUtil.CacheListener() {

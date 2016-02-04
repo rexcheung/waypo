@@ -1,6 +1,7 @@
 package zxb.zweibo.service;
 
 import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -8,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -19,13 +19,10 @@ import com.sina.weibo.sdk.net.RequestListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
-import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
 import zxb.zweibo.Utils.GsonUtils;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.bean.FTLIds;
-import zxb.zweibo.bean.LastWeibo;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.receiver.CheckUpdateReceiver;
 import zxb.zweibo.ui.MainActivityF;
@@ -35,7 +32,7 @@ import zxb.zweibo.ui.MainActivityF;
  * 然后在通知栏提示.
  * Created by rex on 15-8-26.
  */
-public class CheckUpdateService extends Service{
+public class CheckUpdateIntentService extends IntentService {
     private Long lastId;
     private WeiboAPIUtils mWeiboUtil;
     private Gson gson;
@@ -48,31 +45,56 @@ public class CheckUpdateService extends Service{
     private Intent mResultIntent;
     private TaskStackBuilder mStackBuilder;
 
+    public static final String LAST_ID = "last_weibo_id";
+
+    public static final String STOP_SERVICE = "stop_notify_service";
+    private static boolean isStop = false;
+
     /**
      * 检查更新的间隔，单位分钟.
      */
     private final int UPDATE_MINS = 5;
 
+    public CheckUpdateIntentService() {
+        super("CheckUpdateIntentService");
+    }
+    /**
+     * Creates an IntentService.  Invoked by your subclass's constructor.
+     * @param name Used to name the worker thread, important only for debugging.
+     */
+    public CheckUpdateIntentService(String name) {
+        super(name);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
 
-        GlobalApp app = (GlobalApp) getApplication();
         mWeiboUtil = WeiboAPIUtils.getInstance();
-
         gson = GsonUtils.getGson();
-
         mIds = new ArrayList<>();
-
         firstStart = true;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        isStop = intent.getBooleanExtra(STOP_SERVICE, false);
+        if (isStop){
+            stopSelf();
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
 
-        lastId = 0l;
-        lastId = EventBus.getDefault().getStickyEvent(LastWeibo.class).getLastId();
+    @Override
+    protected void onHandleIntent(Intent intent) {
+//        lastId = 0l;
+//        lastId = EventBus.getDefault().getStickyEvent(LastWeibo.class).getLastId();
+        lastId = intent.getLongExtra(LAST_ID, -1);
         Logger.i("LastId = " + lastId);
+
+        if (lastId <= 01){
+            return;
+        }
 
         // 首次运行时不检查，因为首次一定已经是最新的
         if (!firstStart) {
@@ -83,8 +105,6 @@ public class CheckUpdateService extends Service{
         }
 
         setTimer();
-
-        return super.onStartCommand(intent, flags, startId);
     }
 
     /**
@@ -94,10 +114,11 @@ public class CheckUpdateService extends Service{
         if (alarm==null){
             alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         }
-        int time = UPDATE_MINS*60*1000;
+        int time = UPDATE_MINS*20*1000;
         long triggerAtTime = SystemClock.elapsedRealtime() + time;
 
         Intent intent = new Intent(this, CheckUpdateReceiver.class);
+        intent.putExtra(LAST_ID, lastId);
         pi = PendingIntent.getBroadcast(this, 0, intent, 0);
         alarm.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
     }
@@ -172,9 +193,10 @@ public class CheckUpdateService extends Service{
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         // 关闭程序时需要把广播也关闭也，否则会一直在后台刷
         alarm.cancel(pi);
-        gson = null;
-        super.onDestroy();
     }
+
 }

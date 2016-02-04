@@ -25,6 +25,7 @@ import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.Utils.Snack;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.WeiboAPIUtils;
+import zxb.zweibo.service.CheckUpdateIntentService;
 import zxb.zweibo.service.CheckUpdateService;
 import zxb.zweibo.ui.fragment.FTLFragmentNew;
 import zxb.zweibo.ui.fragment.FavoritesFragment;
@@ -166,7 +167,9 @@ public class MainActivityF extends BasicActivity{
     protected void onDestroy() {
         super.onDestroy();
         cancelNotifi();
-        stopService(new Intent(this, CheckUpdateService.class));
+        Intent updateIntent = new Intent(this, CheckUpdateIntentService.class);
+        updateIntent.putExtra(CheckUpdateIntentService.STOP_SERVICE, true);
+        startService(updateIntent);
         Logger.i("MainActivityF onDestory");
     }
 
