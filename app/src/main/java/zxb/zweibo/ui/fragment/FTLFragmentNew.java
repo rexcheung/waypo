@@ -216,7 +216,7 @@ public class FTLFragmentNew extends SwipeListFragment {
         List<Long> tempList = getPageItems(mIds, lastId, PAGE_SIZE);
         if (tempList != null) {
             mJsonUtil.getCacheFrom(mStatusesList, tempList, mCacheListener);
-        } 
+        }
 
         restartService();
     }
