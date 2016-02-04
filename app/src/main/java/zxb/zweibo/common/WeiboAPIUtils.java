@@ -72,6 +72,16 @@ public class WeiboAPIUtils extends StatusesAPI {
     }
 
     /**
+     * 返回最新的100条微博ID。
+     * @param listener 监听器。
+     */
+    public void reqNewIds(RequestListener listener) {
+        WeiboParameters params =
+                buildTimeLineParamsBase(0L, 0L, 100, 1, false, 0);
+        this.requestAsync(IDS, params, HTTPMETHOD_GET, listener);
+    }
+
+    /**
      * 获取100条微博的ID， 微博的类型为图片
      * @param since_id  若指定此参数，则返回ID比since_id大的微博（即比since_id时间晚的微博），默认为0。
      * @param max_id    若指定此参数，则返回ID小于或等于max_id的微博，默认为0。

@@ -88,7 +88,7 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     @Override
     protected void onSwipeRefresh() {
-        Snackbar.make(mRecyclerView, "Refreshing", Snackbar.LENGTH_SHORT).show();
+//        Snackbar.make(mRecyclerView, "Refreshing", Snackbar.LENGTH_SHORT).show();
         refreshList();
     }
 
@@ -113,7 +113,7 @@ public class FTLFragmentNew extends SwipeListFragment {
         mIds = new ArrayList<>();
 
         if (isInit) {
-            requestIds();
+            mWeiboAPI.reqNewIds(idsListener);
         }
     }
 
@@ -127,7 +127,7 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     public void refreshList() {
         mSwipeLayout.setRefreshing(true);
-        requestIds();
+        mWeiboAPI.reqNewIds(idsListener);
         cancelNotifi();
     }
 
@@ -141,22 +141,6 @@ public class FTLFragmentNew extends SwipeListFragment {
         initEvents();
     }
 
-    private int idsPage;
-
-    /**
-     * 获取最新的N条微博ID
-     */
-    private void requestIds() {
-        long lastIds = 0;
-        if (mIds.size() != 0) {
-//            lastIds = mIds.get(mIds.size() - 1);
-            lastIds = mIds.get(0);
-        }
-//        mWeiboAPI.imageFTLIds(0L, lastIds > 0 ? lastIds - 1 : 0, 100, ++idsPage, false, 0, idsListener);
-        mWeiboAPI.imageFTLIds(0L, 0L, 100, 1, false, 0, idsListener);
-    }
-
-
     private RequestListener idsListener = new RequestListener() {
         @Override
         public void onComplete(String json) {
@@ -164,8 +148,10 @@ public class FTLFragmentNew extends SwipeListFragment {
             if (tempIds != null) {
                 if (tempIds.getStatuses().size() != 0) {
                     if (mIds.size() != 0){
-                        if (mIds.get(0) != tempIds.getStatuses().get(0)){
-                            // 判断新旧ID列表第一位判断有无新微博。
+                        long newId = tempIds.getStatuses().get(0);
+                        long oldId = mIds.get(0);
+                        if (newId != oldId){
+                            // 根据新旧ID列表第一位判断有无新微博。
                             replaceIds(tempIds);
                         } else {
                             noNew();
