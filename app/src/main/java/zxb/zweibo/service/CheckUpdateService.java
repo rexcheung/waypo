@@ -57,7 +57,7 @@ public class CheckUpdateService extends Service{
         super.onCreate();
 
         GlobalApp app = (GlobalApp) getApplication();
-        mWeiboUtil = app.getWeiboUtil();
+        mWeiboUtil = WeiboAPIUtils.getInstance();
 
         gson = new Gson();
 

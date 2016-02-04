@@ -38,7 +38,7 @@ public class CommentPresenter {
 
     public void requestComments(){
         GlobalApp app = (GlobalApp) mContext.getApplicationContext();
-        mWeiboAPI = app.getWeiboUtil();
+        mWeiboAPI = WeiboAPIUtils.getInstance();
         mWeiboAPI.requestCommentsById(mStatusContent.getId(), commentListener);
     }
 

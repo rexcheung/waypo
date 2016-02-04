@@ -218,10 +218,10 @@ public class FTLFragmentNew extends SwipeListFragment {
             mJsonUtil.getCacheFrom(mStatusesList, tempList, mCacheListener);
         }
 
-        restartService();
+        restartNotifyService();
     }
 
-    private void restartService() {
+    private void restartNotifyService() {
 //        stopService(new Intent(getApplicationContext(), CheckUpdateService.class) );
         EventBus.getDefault().getStickyEvent(LastWeibo.class);
         EventBus.getDefault().postSticky(new LastWeibo(mIds.get(0)));

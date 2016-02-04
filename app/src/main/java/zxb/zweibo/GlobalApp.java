@@ -37,13 +37,15 @@ public class GlobalApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        app = this;
+
         mImageUtil = new ImageUtil(this);
 
         initEmotions();
 
         initFresco();
 
-        initWeibo();
+//        initWeibo();
 //        initService();
     }
 
@@ -53,7 +55,7 @@ public class GlobalApp extends Application {
     }
 
     public WeiboAPIUtils getWeiboUtil(){
-        return mWeiboAPI;
+        return WeiboAPIUtils.getInstance();
     }
 
     private void initService() {

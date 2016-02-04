@@ -15,14 +15,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.Utils.Snack;
+import zxb.zweibo.common.AccessTokenKeeper;
+import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.service.CheckUpdateService;
 import zxb.zweibo.ui.fragment.FTLFragmentNew;
 import zxb.zweibo.ui.fragment.FavoritesFragment;
+import zxb.zweibo.widget.AppManager;
 
 //import zxb.zweibo.ui.fragment.FTimeLinsFragment;
 
@@ -50,16 +56,14 @@ public class MainActivityF extends BasicActivity{
         setContentView(R.layout.main_activity);
         ButterKnife.bind(this);
 
+        WeiboAPIUtils.initWeiboAPI();
+
         initMenu();
         initContiner();
-//        AppManager.getAppManager().addActivity(this);
     }
 
     private void initContiner() {
         mFragmentManager = getSupportFragmentManager();
-//        mFragmentManager.beginTransaction()
-//                .replace(R.id.container, FTLFragment.newInstance(MainActivityF.this))
-//                .commit();
         replaceFragment(FTLFragmentNew.newInstance(MainActivityF.this));
     }
 
@@ -70,14 +74,11 @@ public class MainActivityF extends BasicActivity{
     }
 
     private void initMenu() {
-//        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitle("最新微博");
 
         mToolbar.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-//                mSwipe.setRefreshing(true);
-//                Snackbar.make(mRecyclerView, "LongClick", Snackbar.LENGTH_SHORT).show();
                 refreshList();
                 return false;
             }
@@ -135,6 +136,11 @@ public class MainActivityF extends BasicActivity{
                             break;
                         case R.id.nav_like:
                             Snack.show(mDrawerLayout, "即将上线，敬请期待");
+                            break;
+                        case R.id.nav_logout:
+                            Snack.show(mDrawerLayout, "注销");
+                            AccessTokenKeeper.clear(GlobalApp.getInstance());
+                            AppManager.getAppManager().AppExit();
                             break;
                         case R.id.nav_android:
                             Snack.show(mDrawerLayout, "即将上线，敬请期待");

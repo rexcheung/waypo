@@ -38,7 +38,8 @@ public class FaovritesPresenter {
         gson = new Gson();
 
         GlobalApp app = (GlobalApp) mContext.getApplicationContext();
-        mWeiboAPI = app.getWeiboUtil();
+//        mWeiboAPI = app.getWeiboUtil();
+        mWeiboAPI = WeiboAPIUtils.getInstance();
     }
 
     public void requestFavList(){

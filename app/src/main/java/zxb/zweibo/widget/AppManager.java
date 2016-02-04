@@ -7,17 +7,17 @@ import java.util.Stack;
 
 /**
  * activity堆栈式管理
- * 
+ *
  * @author FireAnt（http://my.oschina.net/LittleDY）
  * @created 2014年10月30日 下午6:22:05
- * 
  */
 public class AppManager {
 
     private static Stack<Activity> activityStack;
     private static AppManager instance;
 
-    private AppManager() {}
+    private AppManager() {
+    }
 
     /**
      * 单一实例
@@ -82,18 +82,25 @@ public class AppManager {
      * 结束所有Activity
      */
     public void finishAllActivity() {
-        for (int i = 0, size = activityStack.size(); i < size; i++) {
-            if (null != activityStack.get(i)) {
-                finishActivity(activityStack.get(i));
-                break;
+//        for (int i = 0, size = activityStack.size(); i < size; i++) {
+//            if (null != activityStack.get(i)) {
+//                finishActivity(activityStack.get(i));
+//                break;
+//            }
+//        }
+
+        for (Activity activity : activityStack) {
+            if (null != activity){
+                finishActivity(activity);
             }
         }
+
         activityStack.clear();
     }
 
     /**
      * 获取指定的Activity
-     * 
+     *
      * @author kymjs
      */
     public static Activity getActivity(Class<?> cls) {
@@ -109,7 +116,7 @@ public class AppManager {
     /**
      * 退出应用程序
      */
-    public void AppExit(Context context) {
+    public void AppExit() {
         try {
             finishAllActivity();
             // 杀死该应用进程
