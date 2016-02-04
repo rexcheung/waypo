@@ -5,14 +5,8 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -24,22 +18,16 @@ import com.sina.weibo.sdk.openapi.models.ErrorInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.GlobalApp;
-import zxb.zweibo.R;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.adapter.FTimeLinsAdapter;
 import zxb.zweibo.bean.FTLIds;
-import zxb.zweibo.bean.FTimeLine;
 import zxb.zweibo.bean.LastWeibo;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.common.AccessTokenKeeper;
-import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.db.JsonCacheDao;
-import zxb.zweibo.listener.OnBottomListener;
 import zxb.zweibo.service.CheckUpdateService;
 
 
@@ -83,7 +71,8 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     /**
      * 初始化.
-     * @param content  Content.
+     *
+     * @param content Content.
      * @return 该类的实例
      */
     public static FTLFragmentNew newInstance(Activity content) {
@@ -105,12 +94,12 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     @Override
     protected void onBottomAction() {
+        Logger.i("Bttom");
+
         if (!isRefresing) {
             loadMore();
             Logger.i("Now refreshing...");
         }
-
-        Logger.i("Bttom");
     }
 
     @Override
@@ -123,12 +112,12 @@ public class FTLFragmentNew extends SwipeListFragment {
         mStatusesList = new ArrayList<>();
         mIds = new ArrayList<>();
 
-        if(isInit){
+        if (isInit) {
             requestIds();
         }
     }
 
-    private void initEvents(){
+    private void initEvents() {
         GlobalApp app = (GlobalApp) getActivity().getApplication();
         mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList, app.getmImageUtil());
         mRecyclerView.setAdapter(mAdapter);
@@ -136,19 +125,19 @@ public class FTLFragmentNew extends SwipeListFragment {
         mSwipeLayout.setOnRefreshListener(mRefreshSwipe);
     }
 
-    public void refreshList(){
+    public void refreshList() {
         mSwipeLayout.setRefreshing(true);
         requestIds();
         cancelNotifi();
     }
 
-    private void cancelNotifi(){
+    private void cancelNotifi() {
         NotificationManager notifi =
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notifi.cancelAll();
     }
 
-    private void initWidtJsonUtil(){
+    private void initWidtJsonUtil() {
         initEvents();
     }
 
@@ -157,12 +146,14 @@ public class FTLFragmentNew extends SwipeListFragment {
     /**
      * 获取最新的N条微博ID
      */
-    private void requestIds(){
+    private void requestIds() {
         long lastIds = 0;
-        if (mIds.size()!=0) {
-            lastIds = mIds.get(mIds.size() - 1);
+        if (mIds.size() != 0) {
+//            lastIds = mIds.get(mIds.size() - 1);
+            lastIds = mIds.get(0);
         }
-        mWeiboAPI.imageFTLIds(0L, lastIds > 0 ? lastIds - 1 : 0, 100, ++idsPage, false, 0, idsListener);
+//        mWeiboAPI.imageFTLIds(0L, lastIds > 0 ? lastIds - 1 : 0, 100, ++idsPage, false, 0, idsListener);
+        mWeiboAPI.imageFTLIds(0L, 0L, 100, 1, false, 0, idsListener);
     }
 
 
@@ -170,22 +161,21 @@ public class FTLFragmentNew extends SwipeListFragment {
         @Override
         public void onComplete(String json) {
             FTLIds tempIds = mGson.fromJson(json, FTLIds.class);
-            if(tempIds!=null){
-                if(tempIds.getStatuses().size() != 0){
-                    mIds.clear();
-                    mIds.addAll(tempIds.getStatuses());
-                    //3877868491180738 3877868419452707
-                    if (mSwipeLayout.isRefreshing()){
-                        mStatusesList.clear();
-                        mSwipeLayout.setRefreshing(false);
+            if (tempIds != null) {
+                if (tempIds.getStatuses().size() != 0) {
+                    if (mIds.size() != 0){
+                        if (mIds.get(0) != tempIds.getStatuses().get(0)){
+                            // 判断新旧ID列表第一位判断有无新微博。
+                            replaceIds(tempIds);
+                        } else {
+                            noNew();
+                        }
+                    } else {
+                        // mIds长度为0则表示是初始化，直接替换则可。
+                        replaceIds(tempIds);
                     }
-
-//                    Logger.i(mIds.get(0));
-                    loadMore();
-
                 } else {
-                    Snackbar.make(mSwipeLayout, "暂时没更新，休息下吧骚年", Snackbar.LENGTH_SHORT).show();
-                    mSwipeLayout.setRefreshing(false);
+                    noNew();
                 }
             }
         }
@@ -203,6 +193,22 @@ public class FTLFragmentNew extends SwipeListFragment {
             }
             if (mSwipeLayout.isRefreshing()) mSwipeLayout.setRefreshing(false);
         }
+
+        private void replaceIds(FTLIds tempIds){
+            mIds.clear();
+            mIds.addAll(tempIds.getStatuses());
+            //3877868491180738 3877868419452707
+            if (mSwipeLayout.isRefreshing()) {
+                mStatusesList.clear();
+                mSwipeLayout.setRefreshing(false);
+            }
+            loadMore();
+        }
+
+        private void noNew(){
+            Snackbar.make(mSwipeLayout, "暂时没更新，休息下吧骚年", Snackbar.LENGTH_SHORT).show();
+            mSwipeLayout.setRefreshing(false);
+        }
     };
 
     Gson mGson = new Gson();
@@ -212,17 +218,17 @@ public class FTLFragmentNew extends SwipeListFragment {
     /**
      * 从缓存中获取已有的微博，由缓存判断是否需要联网获取数据
      */
-    private void loadMore(){
+    private void loadMore() {
         isRefresing = true;
         long lastId;
-        if (mStatusesList.size() > 0){
-            lastId = mStatusesList.get(mStatusesList.size()-1).getId();
+        if (mStatusesList.size() > 0) {
+            lastId = mStatusesList.get(mStatusesList.size() - 1).getId();
         } else {
             lastId = mIds.get(0);
         }
 
         List<Long> tempList = getPageItems(mIds, lastId, PAGE_SIZE);
-        if (tempList!=null){
+        if (tempList != null) {
             mJsonUtil.getCacheFrom(mStatusesList, tempList, mCacheListener);
         }
 
@@ -236,39 +242,41 @@ public class FTLFragmentNew extends SwipeListFragment {
         mContext.startService(new Intent(mContext, CheckUpdateService.class));
     }
 
-    JsonCacheUtil.CacheListener mCacheListener = new JsonCacheUtil.CacheListener(){
+    JsonCacheUtil.CacheListener mCacheListener = new JsonCacheUtil.CacheListener() {
         @Override
         public void OnCacheComplete() {
-            if(isInit){
+            if (isInit) {
                 initWidtJsonUtil();
                 isInit = false;
             }
             isRefresing = false;
             mAdapter.notifyDataSetChanged();
         }
-    } ;
+    };
 
 
     /**
      * 获取需要ITEM的ID列表
-     * @param idList IDS总表
-     * @param fromId 从哪个ID开始
+     *
+     * @param idList    IDS总表
+     * @param fromId    从哪个ID开始
      * @param page_size 加载多少个ID
      * @return
      */
     private List<Long> getPageItems(List<Long> idList, long fromId, int page_size) {
         int index = getIndex(idList, fromId);
-        if (index == idList.size()-1 || index < 0) {
+        if (index == idList.size() - 1 || index < 0) {
             Logger.i("已经没有更多数据了");
             return null;
         }
 
         // 需要从画面上最后一条数据之后的一条开始查询，否则会出现重复
-        return getTargetList(idList, index == 0 ? 0 : index+1, page_size);
+        return getTargetList(idList, index == 0 ? 0 : index + 1, page_size);
     }
 
     /**
      * 需要获取缓存的IDS
+     *
      * @param idList
      * @param index
      * @param num
@@ -276,12 +284,12 @@ public class FTLFragmentNew extends SwipeListFragment {
      */
     private List<Long> getTargetList(List<Long> idList, int index, int num) {
         List<Long> targetList = new ArrayList<>();
-        int target = index+num;
-        if(target > idList.size()){
+        int target = index + num;
+        if (target > idList.size()) {
             target = idList.size();
         }
-        for (int i=index; i<target; i++){
-            if (i == 50){
+        for (int i = index; i < target; i++) {
+            if (i == 50) {
                 Logger.i("");
             }
             targetList.add(idList.get(i));
@@ -291,15 +299,16 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     /**
      * 获取指定ID在idList里面的下标.
+     *
      * @param idList list
      * @param fromId from
      * @return 返回下标，没有，错误或最后一条则返回-1
      */
     private int getIndex(List<Long> idList, long fromId) {
         int size = idList.size();
-        if(fromId == idList.get(0).longValue()){
+        if (fromId == idList.get(0).longValue()) {
             return 0;
-        } else if(fromId == idList.get(idList.size()-1).longValue()){
+        } else if (fromId == idList.get(idList.size() - 1).longValue()) {
             return -1;
         }
 
@@ -325,7 +334,7 @@ public class FTLFragmentNew extends SwipeListFragment {
             mAdapter.cleanCache();
         }
 
-        if(mJsonUtil != null){
+        if (mJsonUtil != null) {
 //            mJsonUtil.closeDB();
         }
         Logger.i("onPause()");

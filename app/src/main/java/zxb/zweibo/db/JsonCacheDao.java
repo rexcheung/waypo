@@ -112,8 +112,6 @@ public class JsonCacheDao {
 			return -1;
 		}
 
-		String sql = "SELECT * FROM " + TABLE + " WHERE " + USER_ID + " = ?";
-
 		return Observable.just(userid)
 				// 拼接SQL
 				.map(new Func1<String, String>() {

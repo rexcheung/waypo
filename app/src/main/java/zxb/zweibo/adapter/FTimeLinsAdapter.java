@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.gson.Gson;
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 
@@ -22,21 +21,12 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
 import zxb.zweibo.Utils.Logger;
-import zxb.zweibo.Utils.SpanHelper;
 import zxb.zweibo.bean.CommentsJson;
-import zxb.zweibo.bean.ImgBrowserWeiBoItem;
-import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.bean.User;
 import zxb.zweibo.bean.holder.FTLHolder;
-import zxb.zweibo.common.AccessTokenKeeper;
-import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.ImageUtil;
-import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.Utils;
-import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.ui.CommentActivity;
-import zxb.zweibo.ui.ImageBrowserActivity;
 
 /**
  * FriendsTimeLine Fragment里面RecyclerView的Adapter.
