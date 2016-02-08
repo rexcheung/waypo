@@ -37,7 +37,7 @@ import zxb.zweibo.ui.fragment.view.IFTLView;
  * 显示FriendsTimeLine最新关注用户的微博
  * Created by rex on 15-8-20.
  */
-public class FTLFragmentNew extends SwipeListFragment {
+public class FTLFragmentMVP extends SwipeListFragment implements IFTLView {
 
     /**
      * 初始化时传入的父类Activity, LayoutInflater需要使用
@@ -71,14 +71,16 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     private JsonCacheUtil mJsonUtil;
 
+    private FTLPresenter mPresenter;
+
     /**
      * 初始化.
      *
      * @param content Content.
      * @return 该类的实例
      */
-    public static FTLFragmentNew newInstance(Activity content) {
-        FTLFragmentNew f = new FTLFragmentNew();
+    public static FTLFragmentMVP newInstance(Activity content) {
+        FTLFragmentMVP f = new FTLFragmentMVP();
         f.mContext = content;
 //        f.mPresenter = new FTLPresenter(this);
         return f;
@@ -107,6 +109,7 @@ public class FTLFragmentNew extends SwipeListFragment {
 
     @Override
     protected void initEvent() {
+        this.mPresenter = FTLPresenter.newInstance(this);
 
         mAccessToken = WeiboAPIUtils.getAccessToken();
         mWeiboAPI = WeiboAPIUtils.getInstance();
@@ -117,12 +120,14 @@ public class FTLFragmentNew extends SwipeListFragment {
         mIds = new ArrayList<>();
 
         if (isInit) {
-            mWeiboAPI.reqNewIds(idsListener);
+//            mWeiboAPI.reqNewIds(idsListener);
+            mPresenter.getNextPage(0L);
+            initEvents();
         }
     }
 
     private void initEvents() {
-        GlobalApp app = (GlobalApp) getActivity().getApplication();
+        GlobalApp app = GlobalApp.getInstance();
         mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList, app.getmImageUtil());
         mRecyclerView.setAdapter(mAdapter);
 
@@ -340,5 +345,15 @@ public class FTLFragmentNew extends SwipeListFragment {
         mWeiboAPI = null;
         mJsonUtil = null;
         mGson = null;
+    }
+
+    @Override
+    public void onRefresh(List<StatusContent> weiboList) {
+
+    }
+
+    @Override
+    public void onUpdate(List<StatusContent> weiboList) {
+        mAdapter.update(weiboList);
     }
 }

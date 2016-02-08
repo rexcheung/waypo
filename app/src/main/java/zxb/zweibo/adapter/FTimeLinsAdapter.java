@@ -111,6 +111,11 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
     }
 
     public void update(List<StatusContent> list){
+        this.mStatusesList.addAll(list);
+        this.notifyDataSetChanged();
+    }
+
+    public void setDatas(List<StatusContent> list){
         this.mStatusesList = list;
         this.notifyDataSetChanged();
     }
@@ -139,5 +144,13 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
             e.printStackTrace();
         }
     };
+
+    /**
+     * 返回屏幕上最后一条微博的ID
+     * @return ID
+     */
+    public long getLastId(){
+        return mStatusesList.get(mStatusesList.size()-1).getId();
+    }
 
 }

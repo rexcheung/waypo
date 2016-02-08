@@ -27,6 +27,7 @@ import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.service.CheckUpdateIntentService;
 import zxb.zweibo.service.CheckUpdateService;
+import zxb.zweibo.ui.fragment.FTLFragmentMVP;
 import zxb.zweibo.ui.fragment.FTLFragmentNew;
 import zxb.zweibo.ui.fragment.FavoritesFragment;
 import zxb.zweibo.widget.AppManager;
@@ -65,7 +66,8 @@ public class MainActivityF extends BasicActivity{
 
     private void initContiner() {
         mFragmentManager = getSupportFragmentManager();
-        replaceFragment(FTLFragmentNew.newInstance(MainActivityF.this));
+//        replaceFragment(FTLFragmentNew.newInstance(MainActivityF.this));
+        replaceFragment(FTLFragmentMVP.newInstance(MainActivityF.this));
     }
 
     private void replaceFragment(Fragment fragment){
@@ -126,7 +128,8 @@ public class MainActivityF extends BasicActivity{
                         case R.id.nav_home:
                             Logger.i("nav_home");
                             mToolbar.setTitle("最新微博");
-                            replaceFragment(FTLFragmentNew.newInstance(MainActivityF.this));
+//                            replaceFragment(FTLFragmentNew.newInstance(MainActivityF.this));
+                            replaceFragment(FTLFragmentMVP.newInstance(MainActivityF.this));
                         break;
                         case R.id.nav_fav:
                             mToolbar.setTitle("我的收藏");

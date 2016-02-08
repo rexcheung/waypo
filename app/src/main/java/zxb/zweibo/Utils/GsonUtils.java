@@ -19,7 +19,7 @@ public class GsonUtils {
         return getGson().fromJson(json, cls);
     }
 
-    public static String toJson(Class cls){
+    public static String toJson(Object cls){
         return getGson().toJson(cls);
     }
 }

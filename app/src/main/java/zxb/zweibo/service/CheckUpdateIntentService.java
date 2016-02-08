@@ -196,7 +196,7 @@ public class CheckUpdateIntentService extends IntentService {
         super.onDestroy();
 
         // 关闭程序时需要把广播也关闭也，否则会一直在后台刷
-        alarm.cancel(pi);
+//        alarm.cancel(pi);
     }
 
 }

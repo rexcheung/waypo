@@ -1,7 +1,9 @@
 package zxb.zweibo.bean;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 
+import zxb.zweibo.Utils.GsonUtils;
 import zxb.zweibo.db.JsonCacheDao;
 
 /**
@@ -35,6 +37,14 @@ public class JsonCache {
         cache.json = cs.getString(jsonIndex);
 
         return cache;
+    }
+
+    public static ContentValues toContentValues(String userId, StatusContent sc){
+        ContentValues values = new ContentValues();
+        values.put(JsonCacheDao.USER_ID, userId);
+        values.put(JsonCacheDao.WEIBO_ID, sc.getId());
+        values.put(JsonCacheDao.JSON, GsonUtils.toJson(sc));
+        return values;
     }
 
     public String getId() {

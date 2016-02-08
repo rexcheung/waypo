@@ -81,13 +81,30 @@ public class WeiboAPIUtils extends StatusesAPI {
     }
 
     /**
-     * 返回最新的100条微博ID。
+     * 过滤类型ID，
+     * 0：全部、
+     * 1：原创、
+     * 2：图片、
+     * 3：视频、
+     * 4：音乐，
+     * 默认为0。
+     */
+    class FilterType {
+        public static final int ALL = 0;
+        public static final int ORIGINAL = 1;
+        public static final int PIC = 2;
+        public static final int VIDEO = 3;
+        public static final int MUSIC = 4;
+    }
+
+    /**
+     * 返回最新的100条图片微博ID。
      *
      * @param listener 监听器。
      */
     public void reqNewIds(RequestListener listener) {
         WeiboParameters params =
-                buildTimeLineParamsBase(0L, 0L, 100, 1, false, 0);
+                buildTimeLineParamsBase(0L, 0L, 100, 1, false, FilterType.PIC);
         this.requestAsync(IDS, params, HTTPMETHOD_GET, listener);
     }
 
@@ -247,6 +264,10 @@ public class WeiboAPIUtils extends StatusesAPI {
         }
         params.put("page", page);   //返回结果的页码
         return params;
+    }
+
+    public void reqFTL(long since, RequestListener l){
+        friendsTimeline(0, since, WayPoConstants.PER_PAGE_COUNT, 1, false, 2, false, l);
     }
 
     public Oauth2AccessToken getmAccessToken() {
