@@ -273,4 +273,8 @@ public class WeiboAPIUtils extends StatusesAPI {
     public Oauth2AccessToken getmAccessToken() {
         return mAccessToken;
     }
+
+    public String getUserId(){
+        return mAccessToken.getUid();
+    }
 }

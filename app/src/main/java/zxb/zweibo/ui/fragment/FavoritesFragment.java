@@ -38,6 +38,9 @@ public class FavoritesFragment extends WeiboFragment implements IFavorites{
 
     public static FavoritesFragment newInstance(Context context){
         FavoritesFragment f = new FavoritesFragment(context);
+        f.mDataList = new ArrayList<>();
+        f.firstInit = true;
+        f.mPresenter = new FaovritesPresenter(f, context);
         return f;
     }
 

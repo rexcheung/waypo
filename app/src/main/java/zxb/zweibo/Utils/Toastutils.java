@@ -14,12 +14,12 @@ public class Toastutils {
         mToast = Toast.makeText(GlobalApp.getInstance(), "", Toast.LENGTH_SHORT);
     }
 
-    public void s(String msg){
+    public static void s(String msg){
         mToast.setText(msg);
         mToast.setDuration(Toast.LENGTH_SHORT);
         mToast.show();
     }
-    public void l(String msg){
+    public static void l(String msg){
         mToast.setText(msg);
         mToast.setDuration(Toast.LENGTH_LONG);
         mToast.show();

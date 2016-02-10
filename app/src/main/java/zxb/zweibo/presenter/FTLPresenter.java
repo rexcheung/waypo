@@ -1,7 +1,10 @@
 package zxb.zweibo.presenter;
 
+import android.os.Handler;
+
 import java.util.List;
 
+import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.biz.FTLBiz;
 import zxb.zweibo.biz.IFTLBiz;
@@ -14,6 +17,7 @@ import zxb.zweibo.ui.fragment.view.IFTLView;
 public class FTLPresenter {
     private IFTLBiz biz;
     private IFTLView view;
+    private Handler mHandler;
 
     private FTLPresenter() {
     }
@@ -22,22 +26,49 @@ public class FTLPresenter {
         FTLPresenter p = new FTLPresenter();
         p.biz = FTLBiz.newInstance();
         p.view = ftl;
+        p.mHandler = new Handler();
         return p;
     }
 
-    public List<StatusContent> getNextPage(final long currentLast) {
-        biz.requestNextPage(currentLast, new IFTLBiz.responseListener() {
+    public void getNextPage(final long currentLast) {
+        new Thread(new Runnable() {
             @Override
-            public void onResponse(List<StatusContent> ftl) {
-                view.onUpdate(ftl);
+            public void run() {
+                biz.requestNextPage(currentLast, new IFTLBiz.responseListener() {
+                    @Override
+                    public void onResponse(final List<StatusContent> ftl) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                view.onUpdate(ftl);
+                            }
+                        });
+
+                    }
+                });
             }
-        });
-        return null;
+        }).start();
+
     }
 
-    public List<StatusContent> refrresh(IFTLBiz.responseListener l) {
-        biz.refresh(l);
-        return null;
+    public void refrresh() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                biz.refresh(new IFTLBiz.responseListener() {
+                    @Override
+                    public void onResponse(final List<StatusContent> ftl) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                view.onRefresh(ftl);
+                            }
+                        });
+                    }
+                });
+            }
+        }).start();
+
     }
 
 

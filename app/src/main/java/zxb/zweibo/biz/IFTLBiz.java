@@ -14,13 +14,13 @@ public interface IFTLBiz {
      * @param lastId 0则为初始化
      * @return
      */
-    List<StatusContent> requestNextPage(long lastId, responseListener l);
+    void requestNextPage(long lastId, responseListener l);
 
     /**
      * 刷新当前页面。
      * @return 如果为null则表示没有更新。
      */
-    List<StatusContent> refresh(responseListener l);
+    void refresh(responseListener l);
 
     interface responseListener {
         void onResponse(List<StatusContent> ftl);

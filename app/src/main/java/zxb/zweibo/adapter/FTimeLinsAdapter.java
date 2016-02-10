@@ -153,4 +153,8 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
         return mStatusesList.get(mStatusesList.size()-1).getId();
     }
 
+    public long getFirstId(){
+        return mStatusesList.get(0).getId();
+    }
+
 }

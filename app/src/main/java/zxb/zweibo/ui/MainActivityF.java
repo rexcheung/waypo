@@ -15,8 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import zxb.zweibo.GlobalApp;
@@ -26,13 +24,9 @@ import zxb.zweibo.Utils.Snack;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.service.CheckUpdateIntentService;
-import zxb.zweibo.service.CheckUpdateService;
 import zxb.zweibo.ui.fragment.FTLFragmentMVP;
-import zxb.zweibo.ui.fragment.FTLFragmentNew;
 import zxb.zweibo.ui.fragment.FavoritesFragment;
 import zxb.zweibo.widget.AppManager;
-
-//import zxb.zweibo.ui.fragment.FTimeLinsFragment;
 
 /**
  * Created by rex on 15-8-27.
