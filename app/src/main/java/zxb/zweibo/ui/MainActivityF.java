@@ -24,22 +24,27 @@ import zxb.zweibo.Utils.Snack;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.service.CheckUpdateIntentService;
-import zxb.zweibo.ui.fragment.FTLFragmentMVP;
-import zxb.zweibo.ui.fragment.FavoritesFragment;
+import zxb.zweibo.ui.fragment.FTLMVP;
+import zxb.zweibo.ui.fragment.FavFragment;
+import zxb.zweibo.ui.fragment.view.IFTLView;
 import zxb.zweibo.widget.AppManager;
 
 /**
  * Created by rex on 15-8-27.
  */
-public class MainActivityF extends BasicActivity{
+public class MainActivityF extends BasicActivity {
 
-    @Bind(R.id.container) FrameLayout mContainer;
+    @Bind(R.id.container)
+    FrameLayout mContainer;
 
-    @Bind(R.id.dl_main_drawer) DrawerLayout mDrawerLayout;
+    @Bind(R.id.dl_main_drawer)
+    DrawerLayout mDrawerLayout;
 
-    @Bind(R.id.nv_main_navigation) NavigationView mNavigation;
+    @Bind(R.id.nv_main_navigation)
+    NavigationView mNavigation;
 
-    @Bind(R.id.toolbar)Toolbar mToolbar;
+    @Bind(R.id.toolbar)
+    Toolbar mToolbar;
 
     private FragmentManager mFragmentManager;
 
@@ -61,25 +66,41 @@ public class MainActivityF extends BasicActivity{
     private void initContiner() {
         mFragmentManager = getSupportFragmentManager();
 //        replaceFragment(FTLFragmentNew.newInstance(MainActivityF.this));
-        replaceFragment(FTLFragmentMVP.newInstance(MainActivityF.this));
+//        FTLFragmentMVP ftl = FTLFragmentMVP.newInstance(MainActivityF.this);
+        FTLMVP ftl = FTLMVP.newInstance(MainActivityF.this);
+        mFragment = ftl;
+        replaceFragment(ftl);
     }
 
-    private void replaceFragment(Fragment fragment){
+    private void replaceFragment(Fragment fragment) {
         mFragmentManager.beginTransaction()
-                        .replace(R.id.container, fragment)
-                        .commit();
+                .replace(R.id.container, fragment)
+                .commit();
     }
 
+    private long preClickTime;
     private void initMenu() {
         mToolbar.setTitle("最新微博");
 
-        mToolbar.setOnLongClickListener(new View.OnLongClickListener() {
+        /*mToolbar.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 refreshList();
                 return false;
             }
+        });*/
+        mToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - preClickTime > 1000) {
+                    preClickTime = currentTime;
+                } else {
+                    refreshList();
+                }
+            }
         });
+
         setSupportActionBar(mToolbar);
 
         final ActionBar ab = getSupportActionBar();
@@ -100,53 +121,64 @@ public class MainActivityF extends BasicActivity{
     }
 
     private void refreshList() {
-
+//        mFragment.refresh();
+        mFragment.toTop();
     }
 
     private void init() {
 
     }
 
+    IFTLView mFragment;
+
     /**
      * 左拉菜单项的点击事件监听
+     *
      * @param navigationView
      */
     private void setupDrawerContent(NavigationView navigationView) {
         navigationView.setNavigationItemSelectedListener(
-            new NavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(MenuItem menuItem) {
-                    menuItem.setChecked(true);
-                    int itemId = menuItem.getItemId();
-                    switch (itemId){
-                        case R.id.nav_home:
-                            Logger.i("nav_home");
-                            mToolbar.setTitle("最新微博");
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        menuItem.setChecked(true);
+                        int itemId = menuItem.getItemId();
+                        switch (itemId) {
+                            case R.id.nav_home:
+                                Logger.i("nav_home");
+                                mToolbar.setTitle("最新微博");
 //                            replaceFragment(FTLFragmentNew.newInstance(MainActivityF.this));
-                            replaceFragment(FTLFragmentMVP.newInstance(MainActivityF.this));
-                        break;
-                        case R.id.nav_fav:
-                            mToolbar.setTitle("我的收藏");
-                            replaceFragment(FavoritesFragment.newInstance(MainActivityF.this));
-                        break;
-                        case R.id.nav_my:
-                            Snack.show(mDrawerLayout, "即将上线，敬请期待");
-                            break;
-                        case R.id.nav_like:
-                            Snack.show(mDrawerLayout, "即将上线，敬请期待");
-                            break;
-                        case R.id.nav_logout:
-                            Snack.show(mDrawerLayout, "注销");
-                            AccessTokenKeeper.clear(GlobalApp.getInstance());
-                            AppManager.getAppManager().AppExit();
-                            break;
-                        case R.id.nav_android:
-                            Snack.show(mDrawerLayout, "即将上线，敬请期待");
-                            break;
-                        case R.id.nav_ios:
-                            Snack.show(mDrawerLayout, "即将上线，敬请期待");
-                            break;
-                    }
+//                                FTLFragmentMVP ftl = FTLFragmentMVP.newInstance(MainActivityF.this);
+                                FTLMVP ftl = FTLMVP.newInstance(MainActivityF.this);
+                                mFragment = ftl;
+                                replaceFragment(ftl);
+                                break;
+                            case R.id.nav_fav:
+                                mToolbar.setTitle("我的收藏");
+//                                replaceFragment(FavoritesFragment.newInstance(MainActivityF.this));
+//                                FavoritesFragmentMVP fav = FavoritesFragmentMVP.newInstance(MainActivityF.this);
+                                FavFragment fav = FavFragment.newInstance(MainActivityF.this);
+                                mFragment = fav;
+                                replaceFragment(fav);
+                                break;
+                            case R.id.nav_my:
+                                Snack.show(mDrawerLayout, "即将上线，敬请期待");
+                                break;
+                            case R.id.nav_like:
+                                Snack.show(mDrawerLayout, "即将上线，敬请期待");
+                                break;
+                            case R.id.nav_logout:
+                                Snack.show(mDrawerLayout, "注销");
+                                AccessTokenKeeper.clear(GlobalApp.getInstance());
+                                AppManager.getAppManager().AppExit();
+                                break;
+                            case R.id.nav_android:
+                                Snack.show(mDrawerLayout, "即将上线，敬请期待");
+                                break;
+                            case R.id.nav_ios:
+                                Snack.show(mDrawerLayout, "即将上线，敬请期待");
+                                break;
+                        }
                     /*if (itemId == R.id.nav_home) {
                         Logger.i("nav_home");
                         replaceFragment(FTLFragment.newInstance(MainActivityF.this));
@@ -154,10 +186,10 @@ public class MainActivityF extends BasicActivity{
                         replaceFragment(FavoritesFragment.newInstance(MainActivityF.this));
                     }*/
 
-                    mDrawerLayout.closeDrawers();
-                    return true;
-                }
-            });
+                        mDrawerLayout.closeDrawers();
+                        return true;
+                    }
+                });
     }
 
     @Override
@@ -170,7 +202,7 @@ public class MainActivityF extends BasicActivity{
         Logger.i("MainActivityF onDestory");
     }
 
-    private void cancelNotifi(){
+    private void cancelNotifi() {
         NotificationManager notifi =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notifi.cancelAll();

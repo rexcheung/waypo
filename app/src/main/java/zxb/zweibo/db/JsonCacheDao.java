@@ -16,6 +16,7 @@ import zxb.zweibo.Utils.GsonUtils;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.bean.JsonCache;
 import zxb.zweibo.bean.StatusContent;
+import zxb.zweibo.common.WayPoConstants;
 
 /**
  * Created by rex on 15-12-19.
@@ -320,20 +321,88 @@ public class JsonCacheDao {
         }
 
         StatusContent sc = null;
-        if (cursor.moveToNext()){
+        if (cursor.moveToNext()) {
             JsonCache cache = JsonCache.newInstance(cursor);
             sc = GsonUtils.fromJson(cache.getJson(), StatusContent.class);
         }
 
         cursor.close();
-        if (sc==null){
+        if (sc == null) {
             return null;
         }
 
         return sc;
     }
 
-    public static void insertSingle(String userId, StatusContent sc){
+    public static List<StatusContent> queryMulti(String userId, String table, List<Long> idList) {
+        if (TextUtils.isEmpty(userId) || idList == null || idList.size() == 0) {
+            return new ArrayList<>();
+        }
+        //拼接SQL
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT * FROM ").append(table)
+                .append(" WHERE ").append(USER_ID).append(" = '").append(userId).append("' ")
+                .append(" AND ").append(WEIBO_ID).append(" in (");
+
+        //拼接参数
+        String[] params = new String[idList.size()];
+        for (int i = 0, n = idList.size(); i < n; i++) {
+            sql.append(" ?,");
+            params[i] = String.valueOf(idList.get(i));
+        }
+        sql.deleteCharAt(sql.length() - 1);
+        sql.append(" ) ");
+        sql.append("ORDER BY ").append(WEIBO_ID).append(" DESC;");
+
+        Cursor cursor = SqliteHelper.getInstance().getReadableDatabase().rawQuery(sql.toString(), params);
+        if (cursor.getCount() == 0) {
+            cursor.close();
+            return new ArrayList<>();
+        }
+
+        List<JsonCache> jsonCachesList = new ArrayList<>();
+        JsonCache cache;
+        // 合乎条件的缓存数据
+        while (cursor.moveToNext()) {
+            cache = JsonCache.newInstance(cursor);
+            jsonCachesList.add(cache);
+        }
+        cache = null;
+        cursor.close();
+
+        List<StatusContent> cacheList = new ArrayList<>();
+        //整理数据，避免重复，并把JSON转换成StatusContent
+        for (Long id : idList) {
+            for (JsonCache jsonCache : jsonCachesList) {
+                if (id == jsonCache.getCreateTime()) {
+                    StatusContent tempSc = GsonUtils.fromJson(jsonCache.getJson(), StatusContent.class);
+                    cacheList.add(tempSc);
+                    break;
+                }
+            }
+        }
+
+        return cacheList;
+    }
+
+    /**
+     * 查询多条记录
+     *
+     * @param userId 用户ID
+     * @param idList 需要查询的ID列表
+     * @return 已经缓存的记录。
+     */
+    public static List<StatusContent> queryMulti(String userId, List<Long> idList) {
+        if (TextUtils.isEmpty(userId) || idList == null || idList.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        return queryMulti(userId, TABLE, idList);
+    }
+
+
+
+    public static void insertSingle(String userId, StatusContent sc) {
         ContentValues values = JsonCache.toContentValues(userId, sc);
         SqliteHelper.getInstance().getReadableDatabase().insert(TABLE, null, values);
     }

@@ -1,6 +1,7 @@
 package zxb.zweibo.ui.fragment;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,47 +17,29 @@ import zxb.zweibo.ui.fragment.view.IFavorites;
  *
  * Created by rex on 15-8-28.
  */
-public class FavoritesFragment extends WeiboFragment implements IFavorites{
+public class FavoritesFragmentMVP_old extends SwipeListFragment implements IFavorites{
 
     FaovritesPresenter mPresenter;
     GifAdapter mAdapter;
+    Context mContext;
 
     List<FavoriteItem> mDataList;
 
     private boolean firstInit;
 
-    public FavoritesFragment(Context context) {
-        super(context);
-        firstInit = true;
-        mPresenter = new FaovritesPresenter(this, context);
-        mDataList = new ArrayList<>();
-//        StatusContent tempSC = new StatusContent();
-//        mDataList.get(0).status = tempSC;
-
-    }
-
-    public static FavoritesFragment newInstance(Context context){
-        FavoritesFragment f = new FavoritesFragment(context);
+    public static FavoritesFragmentMVP_old newInstance(Context context){
+        FavoritesFragmentMVP_old f = new FavoritesFragmentMVP_old();
+        f.mContext = context;
         f.mDataList = new ArrayList<>();
         f.firstInit = true;
         f.mPresenter = new FaovritesPresenter(f, context);
         return f;
     }
 
-    @Override
-    protected void loadMore() {
-
-    }
-
-    @Override
-    protected void refreshData() {
-
-    }
-
-    @Override
+    /*@Override
     protected void initData() {
         mPresenter.requestFavList();
-    }
+    }*/
 
     //-----------------------Interface method----------------------------------------
     @Override
@@ -65,9 +48,6 @@ public class FavoritesFragment extends WeiboFragment implements IFavorites{
             Snack.show(mRecyclerView, "请求失败");
             return;
         }
-//        mAdapter = GifAdapter.newInstance(context, mDataList);
-//        mRecyclerView.setAdapter(mAdapter);
-
 
         //初始化
         if (mDataList.size() == 0) {
@@ -78,5 +58,27 @@ public class FavoritesFragment extends WeiboFragment implements IFavorites{
             mDataList.addAll(favList);
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    protected LinearLayoutManager initLayoutManager() {
+        return new LinearLayoutManager(mContext);
+    }
+
+    @Override
+    protected void onSwipeRefresh() {
+        if (!mSwipeLayout.isRefreshing()){
+
+        }
+    }
+
+    @Override
+    protected void onBottomAction() {
+
+    }
+
+    @Override
+    protected void initEvent() {
+
     }
 }

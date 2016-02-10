@@ -26,6 +26,9 @@ public class WeiboAPIUtils extends StatusesAPI {
     private static final String ADD_FAVORTIE = "https://api.weibo.com/2/favorites/create.json";
     private static final String FORWARD = "https://api.weibo.com/2/statuses/repost.json";
     private static final String GET_FAVORITE = "https://api.weibo.com/2/favorites.json";
+    private static final String GET_FAVORITE_IDS = "https://api.weibo.com/2/favorites/ids.json";
+
+
 
 
     private static Oauth2AccessToken mAccessToken;
@@ -227,8 +230,6 @@ public class WeiboAPIUtils extends StatusesAPI {
      *
      * @param id         true	int64	要转发的微博ID。
      * @param status     false	string	添加的转发文本，必须做URLencode，内容不超过140个汉字，不填则默认为“转发微博”。
-     * @param is_comment false	int	是否在转发的同时发表评论，0：否、1：评论给当前微博、2：评论给原微博、3：都评论，默认为0 。
-     * @param rip        false	string	开发者上报的操作用户真实IP，形如：211.156.0.1。
      */
     public void forward(Long id, String status, RequestListener listener) {
         WeiboParameters params = buildForwardParams(id, status);
@@ -244,6 +245,17 @@ public class WeiboAPIUtils extends StatusesAPI {
 //        params.put("is_comment", 0);   //是否在转发的同时发表评论
 //        params.put("rip", "");   //开发者上报的操作用户真实IP
         return params;
+    }
+
+    /**
+     * 请求收藏微博ID列表
+     * @param listener 监听器。
+     */
+    public void reqFavoritesIds(RequestListener listener){
+        WeiboParameters params = new WeiboParameters(mAppKey);
+        params.put("count", 100);   //单页返回的记录条数
+        params.put("page", 1);
+        requestAsync(GET_FAVORITE_IDS, params, HTTPMETHOD_GET, listener);
     }
 
     /**
@@ -274,7 +286,7 @@ public class WeiboAPIUtils extends StatusesAPI {
         return mAccessToken;
     }
 
-    public String getUserId(){
+    public static String getUserId(){
         return mAccessToken.getUid();
     }
 }

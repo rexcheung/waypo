@@ -12,13 +12,13 @@ import zxb.zweibo.db.JsonCacheDao;
 public class JsonCache {
 
     private String id;
-    private double createTime;
+    private long createTime;
     private String json;
 
     public JsonCache() {
     }
 
-    public JsonCache(String id, double createTime, String json) {
+    public JsonCache(String id, long createTime, String json) {
         this.id = id;
         this.createTime = createTime;
         this.json = json;
@@ -31,7 +31,7 @@ public class JsonCache {
         cache.id = cs.getString(idIndex);
 
         int timeIndex = cs.getColumnIndex(JsonCacheDao.WEIBO_ID);
-        cache.createTime = cs.getDouble(timeIndex);
+        cache.createTime = cs.getLong(timeIndex);
 
         int jsonIndex = cs.getColumnIndex(JsonCacheDao.JSON);
         cache.json = cs.getString(jsonIndex);
@@ -59,7 +59,7 @@ public class JsonCache {
         return createTime;
     }
 
-    public void setCreateTime(double createTime) {
+    public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
 

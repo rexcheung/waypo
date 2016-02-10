@@ -16,11 +16,13 @@ import com.google.gson.Gson;
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
 import zxb.zweibo.Utils.Logger;
+import zxb.zweibo.Utils.Toastutils;
 import zxb.zweibo.bean.CommentsJson;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.holder.FTLHolder;
@@ -38,19 +40,30 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
     List<StatusContent> mStatusesList;
     private ImageUtil imageUtil;
 
-    private FTimeLinsAdapter(){}
+    private FTimeLinsAdapter() {
+    }
 
-    private FTimeLinsAdapter(Context context, List<StatusContent> statusesList, ImageUtil imageUtil){
+    private FTimeLinsAdapter(Context context, List<StatusContent> statusesList, ImageUtil imageUtil) {
         this.mContext = context;
-        this.mStatusesList = statusesList;
+        if (statusesList == null) {
+            this.mStatusesList = new ArrayList<>();
+        } else {
+            this.mStatusesList = statusesList;
+        }
         this.imageUtil = imageUtil;
 
         getScreenSize(context);
 
     }
 
+
     public static FTimeLinsAdapter newInstance(Context context, List<StatusContent> statusesList, ImageUtil imageUtil) {
-        FTimeLinsAdapter adapter = new FTimeLinsAdapter(context,statusesList, imageUtil);
+        FTimeLinsAdapter adapter = new FTimeLinsAdapter(context, statusesList, imageUtil);
+        return adapter;
+    }
+
+    public static FTimeLinsAdapter newInstance(Context context, ImageUtil imageUtil) {
+        FTimeLinsAdapter adapter = new FTimeLinsAdapter(context, null, imageUtil);
         return adapter;
     }
 
@@ -60,9 +73,10 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
 
     /**
      * 检测当前设备的屏幕尺寸
+     *
      * @param context 必须要Activity的实体才能获取WindowManager，所以需要传入Activity
      */
-    private void getScreenSize(Context context){
+    private void getScreenSize(Context context) {
         DisplayMetrics metric = Utils.getMetrics((Activity) context);
 //        Activity activity = (Activity) context;
 //        activity.getWindowManager().getDefaultDisplay().getMetrics(metric);
@@ -110,14 +124,20 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
         return mStatusesList.size();
     }
 
-    public void update(List<StatusContent> list){
+    public void update(List<StatusContent> list) {
         this.mStatusesList.addAll(list);
         this.notifyDataSetChanged();
     }
 
-    public void setDatas(List<StatusContent> list){
-        this.mStatusesList = list;
-        this.notifyDataSetChanged();
+    public void setDatas(List<StatusContent> list) {
+        if (list.size() > 0 && list.get(0).getId() != mStatusesList.get(0).getId()){
+            this.mStatusesList = list;
+            this.notifyDataSetChanged();
+        } else {
+            Toastutils.s("没有数据更新哦");
+            Logger.i("FTLAdapter.setDatas(): 没有数据更新哦");
+        }
+
     }
 
     private void resetDimens(ImageView img) {
@@ -126,11 +146,12 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
     }
 
     Gson gson = new Gson();
-    public void cleanCache(){
+
+    public void cleanCache() {
         imageUtil.clearMemoryCache();
     }
 
-    RequestListener commentListener = new RequestListener(){
+    RequestListener commentListener = new RequestListener() {
 
         @Override
         public void onComplete(String s) {
@@ -147,13 +168,14 @@ public class FTimeLinsAdapter extends RecyclerView.Adapter<FTLHolder> {
 
     /**
      * 返回屏幕上最后一条微博的ID
+     *
      * @return ID
      */
-    public long getLastId(){
-        return mStatusesList.get(mStatusesList.size()-1).getId();
+    public long getLastId() {
+        return mStatusesList.get(mStatusesList.size() - 1).getId();
     }
 
-    public long getFirstId(){
+    public long getFirstId() {
         return mStatusesList.get(0).getId();
     }
 

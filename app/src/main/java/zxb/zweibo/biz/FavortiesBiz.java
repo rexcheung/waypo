@@ -2,7 +2,6 @@ package zxb.zweibo.biz;
 
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
-import com.sina.weibo.sdk.openapi.models.ErrorInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,27 +9,28 @@ import java.util.List;
 import zxb.zweibo.Utils.GsonUtils;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.Utils.Toastutils;
-import zxb.zweibo.bean.FTLIds;
-import zxb.zweibo.bean.FTimeLine;
+import zxb.zweibo.bean.FavoriteIds;
+import zxb.zweibo.bean.FavoriteItem;
+import zxb.zweibo.bean.FavoriteJson;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.common.WayPoConstants;
 import zxb.zweibo.common.WeiboAPIUtils;
-import zxb.zweibo.db.JsonCacheDao;
+import zxb.zweibo.db.FavoriteCacheDao;
 
 /**
  * 时间线逻辑层。
  * Created by Rex.Zhang on 2016/2/8.
  */
-public class FTLBiz implements IFTLBiz {
+public class FavortiesBiz implements IFTLBiz {
 
     private WeiboAPIUtils mWeiboAPI;
-    private List<Long> mIds;
+    private List<FavoriteIds.FavoritesEntity> mIds;
 
-    private FTLBiz() {
+    private FavortiesBiz() {
     }
 
-    public static FTLBiz newInstance() {
-        FTLBiz biz = new FTLBiz();
+    public static FavortiesBiz newInstance() {
+        FavortiesBiz biz = new FavortiesBiz();
         biz.mWeiboAPI = WeiboAPIUtils.getInstance();
         biz.mIds = new ArrayList<>();
         return biz;
@@ -47,7 +47,7 @@ public class FTLBiz implements IFTLBiz {
     public void requestNextPage(final long lastId, final responseListener l) {
         if (mIds != null && mIds.size() == 0) {
             //初始化时走的逻辑。
-            mWeiboAPI.reqNewIds(new reqList(new requestListener() {
+            mWeiboAPI.reqFavoritesIds(new reqList(new requestListener() {
                 @Override
                 public void onSuccess() {
                     getFTL(lastId, l);
@@ -73,17 +73,27 @@ public class FTLBiz implements IFTLBiz {
         final List<StatusContent> weiboCache = getCache(current, mIds);
 
         // 检查缓存
-        if (weiboCache.size() == WayPoConstants.PER_PAGE_COUNT) {
+        if (weiboCache.size() == WayPoConstants.FAVORITES_PER_PAGE_COUNT) {
             //全部有缓存则返回缓存结果
             l.onResponse(weiboCache);
         } else {
+            int page = 1;
+            if (current == 0) {
+                page = 1;
+            } else {
+                page = current / WayPoConstants.FAVORITES_PER_PAGE_COUNT;
+            }
             // 其中一条没有则通过网络查询。
-            mWeiboAPI.reqFTL(mIds.get(current), new RequestListener() {
+            mWeiboAPI.reqFavorites(WayPoConstants.FAVORITES_PER_PAGE_COUNT, page, new RequestListener() {
                 //监听器。
                 @Override
                 public void onComplete(String s) {
-                    FTimeLine mFTimeLine = GsonUtils.fromJson(s, FTimeLine.class);
-                    List<StatusContent> tempList = mFTimeLine.getStatuses();
+                    FavoriteJson favJson = GsonUtils.fromJson(s, FavoriteJson.class);
+                    List<StatusContent> tempList = new ArrayList<>();
+                    List<FavoriteItem> favorites = favJson.getFavorites();
+                    for (FavoriteItem fav : favorites) {
+                        tempList.add(fav.getStatus());
+                    }
 
                     if (tempList.size() != 0) {
                         // 先把结果返回
@@ -102,7 +112,7 @@ public class FTLBiz implements IFTLBiz {
 
                             // have 为false时表示没有缓存，则记录数据。
                             if (!have) {
-                                JsonCacheDao.insertSingle(mWeiboAPI.getUserId(), temp);
+                                FavoriteCacheDao.insertSingle(mWeiboAPI.getUserId(), temp);
                             }
                         }
                     }
@@ -116,10 +126,10 @@ public class FTLBiz implements IFTLBiz {
         }
     }
 
-    private List<StatusContent> getCache(int start, List<Long> ids) {
+    private List<StatusContent> getCache(int start, List<FavoriteIds.FavoritesEntity> ids) {
         List<Long> temp = new ArrayList<>();
-        for (int i = start, x = 0; x < WayPoConstants.PER_PAGE_COUNT; i++, x++) {
-            temp.add(ids.get(i));
+        for (int x = 0; x < WayPoConstants.FAVORITES_PER_PAGE_COUNT; x++) {
+            temp.add(Long.valueOf(ids.get(x).getStatus()));
         }
 //        JsonCacheDao.queryMulti(mWeiboAPI.getUserId(), temp);
 
@@ -132,7 +142,7 @@ public class FTLBiz implements IFTLBiz {
                 weiboCache.add(cache);
             }
         }*/
-        return JsonCacheDao.queryMulti(mWeiboAPI.getUserId(), temp);
+        return FavoriteCacheDao.queryMulti(mWeiboAPI.getUserId(), temp);
     }
 
     /**
@@ -142,10 +152,10 @@ public class FTLBiz implements IFTLBiz {
      * @param ids    ID列表
      * @return 匹配的下标。
      */
-    private int getStart(long lastId, List<Long> ids) {
+    private int getStart(long lastId, List<FavoriteIds.FavoritesEntity> ids) {
         int start = 0;
         for (int i = 0; i < ids.size(); i++) {
-            if (lastId == ids.get(i)) {
+            if (lastId == Long.valueOf(ids.get(i).getStatus())) {
                 start = i;
             }
         }
@@ -161,12 +171,12 @@ public class FTLBiz implements IFTLBiz {
 
         @Override
         public void onComplete(String json) {
-            FTLIds tempIds = GsonUtils.fromJson(json, FTLIds.class);
+            FavoriteIds tempIds = GsonUtils.fromJson(json, FavoriteIds.class);
             if (tempIds != null) {
-                if (tempIds.getStatuses().size() != 0) {
+                if (tempIds.getFavorites().size() != 0) {
                     if (mIds.size() != 0) {
-                        long newId = tempIds.getStatuses().get(0);
-                        long oldId = mIds.get(0);
+                        long newId = Long.valueOf(tempIds.getFavorites().get(0).getStatus());
+                        long oldId = Long.valueOf(mIds.get(0).getStatus());
                         if (newId != oldId) {
                             // 根据新旧ID列表第一位判断有无新微博。
                             replaceIds(tempIds);
@@ -192,9 +202,9 @@ public class FTLBiz implements IFTLBiz {
 //            Toast.makeText(mContext, info != null ? info.toString() : "", Toast.LENGTH_LONG).show();
         }
 
-        private void replaceIds(FTLIds tempIds) {
+        private void replaceIds(FavoriteIds tempIds) {
             mIds.clear();
-            mIds.addAll(tempIds.getStatuses());
+            mIds.addAll(tempIds.getFavorites());
         }
 
         private void noNew() {

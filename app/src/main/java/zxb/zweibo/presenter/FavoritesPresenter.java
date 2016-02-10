@@ -6,6 +6,7 @@ import java.util.List;
 
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.biz.FTLBiz;
+import zxb.zweibo.biz.FavortiesBiz;
 import zxb.zweibo.biz.IFTLBiz;
 import zxb.zweibo.ui.fragment.view.IFTLView;
 
@@ -13,17 +14,17 @@ import zxb.zweibo.ui.fragment.view.IFTLView;
  * 时间线的Presenter层。
  * Created by Rex.Zhang on 2016/2/8.
  */
-public class FTLPresenter implements IPresenter{
-    private IFTLBiz biz;
+public class FavoritesPresenter implements IPresenter{
+    private FavortiesBiz biz;
     private IFTLView view;
     private Handler mHandler;
 
-    private FTLPresenter() {
+    private FavoritesPresenter() {
     }
 
-    public static FTLPresenter newInstance(IFTLView ftl) {
-        FTLPresenter p = new FTLPresenter();
-        p.biz = FTLBiz.newInstance();
+    public static FavoritesPresenter newInstance(IFTLView ftl) {
+        FavoritesPresenter p = new FavoritesPresenter();
+        p.biz = FavortiesBiz.newInstance();
         p.view = ftl;
         p.mHandler = new Handler();
         return p;
@@ -43,7 +44,6 @@ public class FTLPresenter implements IPresenter{
                                 view.onUpdate(ftl);
                             }
                         });
-
                     }
                 });
             }

@@ -10,4 +10,6 @@ import zxb.zweibo.bean.StatusContent;
 public interface IFTLView {
     void onRefresh(List<StatusContent> weiboList);
     void onUpdate(List<StatusContent> weiboList);
+    void refresh();
+    void toTop();
 }

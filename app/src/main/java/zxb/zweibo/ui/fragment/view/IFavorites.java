@@ -9,5 +9,5 @@ import zxb.zweibo.bean.FavoriteJson;
  * Created by rex on 15-8-28.
  */
 public interface IFavorites {
-    public void response(List<FavoriteItem> favList);
+    void response(List<FavoriteItem> favList);
 }

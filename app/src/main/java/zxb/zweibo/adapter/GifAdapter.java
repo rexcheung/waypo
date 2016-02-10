@@ -20,7 +20,9 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
+import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.Utils.SpanHelper;
+import zxb.zweibo.Utils.Toastutils;
 import zxb.zweibo.bean.FavoriteItem;
 import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
@@ -36,7 +38,7 @@ import zxb.zweibo.ui.GifBrowserActivity;
  * FriendsTimeLine Fragment里面RecyclerView的Adapter.
  * Created by rex on 15-8-4.
  */
-public class FavoritesAdapter extends RecyclerView.Adapter<FTLHolder> {
+public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
 
     Context mContext;
     List<StatusContent> mStatusesList;
@@ -44,9 +46,9 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FTLHolder> {
 
     private SpanHelper spanHelper;
 
-    private FavoritesAdapter(){}
+    private GifAdapter(){}
 
-    private FavoritesAdapter(Context context, List<FavoriteItem> favList){
+    private GifAdapter(Context context, List<FavoriteItem> favList){
         this.mContext = context;
 
         spanHelper = new SpanHelper(context);
@@ -58,12 +60,12 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FTLHolder> {
 
         mStatusesList = new ArrayList<>();
         for (FavoriteItem item : favList) {
-            mStatusesList.add(item.status);
+            mStatusesList.add(item.getStatus());
         }
     }
 
-    public static FavoritesAdapter newInstance(Context context, List<FavoriteItem> favList) {
-        return new FavoritesAdapter(context,favList);
+    public static GifAdapter newInstance(Context context, List<FavoriteItem> favList) {
+        return new GifAdapter(context,favList);
     }
 
 
@@ -343,4 +345,26 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FTLHolder> {
     }
 
 
+    public void update(List<StatusContent> list) {
+        this.mStatusesList.addAll(list);
+        this.notifyDataSetChanged();
+    }
+
+    public void setDatas(List<StatusContent> list) {
+        if (list.size() > 0 && list.get(0).getId() != mStatusesList.get(0).getId()){
+            this.mStatusesList = list;
+            this.notifyDataSetChanged();
+        } else {
+            Toastutils.s("没有数据更新哦");
+            Logger.i("FTLAdapter.setDatas(): 没有数据更新哦");
+        }
+    }
+
+    public long getLastId() {
+        return mStatusesList.get(mStatusesList.size() - 1).getId();
+    }
+
+    public long getFirstId() {
+        return mStatusesList.get(0).getId();
+    }
 }

@@ -146,7 +146,7 @@ public class FTimeLinsFragment extends Fragment {
 
     private void initEvents(){
         GlobalApp app = (GlobalApp) getActivity().getApplication();
-        mAdapter = FTimeLinsAdapter.newInstance(mContext, mStatusesList, app.getmImageUtil());
+        mAdapter = FTimeLinsAdapter.newInstance(mContext, app.getmImageUtil());
 
         mRecyclerView.setAdapter(mAdapter);
 

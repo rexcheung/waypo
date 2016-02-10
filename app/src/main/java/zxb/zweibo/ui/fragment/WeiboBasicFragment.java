@@ -4,18 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import zxb.zweibo.GlobalApp;
 import zxb.zweibo.Utils.Logger;
-import zxb.zweibo.adapter.FTimeLinsAdapter;
+import zxb.zweibo.adapter.GifAdapter;
+import zxb.zweibo.bean.FavoriteItem;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.common.JsonCacheUtil;
-import zxb.zweibo.common.WeiboAPIUtils;
-import zxb.zweibo.presenter.FTLPresenter;
+import zxb.zweibo.presenter.IPresenter;
 import zxb.zweibo.service.CheckUpdateIntentService;
 import zxb.zweibo.ui.fragment.view.IFTLView;
 
@@ -23,31 +19,27 @@ import zxb.zweibo.ui.fragment.view.IFTLView;
  * 显示FriendsTimeLine最新关注用户的微博
  * Created by rex on 2016-2-8.
  */
-public class FTLFragmentMVP extends SwipeListFragment implements IFTLView {
+public abstract class WeiboBasicFragment extends SwipeListFragment implements IFTLView {
 
     /**
      * 初始化时传入的父类Activity, LayoutInflater需要使用
      */
     private Activity mContext;
-    private FTimeLinsAdapter mAdapter;
-    private FTLPresenter mPresenter;
+    private GifAdapter mAdapter;
+    private IPresenter mPresenter;
 
     /**
      * 是否在初始化.
      */
     private boolean isInit = true;
 
-    /**
-     * 初始化.
-     *
-     * @param content Content.
-     * @return 该类的实例
-     */
-    public static FTLFragmentMVP newInstance(Activity content) {
-        FTLFragmentMVP f = new FTLFragmentMVP();
-        f.mContext = content;
-        return f;
+    public WeiboBasicFragment(){}
+
+    public WeiboBasicFragment(Activity context){
+        this.mContext = context;
     }
+
+
 
     @Override
     protected LinearLayoutManager initLayoutManager() {
@@ -73,14 +65,17 @@ public class FTLFragmentMVP extends SwipeListFragment implements IFTLView {
 
     @Override
     protected void initEvent() {
-        this.mPresenter = FTLPresenter.newInstance(this);
+        this.mPresenter = initPresenter();
+
 
         if (isInit) {
             mPresenter.getNextPage(0L);
-            mAdapter = FTimeLinsAdapter.newInstance(mContext, GlobalApp.getInstance().getmImageUtil());
+            mAdapter = GifAdapter.newInstance(mContext, new ArrayList<FavoriteItem>());
             mRecyclerView.setAdapter(mAdapter);
         }
     }
+
+    abstract IPresenter initPresenter();
 
     private void restartNotifyService() {
         Intent notifyIntent = new Intent(mContext, CheckUpdateIntentService.class);

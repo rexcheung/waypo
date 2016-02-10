@@ -5,4 +5,6 @@ package zxb.zweibo.common;
  */
 public class WayPoConstants {
     public static final int PER_PAGE_COUNT = 10;
+
+    public static final int FAVORITES_PER_PAGE_COUNT = 50;
 }

@@ -36,6 +36,7 @@ public class SqliteHelper extends SQLiteOpenHelper {
         db.execSQL(buildJsonCacheSQL());
         db.execSQL(buildEmoCacheSQL());
         db.execSQL(buildEmotionSQL());
+        db.execSQL(buildFavoriteCacheSQL());
     }
 
     @Override
@@ -46,10 +47,21 @@ public class SqliteHelper extends SQLiteOpenHelper {
     private String buildJsonCacheSQL() {
         StringBuilder sql = new StringBuilder();
         sql.append(" CREATE TABLE ");
-        sql.append(JsonCacheDao.TABLE + " ( ");
-        sql.append(JsonCacheDao.USER_ID + " VARCHAR(128) NOT NULL, ");
-        sql.append(JsonCacheDao.WEIBO_ID + " INT(128) NOT NULL, ");
-        sql.append(JsonCacheDao.JSON + " VARCHAR(5120) NOT NULL ");
+        sql.append(JsonCacheDao.TABLE).append(" ( ");
+        sql.append(JsonCacheDao.USER_ID).append(" VARCHAR(128) NOT NULL, ");
+        sql.append(JsonCacheDao.WEIBO_ID).append(" INT(128) NOT NULL, ");
+        sql.append(JsonCacheDao.JSON).append(" VARCHAR(5120) NOT NULL ");
+        sql.append(" ); ");
+        return sql.toString();
+    }
+
+    private String buildFavoriteCacheSQL() {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" CREATE TABLE ");
+        sql.append(FavoriteCacheDao.TABLE).append(" ( ");
+        sql.append(FavoriteCacheDao.USER_ID).append(" VARCHAR(128) NOT NULL, ");
+        sql.append(FavoriteCacheDao.WEIBO_ID).append(" INT(128) NOT NULL, ");
+        sql.append(FavoriteCacheDao.JSON).append(" VARCHAR(5120) NOT NULL ");
         sql.append(" ); ");
         return sql.toString();
     }
