@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 //apply plugin: 'io.fabric'
 android {
     compileSdkVersion 22
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '23.0.1'
 
     defaultConfig {
         applicationId "zxb.zweibo"
@@ -47,7 +47,10 @@ dependencies {
     //EventBus
     compile files('libs/EventBus-2.4.1.jar')
     //-----------------
+    // DiskLRUCache 磁盘缓存
     compile project(':libraries:base-diskcache')
+    // 滑动返回
+    compile project(':libraries:SwipeBackLayout')
     //Fresco
     compile 'com.facebook.fresco:fresco:0.8.1+'
     //ButterKnife

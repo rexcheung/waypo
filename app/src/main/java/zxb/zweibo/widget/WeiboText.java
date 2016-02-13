@@ -77,7 +77,8 @@ public class WeiboText extends TextView {
             int start = matcher.start();
             String group = matcher.group();
 
-            byte[] emotion = mEmoUtil.getEmotion(group);
+//            byte[] emotion = mEmoUtil.getEmotion(group);
+            byte[] emotion = EmotionUtil.getEmotion(group);
             if (emotion != null){
                 ByteArrayInputStream is = new ByteArrayInputStream(emotion);
                 Drawable d = Drawable.createFromStream(is, group);

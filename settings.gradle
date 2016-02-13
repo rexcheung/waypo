@@ -1,3 +1,4 @@
 include ':app'
 include ':libraries:WeiboSDK'
 include ':libraries:base-diskcache'
+include ':libraries:SwipeBackLayout'

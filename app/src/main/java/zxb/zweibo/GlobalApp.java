@@ -11,6 +11,7 @@ import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.Constants;
 import zxb.zweibo.common.ImageUtil;
 import zxb.zweibo.common.WeiboAPIUtils;
+import zxb.zweibo.service.EmotionService;
 
 /**
  * 自定义的Application.
@@ -67,10 +68,12 @@ public class GlobalApp extends Application {
     }
 
     private void initEmotions() {
-        EmotionUtil emotionUtil = new EmotionUtil(this);
-        emotionUtil.insertEmotions();
-        emotionUtil.closeDB();
-        emotionUtil=null;
+//        EmotionUtil emotionUtil = new EmotionUtil(this);
+//        emotionUtil.insertEmotions();
+//        emotionUtil.closeDB();
+//        emotionUtil=null;
+        Intent emoSvr = new Intent(this, EmotionService.class);
+        startService(emoSvr);
     }
 
     public ImageUtil getmImageUtil() {

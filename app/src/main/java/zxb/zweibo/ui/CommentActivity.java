@@ -1,16 +1,12 @@
 package zxb.zweibo.ui;
 
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.google.gson.Gson;
 
 import java.util.List;
 
@@ -22,7 +18,6 @@ import zxb.zweibo.Utils.Snack;
 import zxb.zweibo.adapter.CommentAdapter;
 import zxb.zweibo.bean.CommentJson;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.presenter.CommentPresenter;
 import zxb.zweibo.ui.view.IComment;
 import zxb.zweibo.widget.AppManager;
@@ -32,7 +27,7 @@ import zxb.zweibo.widget.AppManager;
  *
  * Created by rex on 15-8-20.
  */
-public class CommentActivity extends AppCompatActivity implements IComment{
+public class CommentActivity extends SwipeActivity implements IComment{
 
     StatusContent sc;
 

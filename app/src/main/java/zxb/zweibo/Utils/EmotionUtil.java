@@ -2,6 +2,7 @@ package zxb.zweibo.Utils;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -83,7 +84,7 @@ public class EmotionUtil {
      * @param emo 表情的名称
      * @return 表情的byte[]，需要转换
      */
-    public byte[] getEmotion(String emo) {
+    public static byte[] getEmotion(String emo) {
         byte[] result = null;
 
         StringBuilder sql = new StringBuilder();
@@ -95,7 +96,7 @@ public class EmotionUtil {
         sql.append(EmotionTable.KEY);
         sql.append(" = ? ");
 
-        Cursor cursor = db.rawQuery(sql.toString(), new String[]{emo});
+        Cursor cursor = SqliteHelper.getInstance().getReadableDatabase().rawQuery(sql.toString(), new String[]{emo});
         if (cursor.moveToNext()){
             result = cursor.getBlob(0);
         }
@@ -107,7 +108,8 @@ public class EmotionUtil {
     public void insertEmotions(){
         InputStream in;
         try {
-            in = GlobalApp.getInstance().getResources().getAssets().open("emotions.properties");
+            Resources resources = GlobalApp.getInstance().getResources();
+            in = resources.getAssets().open("emotions.properties");
             Properties properties = new Properties();
             properties.load(new InputStreamReader(in, "utf-8"));
             Set<Object> keySet = properties.keySet();
@@ -121,7 +123,7 @@ public class EmotionUtil {
 
                 ContentValues values = new ContentValues();
                 values.put(EmotionTable.KEY, key.toString());
-                byte[] emotion = FileUtils.readStreamToBytes(GlobalApp.getInstance().getResources().getAssets().open(value));
+                byte[] emotion = FileUtils.readStreamToBytes(resources.getAssets().open(value));
                 values.put(EmotionTable.VALUE, emotion);
                 values.put(EmotionTable.FILE, value);
 
@@ -134,28 +136,6 @@ public class EmotionUtil {
             e.printStackTrace();
         }
     }
-
-    /*class DBHelper extends SQLiteOpenHelper {
-
-        public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-            super(context, name, factory, version);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            StringBuilder sqlString = new StringBuilder();
-            sqlString.append(" create TABLE ");
-            sqlString.append(EmotionTable.TABLE);
-            sqlString.append(" ("+EmotionTable.KEY+" varchar(10) not null, ");
-            sqlString.append(" "+EmotionTable.FILE+" varchar(10) not null, ");
-            sqlString.append(" "+EmotionTable.VALUE+" varchar(1024) not null )");
-            db.execSQL(sqlString.toString());
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        }
-    }*/
 
     static class EmotionTable {
         static final String TABLE = "waypo_emotions";
