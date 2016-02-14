@@ -118,10 +118,6 @@ public class FTLHolder extends RecyclerView.ViewHolder {
     private void initWord(StatusContent sc){
         this.tvScreenName.setText(sc.getUser().getScreen_name());
 
-//        StringBuilder source = new StringBuilder(sc.getSource());
-//        int begin = source.indexOf(">");
-//        int end = source.indexOf("</a");
-
         //XX分钟前，发自iPhoneX
         this.tvFrom.setText(sc.getCreated_at()/*+"  " + source.substring(begin+1, end-1)*/);
 
@@ -134,11 +130,6 @@ public class FTLHolder extends RecyclerView.ViewHolder {
 //        User reUser;
         //判断是否原创微博
         if (retweeted_status != null) {
-            /*if (retweeted_status.getUser() != null) {
-                User reUser = retweeted_status.getUser();
-                viewHolder.tvReUser.setVisibility(View.VISIBLE);
-                viewHolder.tvReUser.setSpanText(reUser.getScreen_name()+": ");
-            }*/
 
             User reUser = retweeted_status.getUser();
             String reContentText = null;
@@ -202,16 +193,8 @@ public class FTLHolder extends RecyclerView.ViewHolder {
 
         if (length != 0) {
             imageUtil.showImages(this.imgList, oriPicUrls);
-//            if(length == 1){
-//                this.img1.getLayoutParams().height = mSingleImgH;
-//                this.img1.getLayoutParams().width = mSingleImgW;
-//            }
         } else if (rePicLength != 0) {
             imageUtil.showImages(this.imgList, rePicUrls);
-//            if(rePicLength == 1){
-//                this.img1.getLayoutParams().height = mSingleImgH;
-//                this.img1.getLayoutParams().width = mSingleImgW;
-//            }
         }
 
         // 把没有图片的ImageView隐藏

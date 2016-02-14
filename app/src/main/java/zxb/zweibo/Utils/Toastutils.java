@@ -15,11 +15,13 @@ public class Toastutils {
     }
 
     public static void s(String msg){
+//        mToast.cancel();
         mToast.setText(msg);
         mToast.setDuration(Toast.LENGTH_SHORT);
         mToast.show();
     }
     public static void l(String msg){
+//        mToast.cancel();
         mToast.setText(msg);
         mToast.setDuration(Toast.LENGTH_LONG);
         mToast.show();

@@ -2,7 +2,6 @@ package zxb.zweibo.biz;
 
 import com.sina.weibo.sdk.exception.WeiboException;
 import com.sina.weibo.sdk.net.RequestListener;
-import com.sina.weibo.sdk.openapi.models.ErrorInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +89,7 @@ public class FTLBiz implements IFTLBiz {
                         l.onResponse(tempList);
 
                         // 然后再把缓存JSON。
+//                        JsonCacheDao.insertNew(weiboCache, tempList);
                         for (StatusContent temp : tempList) {
                             boolean have = false;
                             for (StatusContent cache : weiboCache) {

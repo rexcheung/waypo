@@ -15,6 +15,7 @@ import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
 import zxb.zweibo.GlobalApp;
 import zxb.zweibo.R;
+import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.adapter.ImageBrowserAdapter;
 import zxb.zweibo.bean.ImageBrowserBean;
 import zxb.zweibo.bean.ImgBrowserWeiBoItem;
@@ -36,6 +37,8 @@ public class GifBrowserActivity extends FragmentActivity{
 
     @Bind(R.id.vpImgBrowser)
     ViewPager mViewPager;
+
+    public static final String PUT_ITEM = "put_item";
 
     /**
      * 该条微博的内容.
@@ -72,6 +75,7 @@ public class GifBrowserActivity extends FragmentActivity{
         mImgUtil = app.getmImageUtil();
 
         initView();
+
     }
 
     /**
@@ -79,7 +83,8 @@ public class GifBrowserActivity extends FragmentActivity{
      * 若对象为空，则关闭
      */
     private void checkParams() {
-        ImgBrowserWeiBoItem imgItem = EventBus.getDefault().getStickyEvent(ImgBrowserWeiBoItem.class);
+//        ImgBrowserWeiBoItem imgItem = EventBus.getDefault().getStickyEvent(ImgBrowserWeiBoItem.class);
+        ImgBrowserWeiBoItem imgItem = (ImgBrowserWeiBoItem) getIntent().getSerializableExtra(PUT_ITEM);
         this.mStatusContent = imgItem.getSc();
         this.mPosition = imgItem.getPosition();
 

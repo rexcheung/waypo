@@ -81,8 +81,6 @@ public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
      */
     private void getScreenSize(Context context){
         DisplayMetrics metric = Utils.getMetrics((Activity) context);
-//        Activity activity = (Activity) context;
-//        activity.getWindowManager().getDefaultDisplay().getMetrics(metric);
         int width = metric.widthPixels;  // 屏幕宽度（像素）
         int height = metric.heightPixels;  // 屏幕高度（像素）
 //        float density = metric.density;  // 屏幕密度（0.75 / 1.0 / 1.5）
@@ -90,35 +88,27 @@ public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
 
         mImgH = height / 6;
         mImgW = width / 6;
-//        mSingleImgH = height / 3;
-//        mSingleImgW = width / 3;
     }
 
     @Override
     public FTLHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
         View view = LayoutInflater.from(mContext)
                 .inflate(R.layout.item_timeline, viewGroup, false);
-//        FTLHolder holder = new FTLHolder(view);
-
         return new FTLHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final FTLHolder viewHolder, int position) {
-//        ArrayList<StatusContent> list = (ArrayList<StatusContent>) mStatusesList;
         final StatusContent statusContent = mStatusesList.get(position);
+//        viewHolder.init(mContext, statusContent, imageUtil);
 
         initImage(viewHolder, statusContent);
 
         initWord(viewHolder, statusContent);
 
-//        initAttitudes(viewHolder, statusContent);
-
         viewHolder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Snackbar.make(v, "click", Snackbar.LENGTH_SHORT).show();
-//                mWeiboAPI.requestCommentsById(statusContent.getId(), commentListener);
                 EventBus.getDefault().postSticky(statusContent);
                 mContext.startActivity(new Intent(mContext, CommentActivity.class));
             }
@@ -143,10 +133,6 @@ public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
     private void initWord(FTLHolder viewHolder, StatusContent statusContent) {
         viewHolder.tvScreenName.setSpanText(statusContent.getUser().getScreen_name());
 
-//        StringBuilder source = new StringBuilder(statusContent.getSource());
-//        int begin = source.indexOf(">");
-//        int end = source.indexOf("</a");
-
         //XX分钟前，发自iPhoneX
         viewHolder.tvFrom.setText(statusContent.getCreated_at()/*+"  " + source.substring(begin+1, end-1)*/);
 
@@ -156,7 +142,6 @@ public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
 
         //如果为转发
         StatusContent retweeted_status = statusContent.getRetweeted_status();
-//        User reUser;
         //判断是否原创微博
         if (retweeted_status != null) {
             /*if (retweeted_status.getUser() != null) {
@@ -299,8 +284,9 @@ public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
                 iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EventBus.getDefault().postSticky(new ImgBrowserWeiBoItem(statusContent, finalI));
+//                        EventBus.getDefault().postSticky(new ImgBrowserWeiBoItem(statusContent, finalI));
                         Intent intent = new Intent(mContext, GifBrowserActivity.class);
+                        intent.putExtra(GifBrowserActivity.PUT_ITEM, new ImgBrowserWeiBoItem(statusContent, finalI));
                         mContext.startActivity(intent);
                     }
                 });

@@ -17,6 +17,7 @@ import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.bean.JsonCache;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.common.WayPoConstants;
+import zxb.zweibo.common.WeiboAPIUtils;
 
 /**
  * Created by rex on 15-12-19.
@@ -405,6 +406,34 @@ public class JsonCacheDao {
     public static void insertSingle(String userId, StatusContent sc) {
         ContentValues values = JsonCache.toContentValues(userId, sc);
         SqliteHelper.getInstance().getReadableDatabase().insert(TABLE, null, values);
+    }
+
+    /**
+     * 插入新的数据进缓存表
+     * @param cacheList 查询到的已经缓存的微博
+     * @param newData 新请求回来的数据。
+     */
+    public static void insertNew(List<StatusContent> cacheList, List<StatusContent> newData){
+        SQLiteDatabase db = SqliteHelper.getInstance().getReadableDatabase();
+        db.beginTransaction();
+        for (StatusContent temp : newData) {
+            boolean have = false;
+            for (StatusContent cache : cacheList) {
+                if (temp.getId() == cache.getId()) {
+                    // 如果有则改变变量have的值
+                    have = true;
+                    break;
+                }
+            }
+
+            // have 为false时表示没有缓存，则记录数据。
+            if (!have) {
+                ContentValues values = JsonCache.toContentValues(WeiboAPIUtils.getUserId(), temp);
+                db.insert(TABLE, null, values);
+            }
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
     }
 
     /**

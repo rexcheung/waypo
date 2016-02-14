@@ -1,6 +1,7 @@
 package zxb.zweibo.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.LinkMovementMethod;
@@ -13,18 +14,22 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
 import zxb.zweibo.Utils.SpanHelper;
+import zxb.zweibo.Utils.Toastutils;
 import zxb.zweibo.bean.CommentJson;
+import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
 import zxb.zweibo.bean.holder.CommentHolder;
 import zxb.zweibo.bean.holder.FTLHolder;
+import zxb.zweibo.ui.GifBrowserActivity;
 
 /**
  * 单条微博评论页面的Adapter.
- *
+ * <p/>
  * Created by rex on 15-8-22.
  */
 public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
@@ -34,12 +39,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
     static StatusContent mHeadContent;
     private static SpanHelper spanHelper;
 
-    private CommentAdapter(){}
+    private CommentAdapter() {
+    }
 
     private int picLength;
     private static boolean isOriginal = false;
 
-    public static CommentAdapter newInstance(Context context, List<CommentJson> commonList, StatusContent header){
+    public static CommentAdapter newInstance(Context context, List<CommentJson> commonList, StatusContent header) {
         CommentAdapter adapter = new CommentAdapter();
         mContext = context;
         mCommonList = commonList;
@@ -62,7 +68,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
     public void onBindViewHolder(CommentHolder holder, int position) {
 
         Uri uri = null;
-        if (isHead(position)){
+        if (isHead(position)) {
             uri = Uri.parse(mHeadContent.getUser().getProfile_image_url());
             initHeader(holder);
 
@@ -107,7 +113,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
 //        holder.tvContent.setMovementMethod(LinkMovementMethod.getInstance());
         holder.tvContent.setVisibility(View.VISIBLE);
 
-        if (!isOriginal){
+        if (!isOriginal) {
             holder.tvReContent.setText(spanHelper.newSpanInstance(mHeadContent.getRetweeted_status().getText()));
 //            holder.tvReContent.setMovementMethod(LinkMovementMethod.getInstance());
             holder.tvReContent.setVisibility(View.VISIBLE);
@@ -120,7 +126,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
     }
 
     private void checkHideItem(CommentHolder holder) {
-        if (isOriginal){
+        if (isOriginal) {
             holder.layDiver.setVisibility(View.GONE);
             holder.tvReContent.setVisibility(View.GONE);
         }
@@ -128,24 +134,35 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
 
     private void showImg(List<SimpleDraweeView> imgList) {
         PicUrls[] pic_urls = null;
-        if (mHeadContent.getRetweeted_status()==null)
+        if (mHeadContent.getRetweeted_status() == null)
             pic_urls = mHeadContent.getPic_urls();
         else
             pic_urls = mHeadContent.getRetweeted_status().getPic_urls();
 
-        for (int i=0; i<pic_urls.length; i++) {
+        for (int i = 0; i < pic_urls.length; i++) {
             Uri uri = Uri.parse(pic_urls[i].getThumbnail_pic());
             imgList.get(i).setImageURI(uri);
+            final int finalI = i;
+            imgList.get(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+//                    Toastutils.s(String.valueOf(finalI));
+//                    EventBus.getDefault().postSticky(new ImgBrowserWeiBoItem(mHeadContent, finalI));
+                    Intent intent = new Intent(mContext, GifBrowserActivity.class);
+                    intent.putExtra(GifBrowserActivity.PUT_ITEM, new ImgBrowserWeiBoItem(mHeadContent, finalI));
+                    mContext.startActivity(intent);
+                }
+            });
         }
 
         picLength = pic_urls.length;
     }
 
     private void showItem(CommentHolder holder) {
-        for (int i=0; i<picLength; i++){
+        for (int i = 0; i < picLength; i++) {
             holder.imgList.get(i).setVisibility(View.VISIBLE);
         }
-        for (int i=picLength; i<9; i++){
+        for (int i = picLength; i < 9; i++) {
             holder.imgList.get(i).setVisibility(View.GONE);
         }
     }
@@ -162,14 +179,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
 
     @Override
     public int getItemCount() {
-        return mCommonList.size()+1;
+        return mCommonList.size() + 1;
     }
 
-    private boolean isHead(int position){
+    private boolean isHead(int position) {
         return position == ViewType.HEAD;
     }
 
-    class ViewType{
+    class ViewType {
         private static final int HEAD = 0;
         private static final int NORMAL = 1;
     }

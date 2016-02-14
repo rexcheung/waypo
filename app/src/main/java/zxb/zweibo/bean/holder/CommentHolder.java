@@ -1,5 +1,6 @@
 package zxb.zweibo.bean.holder;
 
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -13,6 +14,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import zxb.zweibo.R;
+import zxb.zweibo.bean.StatusContent;
+import zxb.zweibo.bean.User;
 
 /**
  * Created by rex on 15-8-22.
@@ -49,8 +52,5 @@ public class CommentHolder extends RecyclerView.ViewHolder{
         tvFrom.setMovementMethod(LinkMovementMethod.getInstance());
         tvContent.setMovementMethod(LinkMovementMethod.getInstance());
         tvReUser.setMovementMethod(LinkMovementMethod.getInstance());
-//        tvRepostCount.setMovementMethod(LinkMovementMethod.getInstance());
-//        tvCommentCount.setMovementMethod(LinkMovementMethod.getInstance());
-//        tvLikeCount.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }
