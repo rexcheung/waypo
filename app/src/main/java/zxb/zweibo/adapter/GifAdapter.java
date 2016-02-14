@@ -283,7 +283,7 @@ public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
                 final int finalI = i;
                 iv.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(View v) { 
 //                        EventBus.getDefault().postSticky(new ImgBrowserWeiBoItem(statusContent, finalI));
                         Intent intent = new Intent(mContext, GifBrowserActivity.class);
                         intent.putExtra(GifBrowserActivity.PUT_ITEM, new ImgBrowserWeiBoItem(statusContent, finalI));
