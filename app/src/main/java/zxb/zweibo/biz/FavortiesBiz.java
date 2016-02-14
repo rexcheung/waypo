@@ -128,20 +128,16 @@ public class FavortiesBiz implements IFTLBiz {
 
     private List<StatusContent> getCache(int start, List<FavoriteIds.FavoritesEntity> ids) {
         List<Long> temp = new ArrayList<>();
-        for (int x = 0; x < WayPoConstants.FAVORITES_PER_PAGE_COUNT; x++) {
+        int count;
+        if (ids.size() < WayPoConstants.FAVORITES_PER_PAGE_COUNT) {
+            count = ids.size();
+        } else {
+            count = WayPoConstants.FAVORITES_PER_PAGE_COUNT;
+        }
+
+        for (int x = 0; x < count; x++) {
             temp.add(Long.valueOf(ids.get(x).getStatus()));
         }
-//        JsonCacheDao.queryMulti(mWeiboAPI.getUserId(), temp);
-
-
-        /*ArrayList<StatusContent> weiboCache = new ArrayList<>();
-        StatusContent cache;
-        for (int i = start, times = 0; times < WayPoConstants.PER_PAGE_COUNT; times++, i++) {
-            cache = JsonCacheDao.getSingleCache(mWeiboAPI.getmAccessToken().getUid(), ids.get(i));
-            if (cache != null) {
-                weiboCache.add(cache);
-            }
-        }*/
         return FavoriteCacheDao.queryMulti(mWeiboAPI.getUserId(), temp);
     }
 
