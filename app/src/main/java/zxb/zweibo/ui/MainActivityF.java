@@ -164,9 +164,9 @@ public class MainActivityF extends BasicActivity {
                             case R.id.nav_my:
                                 Snack.show(mDrawerLayout, "即将上线，敬请期待");
                                 break;
-                            case R.id.nav_like:
+                            /*case R.id.nav_like:
                                 Snack.show(mDrawerLayout, "即将上线，敬请期待");
-                                break;
+                                break;*/
                             case R.id.nav_logout:
                                 Snack.show(mDrawerLayout, "注销");
                                 AccessTokenKeeper.clear(GlobalApp.getInstance());

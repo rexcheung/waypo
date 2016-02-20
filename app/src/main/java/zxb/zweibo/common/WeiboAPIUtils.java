@@ -8,7 +8,10 @@ import com.sina.weibo.sdk.net.RequestListener;
 import com.sina.weibo.sdk.net.WeiboParameters;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
 
+import rx.Observable;
+import rx.functions.Func1;
 import zxb.zweibo.GlobalApp;
+import zxb.zweibo.bean.StatusContent;
 
 /**
  * 用来发送WeiboAPI的类.
@@ -19,14 +22,20 @@ public class WeiboAPIUtils extends StatusesAPI {
     /**
      * 获取当前登录用户及其所关注用户的最新微博的ID
      */
-    private static final String IDS = "https://api.weibo.com/2/statuses/friends_timeline/ids.json";
-    private static final String SHOW = "https://api.weibo.com/2/statuses/show.json";
-    private static final String EMOTIONS = "https://api.weibo.com/2/emotions.json";
-    private static final String COMMENT = "https://api.weibo.com/2/comments/show.json";
-    private static final String ADD_FAVORTIE = "https://api.weibo.com/2/favorites/create.json";
-    private static final String FORWARD = "https://api.weibo.com/2/statuses/repost.json";
-    private static final String GET_FAVORITE = "https://api.weibo.com/2/favorites.json";
-    private static final String GET_FAVORITE_IDS = "https://api.weibo.com/2/favorites/ids.json";
+	private static final String WEIBO_URL = "https://api.weibo.com/2/";
+    private static final String IDS = WEIBO_URL + "statuses/friends_timeline/ids.json";
+    private static final String SHOW = WEIBO_URL + "statuses/show.json";
+    private static final String EMOTIONS = WEIBO_URL + "emotions.json";
+    private static final String COMMENT = WEIBO_URL + "comments/show.json";
+    private static final String ADD_FAVORTIE = WEIBO_URL + "favorites/create.json";
+    private static final String FORWARD = WEIBO_URL + "statuses/repost.json";
+    private static final String GET_FAVORITE = WEIBO_URL + "favorites.json";
+    private static final String GET_FAVORITE_IDS = WEIBO_URL + "favorites/ids.json";
+    private static final String GET_USER_IDS = WEIBO_URL + "statuses/user_timeline/ids.json";
+    private static final String GET_USER_WEIBO = WEIBO_URL + "statuses/user_timeline.json";
+    private static final String AT_ME_IDS = WEIBO_URL + "statuses/mentions/ids.json";
+    private static final String AT_ME = WEIBO_URL + "statuses/mentions.json";
+
 
 
 
@@ -35,6 +44,9 @@ public class WeiboAPIUtils extends StatusesAPI {
     private static WeiboAPIUtils instance;
 
     public static WeiboAPIUtils getInstance() {
+		if (instance==null){
+			initWeiboAPI();
+		}
         return instance;
     }
 
@@ -42,6 +54,11 @@ public class WeiboAPIUtils extends StatusesAPI {
         return mAccessToken;
     }
 
+	/**
+	 * 初始化微博SDK，这个需要在启动APP后第一个页面启用一次，
+	 * 如果在Application里面调用，会在首次授权后进入App无法获取正确授权信息
+	 * 所以在授权后的第一页面调用。
+	 */
     public static void initWeiboAPI() {
         instance = new WeiboAPIUtils(GlobalApp.getInstance(),
                 Constants.APP_KEY,
@@ -281,6 +298,94 @@ public class WeiboAPIUtils extends StatusesAPI {
     public void reqFTL(long since, RequestListener l){
         friendsTimeline(0, since, WayPoConstants.PER_PAGE_COUNT, 1, false, 2, false, l);
     }
+
+	public String syncUserIds(String uid, String name){
+		WeiboParameters params = buildUserIdsParams(uid, name);
+		return requestSync(GET_USER_IDS, params, HTTPMETHOD_GET);
+	}
+
+	/**
+	 * 请求当前最新微博的ID
+	 * 现在只能用接收自己的最新微博，不能指定某些用户的。
+	 * @param sc
+	 * @return
+	 */
+	public Observable<String> reqUserIds(StatusContent sc){
+		return Observable.just(sc)
+				.map(new Func1<StatusContent, String>() {
+					@Override
+					public String call(StatusContent statusContent) {
+//						String uid = statusContent.getUser().getId();
+//						String screenName = statusContent.getUser().getScreen_name();
+//						return syncUserIds(uid, screenName);
+						return syncUserIds(getUserId(), "");
+					}
+				});
+	}
+
+	private WeiboParameters buildUserIdsParams(String uid, String screenName){
+		WeiboParameters params = new WeiboParameters(mAppKey);
+		params.put("uid", uid);
+		params.put("screen_name", screenName);
+		params.put("page", 2);
+
+		return params;
+	}
+
+	public String syncUserWeibos(String uid, String name){
+		WeiboParameters params = buildUserIdsParams(uid, name);
+		return requestSync(GET_USER_WEIBO, params, HTTPMETHOD_GET);
+	}
+
+	public Observable<String> reqUserWeibos(StatusContent sc){
+		return Observable.just(sc)
+				.map(new Func1<StatusContent, String>() {
+					@Override
+					public String call(StatusContent statusContent) {
+//						return syncUserWeibos(statusContent.getUser().getId(), statusContent.getUser().getScreen_name());
+						return syncUserWeibos(getUserId(), "大雄Rex");
+					}
+				});
+	}
+
+	public String syncAtMeIds(int page){
+		WeiboParameters params = new WeiboParameters(mAppKey);
+		params.put("page", page);
+		params.put("count", 200);
+		return requestSync(AT_ME_IDS, params, HTTPMETHOD_GET);
+	}
+
+	public Observable<String> reqAtMeIds(int page){
+		return Observable.just(page)
+				.map(new Func1<Integer, String>() {
+					@Override
+					public String call(Integer page) {
+						return syncAtMeIds(page);
+					}
+				});
+	}
+
+	/**
+	 * 获取@我的50条微博
+	 * @param page 页数。
+	 * @return
+	 */
+	public String syncAtMe(int page){
+		WeiboParameters params = new WeiboParameters(mAppKey);
+		params.put("page", page);
+		params.put("count", 50);
+		return requestSync(AT_ME, params, HTTPMETHOD_GET);
+	}
+
+	public Observable<String> reqAtme(int page){
+		return Observable.just(page)
+				.map(new Func1<Integer, String>() {
+					@Override
+					public String call(Integer integer) {
+						return syncAtMe(integer);
+					}
+				});
+	}
 
     public Oauth2AccessToken getmAccessToken() {
         return mAccessToken;

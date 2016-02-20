@@ -14,11 +14,11 @@
         <item
             android:id="@+id/nav_my"
             android:icon="@drawable/ic_menu"
-            android:title="我的微博"/>
-        <item
+            android:title="\@我"/>
+        <!--<item
             android:id="@+id/nav_like"
             android:icon="@drawable/timeline_icon_unlike"
-            android:title="赞"/>
+            android:title="赞"/>-->
         <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/timeline_icon_unlike"

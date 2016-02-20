@@ -70,6 +70,8 @@ public class FTLBiz implements IFTLBiz {
         }
         // 把需要的条目的缓存读出来。
         final List<StatusContent> weiboCache = getCache(current, mIds);
+//		getCaches(current,mIds)
+
 
         // 检查缓存
         if (weiboCache.size() == WayPoConstants.PER_PAGE_COUNT) {
@@ -116,22 +118,12 @@ public class FTLBiz implements IFTLBiz {
         }
     }
 
-    private List<StatusContent> getCache(int start, List<Long> ids) {
+    private List<StatusContent> getCache(int start, final List<Long> ids) {
         List<Long> temp = new ArrayList<>();
         for (int i = start, x = 0; x < WayPoConstants.PER_PAGE_COUNT; i++, x++) {
             temp.add(ids.get(i));
         }
-//        JsonCacheDao.queryMulti(mWeiboAPI.getUserId(), temp);
 
-
-        /*ArrayList<StatusContent> weiboCache = new ArrayList<>();
-        StatusContent cache;
-        for (int i = start, times = 0; times < WayPoConstants.PER_PAGE_COUNT; times++, i++) {
-            cache = JsonCacheDao.getSingleCache(mWeiboAPI.getmAccessToken().getUid(), ids.get(i));
-            if (cache != null) {
-                weiboCache.add(cache);
-            }
-        }*/
         return JsonCacheDao.queryMulti(mWeiboAPI.getUserId(), temp);
     }
 

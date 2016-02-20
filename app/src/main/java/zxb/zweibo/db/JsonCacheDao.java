@@ -12,11 +12,11 @@ import java.util.List;
 
 import rx.Observable;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 import zxb.zweibo.Utils.GsonUtils;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.bean.JsonCache;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.common.WayPoConstants;
 import zxb.zweibo.common.WeiboAPIUtils;
 
 /**
@@ -400,6 +400,23 @@ public class JsonCacheDao {
 
         return queryMulti(userId, TABLE, idList);
     }
+
+	/**
+	 * 异步查询指定ID的缓存。
+	 * @param userId    用户ID
+	 * @param idList    需要查询的ID列表。
+	 * @return 返回的结果。
+	 */
+	public static Observable<List<StatusContent>> getMulti(String userId, final List<Long> idList){
+		return Observable.just(userId)
+				.map(new Func1<String, List<StatusContent>>() {
+					@Override
+					public List<StatusContent> call(String s) {
+						return queryMulti(s, idList);
+					}
+				})
+				.subscribeOn(Schedulers.computation());
+	}
 
 
 
