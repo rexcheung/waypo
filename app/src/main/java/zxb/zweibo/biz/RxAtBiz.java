@@ -6,7 +6,6 @@ import java.util.List;
 import rx.Observable;
 import rx.functions.Func1;
 import zxb.zweibo.Utils.GsonUtils;
-import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.bean.FTLIds;
 import zxb.zweibo.bean.FTimeLine;
 import zxb.zweibo.bean.StatusContent;
@@ -54,20 +53,28 @@ public class RxAtBiz implements IRxAtBiz {
 							return replaceIds(ids);
 						}
 					})
+					//请求JSON
 					.map(new Func1<List<Long>, String>() {
 						@Override
 						public String call(List<Long> longs) {
 							return requestAtMe(2);
 						}
 					})
+					// JSON 转换为 List
 					.map(new Func1<String, List<StatusContent>>() {
 						@Override
 						public List<StatusContent> call(String s) {
-							Logger.i(s);
-							return null;
+							FTimeLine ftl = GsonUtils.fromJson(s, FTimeLine.class);
+							return ftl.getStatuses();
+						}
+					})
+					// 过滤
+					.filter(new Func1<List<StatusContent>, Boolean>() {
+						@Override
+						public Boolean call(List<StatusContent> statusContents) {
+							return statusContents != null && statusContents.size() > 0;
 						}
 					});
-
 		}
 
 		return null;
@@ -134,7 +141,7 @@ public class RxAtBiz implements IRxAtBiz {
 		return start;
 	}
 
-	private String requestAtMe(long currentId){
+	private String requestAtMe(long currentId) {
 		String json = WeiboAPIUtils.getInstance().syncAtMe(1);
 		return json;
 	}

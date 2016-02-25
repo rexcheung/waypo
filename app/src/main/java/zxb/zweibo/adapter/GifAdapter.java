@@ -119,7 +119,13 @@ public class GifAdapter extends RecyclerView.Adapter<FTLHolder> {
     }
 
     public void setDatas(List<StatusContent> list) {
+		if (list.size()>0 && mStatusesList.size()==0){
+			this.mStatusesList = list;
+			this.notifyDataSetChanged();
+		}
+
         if (list.size() > 0 && list.get(0).getId() != mStatusesList.get(0).getId()){
+			this.mStatusesList.clear();
             this.mStatusesList = list;
             this.notifyDataSetChanged();
         } else {
