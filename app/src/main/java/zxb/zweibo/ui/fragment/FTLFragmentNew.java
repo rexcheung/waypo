@@ -24,13 +24,10 @@ import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.adapter.FTimeLinsAdapter;
 import zxb.zweibo.bean.FTLIds;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.biz.IFTLBiz;
 import zxb.zweibo.common.JsonCacheUtil;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.db.JsonCacheDao;
-import zxb.zweibo.presenter.FTLPresenter;
 import zxb.zweibo.service.CheckUpdateIntentService;
-import zxb.zweibo.ui.fragment.view.IFTLView;
 
 
 /**
@@ -80,7 +77,7 @@ public class FTLFragmentNew extends SwipeListFragment {
     public static FTLFragmentNew newInstance(Activity content) {
         FTLFragmentNew f = new FTLFragmentNew();
         f.mContext = content;
-//        f.mPresenter = new FTLPresenter(this);
+//        f.mPresenter = new FTLWeiboPresenter(this);
         return f;
     }
 

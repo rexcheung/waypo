@@ -24,6 +24,7 @@ import zxb.zweibo.Utils.Snack;
 import zxb.zweibo.common.AccessTokenKeeper;
 import zxb.zweibo.common.WeiboAPIUtils;
 import zxb.zweibo.service.CheckUpdateIntentService;
+import zxb.zweibo.ui.fragment.AtFragment;
 import zxb.zweibo.ui.fragment.FTLMVP;
 import zxb.zweibo.ui.fragment.FavFragment;
 import zxb.zweibo.ui.fragment.view.IFTLView;
@@ -162,7 +163,10 @@ public class MainActivityF extends BasicActivity {
                                 replaceFragment(fav);
                                 break;
                             case R.id.nav_my:
-                                Snack.show(mDrawerLayout, "即将上线，敬请期待");
+								AtFragment atme = AtFragment.newInstance(MainActivityF.this);
+//								mFragment = fav;
+								replaceFragment(atme);
+//                                Snack.show(mDrawerLayout, "即将上线，敬请期待");
                                 break;
                             /*case R.id.nav_like:
                                 Snack.show(mDrawerLayout, "即将上线，敬请期待");

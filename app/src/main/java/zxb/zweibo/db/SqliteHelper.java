@@ -1,14 +1,11 @@
 package zxb.zweibo.db;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import zxb.zweibo.GlobalApp;
 import zxb.zweibo.Utils.EmotionUtil;
-import zxb.zweibo.bean.JsonCache;
 import zxb.zweibo.common.EmotionCache;
-import zxb.zweibo.common.JsonCacheUtil;
 
 /**
  * 数据库OpenHelper
@@ -37,6 +34,7 @@ public class SqliteHelper extends SQLiteOpenHelper {
         db.execSQL(buildEmoCacheSQL());
         db.execSQL(buildEmotionSQL());
         db.execSQL(buildFavoriteCacheSQL());
+        db.execSQL(buildAtmeSQL());
     }
 
     @Override
@@ -92,4 +90,15 @@ public class SqliteHelper extends SQLiteOpenHelper {
         sql.append(" " + EmotionUtil.VALUE + " VARCHAR(1024) NOT NULL )");
         return sql.toString();
     }
+
+	private String buildAtmeSQL(){
+		StringBuilder sql = new StringBuilder();
+		sql.append(" CREATE TABLE ");
+		sql.append(AtDao.TABLE).append(" ( ");
+		sql.append(AtDao.USER_ID).append(" VARCHAR(128) NOT NULL, ");
+		sql.append(AtDao.WEIBO_ID).append(" INT(128) NOT NULL, ");
+		sql.append(AtDao.JSON).append(" VARCHAR(5120) NOT NULL ");
+		sql.append(" ); ");
+		return sql.toString();
+	}
 }

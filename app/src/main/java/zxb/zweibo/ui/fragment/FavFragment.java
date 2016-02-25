@@ -2,9 +2,8 @@ package zxb.zweibo.ui.fragment;
 
 import android.app.Activity;
 
-import zxb.zweibo.presenter.FTLPresenter;
-import zxb.zweibo.presenter.FavoritesPresenter;
-import zxb.zweibo.presenter.IPresenter;
+import zxb.zweibo.presenter.FavoritesWeiboPresenter;
+import zxb.zweibo.presenter.IWeiboPresenter;
 
 /**
  * Created by Rex.Zhang on 2016/2/10.
@@ -26,7 +25,7 @@ public class FavFragment extends WeiboBasicFragment {
     }
 
     @Override
-    IPresenter initPresenter() {
-        return FavoritesPresenter.newInstance(this);
+	IWeiboPresenter initPresenter() {
+        return FavoritesWeiboPresenter.newInstance(this);
     }
 }

@@ -8,21 +8,16 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.drawee.view.SimpleDraweeView;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
 import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
 import zxb.zweibo.common.ImageUtil;
-import zxb.zweibo.ui.ImageBrowserActivity;
+import zxb.zweibo.ui.GifBrowserActivity;
 import zxb.zweibo.widget.WeiboText;
 
 /**
@@ -209,9 +204,9 @@ public class FTLHolder extends RecyclerView.ViewHolder {
                 iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EventBus.getDefault().postSticky(new ImgBrowserWeiBoItem(statusContent, finalI));
-                        Intent intent = new Intent(mContext, ImageBrowserActivity.class);
-                        mContext.startActivity(intent);
+						Intent intent = new Intent(mContext, GifBrowserActivity.class);
+						intent.putExtra(GifBrowserActivity.PUT_ITEM, new ImgBrowserWeiBoItem(statusContent, finalI));
+						mContext.startActivity(intent);
                     }
                 });
             }

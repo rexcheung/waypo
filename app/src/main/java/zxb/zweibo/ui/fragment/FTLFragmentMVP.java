@@ -4,18 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import zxb.zweibo.GlobalApp;
 import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.adapter.FTimeLinsAdapter;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.common.JsonCacheUtil;
-import zxb.zweibo.common.WeiboAPIUtils;
-import zxb.zweibo.presenter.FTLPresenter;
+import zxb.zweibo.presenter.FTLWeiboPresenter;
 import zxb.zweibo.service.CheckUpdateIntentService;
 import zxb.zweibo.ui.fragment.view.IFTLView;
 
@@ -30,7 +25,7 @@ public class FTLFragmentMVP extends SwipeListFragment implements IFTLView {
      */
     private Activity mContext;
     private FTimeLinsAdapter mAdapter;
-    private FTLPresenter mPresenter;
+    private FTLWeiboPresenter mPresenter;
 
     /**
      * 是否在初始化.
@@ -73,7 +68,7 @@ public class FTLFragmentMVP extends SwipeListFragment implements IFTLView {
 
     @Override
     protected void initEvent() {
-        this.mPresenter = FTLPresenter.newInstance(this);
+        this.mPresenter = FTLWeiboPresenter.newInstance(this);
 
         if (isInit) {
             mPresenter.getNextPage(0L);

@@ -11,7 +11,7 @@ import zxb.zweibo.Utils.Logger;
 import zxb.zweibo.adapter.GifAdapter;
 import zxb.zweibo.bean.FavoriteItem;
 import zxb.zweibo.bean.StatusContent;
-import zxb.zweibo.presenter.IPresenter;
+import zxb.zweibo.presenter.IWeiboPresenter;
 import zxb.zweibo.service.CheckUpdateIntentService;
 import zxb.zweibo.ui.fragment.view.IFTLView;
 
@@ -26,7 +26,7 @@ public abstract class WeiboBasicFragment extends SwipeListFragment implements IF
      */
     private Activity mContext;
     private GifAdapter mAdapter;
-    private IPresenter mPresenter;
+    private IWeiboPresenter mPresenter;
 
     /**
      * 是否在初始化.
@@ -67,7 +67,6 @@ public abstract class WeiboBasicFragment extends SwipeListFragment implements IF
     protected void initEvent() {
         this.mPresenter = initPresenter();
 
-
         if (isInit) {
             mPresenter.getNextPage(0L);
             mAdapter = GifAdapter.newInstance(mContext, new ArrayList<FavoriteItem>());
@@ -75,7 +74,7 @@ public abstract class WeiboBasicFragment extends SwipeListFragment implements IF
         }
     }
 
-    abstract IPresenter initPresenter();
+    abstract IWeiboPresenter initPresenter();
 
     private void restartNotifyService() {
         Intent notifyIntent = new Intent(mContext, CheckUpdateIntentService.class);

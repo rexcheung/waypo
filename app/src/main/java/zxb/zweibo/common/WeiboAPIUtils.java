@@ -9,6 +9,7 @@ import com.sina.weibo.sdk.net.WeiboParameters;
 import com.sina.weibo.sdk.openapi.StatusesAPI;
 
 import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Func1;
 import zxb.zweibo.GlobalApp;
 import zxb.zweibo.bean.StatusContent;
@@ -36,7 +37,10 @@ public class WeiboAPIUtils extends StatusesAPI {
     private static final String AT_ME_IDS = WEIBO_URL + "statuses/mentions/ids.json";
     private static final String AT_ME = WEIBO_URL + "statuses/mentions.json";
 
-
+	public static class WEIBO_KEY {
+		public static final String PAGE = "page";
+		public static final String COUNT = "count";
+	}
 
 
 
@@ -350,19 +354,23 @@ public class WeiboAPIUtils extends StatusesAPI {
 
 	public String syncAtMeIds(int page){
 		WeiboParameters params = new WeiboParameters(mAppKey);
-		params.put("page", page);
-		params.put("count", 200);
+		params.put(WEIBO_KEY.PAGE, page);
+		params.put(WEIBO_KEY.COUNT, 200);
 		return requestSync(AT_ME_IDS, params, HTTPMETHOD_GET);
 	}
 
-	public Observable<String> reqAtMeIds(int page){
-		return Observable.just(page)
-				.map(new Func1<Integer, String>() {
-					@Override
-					public String call(Integer page) {
-						return syncAtMeIds(page);
-					}
-				});
+	public Observable<String> reqAtMeIds(final int page){
+		return Observable.create(new Observable.OnSubscribe<String>() {
+			@Override
+			public void call(Subscriber<? super String> subscriber) {
+				String json = syncAtMeIds(page);
+				if (TextUtils.isEmpty(json)){
+					subscriber.onError(new RuntimeException("返回信息错误"));
+				} else {
+					subscriber.onNext(json);
+				}
+			}
+		});
 	}
 
 	/**
@@ -372,8 +380,8 @@ public class WeiboAPIUtils extends StatusesAPI {
 	 */
 	public String syncAtMe(int page){
 		WeiboParameters params = new WeiboParameters(mAppKey);
-		params.put("page", page);
-		params.put("count", 50);
+		params.put(WEIBO_KEY.PAGE, page);
+		params.put(WEIBO_KEY.COUNT, 200);
 		return requestSync(AT_ME, params, HTTPMETHOD_GET);
 	}
 

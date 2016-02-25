@@ -2,8 +2,8 @@ package zxb.zweibo.ui.fragment;
 
 import android.app.Activity;
 
-import zxb.zweibo.presenter.FTLPresenter;
-import zxb.zweibo.presenter.IPresenter;
+import zxb.zweibo.presenter.FTLWeiboPresenter;
+import zxb.zweibo.presenter.IWeiboPresenter;
 
 /**
  * Created by Rex.Zhang on 2016/2/10.
@@ -25,7 +25,7 @@ public class FTLMVP extends WeiboBasicFragment {
     }
 
     @Override
-    IPresenter initPresenter() {
-        return FTLPresenter.newInstance(this);
+	IWeiboPresenter initPresenter() {
+        return FTLWeiboPresenter.newInstance(this);
     }
 }
