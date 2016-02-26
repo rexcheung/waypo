@@ -310,6 +310,31 @@ public class JsonCacheDao {
         return weiboIds;
     }
 
+	/**
+	 * 获取指定用户的所有缓存。
+	 * @param userId
+	 * @param table
+	 * @return
+	 */
+	public static ArrayList<StatusContent> getAllCache(String userId, String table){
+		StringBuilder sql = new StringBuilder();
+		sql.append("SENECT * ")
+				.append(" FROM ").append(table)
+				.append(" WHERE ").append(USER_ID).append(" = ? ");
+
+		ArrayList<StatusContent> cacheList = new ArrayList<>();
+		Cursor cursor = SqliteHelper.getInstance().getReadableDatabase().rawQuery(sql.toString(), new String[]{userId});
+		JsonCache cache;
+		while (cursor.moveToNext()){
+			cache = JsonCache.newInstance(cursor);
+			StatusContent sc =GsonUtils.fromJson(cache.getJson(), StatusContent.class);
+			cacheList.add(sc);
+		}
+		cursor.close();
+
+		return cacheList;
+	}
+
     public static StatusContent getSingleCache(String userId, long Id) {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT * FROM ").append(TABLE)

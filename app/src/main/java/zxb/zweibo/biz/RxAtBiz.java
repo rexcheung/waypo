@@ -127,18 +127,32 @@ public class RxAtBiz implements IRxAtBiz {
 	 * 遍历ID列表，找到与lastId区的ID下标。
 	 *
 	 * @param lastId 当前页面最后的ID
-	 * @param ids    ID列表
 	 *
 	 * @return 匹配的下标。
 	 */
-	private int getStart(long lastId, List<Long> ids) {
+	private int getStart(long lastId) {
 		int start = 0;
-		for (int i = 0; i < ids.size(); i++) {
-			if (lastId == ids.get(i)) {
+		for (int i = 0; i < mIds.size(); i++) {
+			if (lastId == mIds.get(i)) {
 				start = i;
 			}
 		}
 		return start;
+	}
+
+	final int COUNT = 50;
+
+	private List<Long> questList(int currentId) {
+		int pos = getStart(currentId);
+		ArrayList<Long> ids = new ArrayList<>();
+		for (int i = 0, p = pos + 1; i < COUNT; i++, p++) {
+			ids.add(mIds.get(p));
+		}
+		return ids;
+	}
+
+	private List<StatusContent> getCaches(){
+		return null;
 	}
 
 	private String requestAtMe(long currentId) {

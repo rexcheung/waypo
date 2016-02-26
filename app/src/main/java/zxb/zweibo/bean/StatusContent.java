@@ -120,6 +120,8 @@ public class StatusContent implements Serializable {
      */
     private int attitudes_count;
 
+//	public StatusContent
+
     public String getCreated_at() {
         return created_at;
     }

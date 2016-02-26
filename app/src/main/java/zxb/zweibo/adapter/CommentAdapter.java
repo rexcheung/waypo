@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +13,15 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
 import zxb.zweibo.R;
+import zxb.zweibo.Utils.AnimationUtil;
 import zxb.zweibo.Utils.SpanHelper;
-import zxb.zweibo.Utils.Toastutils;
 import zxb.zweibo.bean.CommentJson;
 import zxb.zweibo.bean.ImgBrowserWeiBoItem;
 import zxb.zweibo.bean.PicUrls;
 import zxb.zweibo.bean.StatusContent;
 import zxb.zweibo.bean.User;
 import zxb.zweibo.bean.holder.CommentHolder;
-import zxb.zweibo.bean.holder.FTLHolder;
 import zxb.zweibo.ui.GifBrowserActivity;
 
 /**
@@ -89,6 +86,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentHolder> {
 
         holder.imgAvatar.setImageURI(uri);
 
+		AnimationUtil.alpha(holder.view, 700).start();
+
+//		AnimationUtil.tranY(holder.view, 1000, 200).start();
+//		AnimationUtil.rotation(holder.view, 2000);
     }
 
     private void initHeader(CommentHolder holder) {
