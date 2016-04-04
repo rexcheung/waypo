@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.MultiAutoCompleteTextView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -114,11 +115,13 @@ public class MainActivityF extends BasicActivity {
         mDrawerToggle.syncState();
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        NavigationView navigationView =
-                (NavigationView) findViewById(R.id.nv_main_navigation);
-        if (navigationView != null) {
-            setupDrawerContent(navigationView);
+//        NavigationView navigationView =
+//                (NavigationView) findViewById(R.id.nv_main_navigation);
+        if (mNavigation != null) {
+            setupDrawerContent(mNavigation);
         }
+
+        mNavigation.setItemIconTintList(null);
     }
 
     private void refreshList() {

@@ -3,6 +3,7 @@ package zxb.zweibo.bean.holder;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.ImageView;
@@ -51,9 +52,9 @@ public class FTLHolder extends RecyclerView.ViewHolder {
     public ImageView imgAvatar;
     public ImageView imgV;
 
-    ImageView img1,img2,img3,img4,img5,img6,img7,img8,img9;
+    ImageView img1, img2, img3, img4, img5, img6, img7, img8, img9;
 
-//    @Bind({R.id.img1, R.id.img2, R.id.img3,
+    //    @Bind({R.id.img1, R.id.img2, R.id.img3,
 //            R.id.img4, R.id.img5, R.id.img6,
 //            R.id.img7, R.id.img8, R.id.img9})
     public List<ImageView> imgList;
@@ -97,9 +98,10 @@ public class FTLHolder extends RecyclerView.ViewHolder {
         return (T) view.findViewById(id);
     }
 
-//    private ImageUtil imageUtil;
+    //    private ImageUtil imageUtil;
     Context mContext;
-    public void init(Context context, StatusContent statusContent, ImageUtil imageUtil){
+
+    public void init(Context context, StatusContent statusContent, ImageUtil imageUtil) {
         this.mContext = context;
         initWord(statusContent);
         initImage(statusContent, imageUtil);
@@ -110,15 +112,26 @@ public class FTLHolder extends RecyclerView.ViewHolder {
      *
      * @param sc 当前Json实体
      */
-    private void initWord(StatusContent sc){
-        this.tvScreenName.setText(sc.getUser().getScreen_name());
+    private void initWord(StatusContent sc) {
+        User user = sc.getUser();
+        if (user != null) {
+            String screenName = user.getScreen_name();
+            if (!TextUtils.isEmpty(screenName)) {
+                this.tvScreenName.setText(screenName);
+            }
+        }
 
         //XX分钟前，发自iPhoneX
-        this.tvFrom.setText(sc.getCreated_at()/*+"  " + source.substring(begin+1, end-1)*/);
-
+        String createdAt = sc.getCreated_at();
+        if (!TextUtils.isEmpty(createdAt)) {
+            this.tvFrom.setText(createdAt/*+"  " + source.substring(begin+1, end-1)*/);
+        }
 //        SpannableString original = spanHelper.newSpanInstance(sc.getText());
-        this.tvContent.setSpanText(sc.getText());
-        this.tvContent.setMovementMethod(LinkMovementMethod.getInstance());
+        String text = sc.getText();
+        if (!TextUtils.isEmpty(text)) {
+            this.tvContent.setSpanText(text);
+            this.tvContent.setMovementMethod(LinkMovementMethod.getInstance());
+        }
 
         //如果为转发
         StatusContent retweeted_status = sc.getRetweeted_status();
@@ -128,7 +141,7 @@ public class FTLHolder extends RecyclerView.ViewHolder {
 
             User reUser = retweeted_status.getUser();
             String reContentText = null;
-            if(reUser != null){
+            if (reUser != null) {
                 // 把被转发的用户与微博文本拼接
                 StringBuilder sb = new StringBuilder();
                 sb.append("@");
@@ -165,14 +178,19 @@ public class FTLHolder extends RecyclerView.ViewHolder {
         resetImages(this.imgList, R.drawable.icon_github);
 
         User user = statusContent.getUser();
-        if (user.getVerified()) this.imgV.setVisibility(View.VISIBLE);
-        else this.imgV.setVisibility(View.GONE);
+        if (user != null) {
+            if (user.getVerified()) this.imgV.setVisibility(View.VISIBLE);
+            else this.imgV.setVisibility(View.GONE);
 
-        //获取头像图片
+            //获取头像图片
 //        mVolleyHelper.loadImg(this.imgAvatar, user.getProfile_image_url());
-        imageUtil.showImage(this.imgAvatar, user.getProfile_image_url());
+            imageUtil.showImage(this.imgAvatar, user.getProfile_image_url());
+        }
 
         PicUrls[] oriPicUrls = statusContent.getPic_urls();
+        if (oriPicUrls == null) {
+            return;
+        }
         int length = oriPicUrls.length;
 
         PicUrls[] rePicUrls = null;
@@ -197,16 +215,16 @@ public class FTLHolder extends RecyclerView.ViewHolder {
             this.imgList.get(i).setVisibility(View.GONE);
         }
 
-        for (int i=0; i<this.imgList.size(); i++){
+        for (int i = 0; i < this.imgList.size(); i++) {
             ImageView iv = this.imgList.get(i);
-            if (iv.getVisibility() == View.VISIBLE){
+            if (iv.getVisibility() == View.VISIBLE) {
                 final int finalI = i;
                 iv.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-						Intent intent = new Intent(mContext, GifBrowserActivity.class);
-						intent.putExtra(GifBrowserActivity.PUT_ITEM, new ImgBrowserWeiBoItem(statusContent, finalI));
-						mContext.startActivity(intent);
+                        Intent intent = new Intent(mContext, GifBrowserActivity.class);
+                        intent.putExtra(GifBrowserActivity.PUT_ITEM, new ImgBrowserWeiBoItem(statusContent, finalI));
+                        mContext.startActivity(intent);
                     }
                 });
             }
@@ -220,7 +238,7 @@ public class FTLHolder extends RecyclerView.ViewHolder {
      * 如果图片visible已经设置为GONE，则设置后也不会导致图片重新显示出来.
      *
      * @param imgList ITEM里面ImageView的List集合
-     * @param resId 要设置成的图片，这个必须是本地图片，否则就达不到重置的目的
+     * @param resId   要设置成的图片，这个必须是本地图片，否则就达不到重置的目的
      */
     private void resetImages(List<ImageView> imgList, int resId) {
         if (imgList != null) {
@@ -240,6 +258,7 @@ public class FTLHolder extends RecyclerView.ViewHolder {
 
     /**
      * 每条微博底部的赞，转和评论数
+     *
      * @param statusContent 该条微博的内容
      */
     private void initAttitudes(StatusContent statusContent) {
